@@ -61,7 +61,6 @@
 
     const { useState, useEffect, useMemo, useRef } = React;
 
-    // 아이콘 SVG 컴포넌트
     const IconTrash = () => <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>;
     const IconEdit = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>;
     const IconSave = () => <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>;
@@ -102,20 +101,21 @@
     const appId = typeof __app_id !== 'undefined' ? __app_id : 'sevens-guild-war-app';
     const COLLECTION_NAME = 'guild_war_records';
 
-    // 원작 영웅 일괄 보강
+    // 원작 영웅 일괄 보강 (심연의 사도, 하이드 리퍼, 성십자단 등 추가)
     const PREDEFINED_HERO_GROUPS = [
       { group: "세븐나이츠", heroes: ["루디", "아일린", "레이첼", "델론즈", "제이브", "스파이크", "크리스", "바네사"] },
       { group: "구세븐나이츠", heroes: ["파이", "겔리두스", "밀리아", "로지", "쥬리", "알프", "라디우스"] },
       { group: "다크나이츠", heroes: ["멜키르", "브브", "플라튼", "콜트", "팔라누스", "실베스타"] },
       { group: "사황/구사황", heroes: ["에이스", "여포", "손오공", "린", "태오", "카르마", "카일", "연희"] },
-      { group: "숨은 강자들", heroes: ["클레미스", "아멜리아", "잉그리드", "카구라", "미스트", "프레이야", "아비갈", "앤티", "뮬란"] },
-      { group: "천상의 수호자", heroes: ["트루드", "프레이야", "라드그리드", "스쿨드", "펜리르", "레긴레이프"] },
+      { group: "숨은 강자들", heroes: ["클레미스", "아멜리아", "잉그리드", "카구라", "미스트", "아비갈", "앤티", "뮬란", "로로", "바토리"] },
+      { group: "천상의 수호자", heroes: ["트루드", "프레이야", "라드그리드", "스쿨드", "펜리르", "레긴레이프", "기르티"] },
       { group: "혁명단/나이트크로우", heroes: ["엘리시아", "키리엘", "라이언", "칼 헤론", "오를리", "타카", "아킬라"] },
-      { group: "펜타곤/칠대성", heroes: ["아리스", "스피나", "클레오", "길라한", "엘리니아", "관우", "제갈량", "초선", "조운"] },
-      { group: "일반/모험가/기타", heroes: ["에반", "카린", "스니퍼", "쥬피", "유리", "아리엘", "실비아", "벨리카", "풍연", "비담", "유신", "앨리스", "아라곤"] }
+      { group: "심연의 사도/하이드 리퍼", heroes: ["쥬다스", "디아나", "안티고네", "잭", "앙그라", "데스론"] },
+      { group: "마법학회/텔루스", heroes: ["타라", "노아", "세자르", "리나"] },
+      { group: "펜타곤/성십자단", heroes: ["아리스", "스피나", "클레오", "길라한", "엘리니아", "세인", "니아", "지크", "루리", "에스파다"] },
+      { group: "일반/모험가/기타", heroes: ["에반", "카린", "스니퍼", "쥬피", "유리", "아리엘", "실비아", "벨리카", "풍연", "비담", "유신", "앨리스", "아라곤", "관우", "제갈량", "초선", "조운", "백각", "챈슬러", "룩", "녹스"] }
     ];
 
-    // 커스텀 모달 컴포넌트
     const CustomModal = ({ isOpen, onClose, title, content, onConfirm, confirmText = "확인", hideCancel = false }) => {
       if (!isOpen) return null;
       return (
@@ -134,7 +134,6 @@
       );
     };
 
-    // 검색형 자동완성 선택창 컴포넌트 (신규)
     const SearchableSelect = ({ value, onChange, placeholder, groups }) => {
       const [isOpen, setIsOpen] = useState(false);
       const [searchTerm, setSearchTerm] = useState(value || '');
@@ -231,7 +230,6 @@
         }))
       );
 
-      // F12, 우클릭, 복사 등 차단 & 단축키 이벤트 리스너 설정
       useEffect(() => {
         const handleKeyDown = (e) => {
           if (e.key === 'F12' || e.keyCode === 123) { e.preventDefault(); return false; }
@@ -243,7 +241,6 @@
             }
           }
           
-          // 관리자 기능 해제 단축키 (Ctrl + Alt + U)
           if (e.ctrlKey && e.altKey && (e.key === 'u' || e.key === 'U')) {
             e.preventDefault();
             if (!isAdminMode) {
@@ -414,7 +411,6 @@
         setEditingId(null);
       };
 
-      // 오타 검증이 포함된 저장 로직
       const handleSave = () => {
         if (!hasFirebaseConfig) { showAlert("설정 오류", "Firebase 설정이 누락되어 저장할 수 없습니다."); return; }
         if (!user) { showAlert("인증 오류", "인증 정보(User)가 없습니다."); return; }
@@ -423,10 +419,8 @@
         const hasValidMatch = matches.some(m => m.myTeam.some(h => h.trim() !== '') || m.enemyTeam.some(h => h.trim() !== ''));
         if (!hasValidMatch) { showAlert("입력 오류", "최소 1개 이상의 전투 기록(영웅 선택)을 입력해주세요."); return; }
 
-        // 유효한 매치 포맷팅
         const formattedMatches = matches.filter(m => m.myTeam.some(h => h.trim() !== '') || m.enemyTeam.some(h => h.trim() !== ''));
 
-        // 오타 감지 시스템 로직 시작
         const allValidHeroes = PREDEFINED_HERO_GROUPS.flatMap(g => g.heroes);
         const usedHeroes = new Set();
         
@@ -435,24 +429,20 @@
           m.enemyTeam.forEach(h => { if(h.trim()) usedHeroes.add(h.trim()); });
         });
 
-        // 명단에 없는 영웅 도출
         const unknownHeroes = [...usedHeroes].filter(h => !allValidHeroes.includes(h));
 
         if (unknownHeroes.length > 0) {
-          // 오타가 감지되었을 경우 모달을 띄워 확인을 받음
           showConfirm(
             "오타 확인 필요",
-            `지정된 영웅 명단에 없는 이름이 포함되어 있습니다. 돋보기 붙여넣기 시 쉼표 누락이나 오타가 발생했을 수 있습니다.\n\n[발견된 의심 이름]\n${unknownHeroes.join(', ')}\n\n오타가 확실하다면 '취소'를 눌러 수정하시고,\n정상적인 신규 영웅이라면 '강제 저장'을 눌러주세요.`,
+            `지정된 영웅 명단에 없는 이름이 포함되어 있습니다.\n\n[발견된 의심 이름]\n${unknownHeroes.join(', ')}\n\n오타가 확실하다면 '취소'를 눌러 수정하시고,\n정상적인 신규 영웅이라면 '강제 저장'을 눌러주세요.`,
             () => { executeSave(formattedMatches, unknownHeroes); setConfirmModal({ isOpen: false }); },
             "강제 저장"
           );
         } else {
-          // 오타가 없으면 즉시 저장
           executeSave(formattedMatches, []);
         }
       };
 
-      // 실제 DB 저장을 수행하는 함수
       const executeSave = async (formattedMatches, newHeroes) => {
         try {
           if (editingId) {
@@ -465,7 +455,6 @@
             });
           }
           
-          // 신규 영웅으로 등록된 항목을 임시 명단에 추가 (하위 호환)
           if (newHeroes.length > 0) {
             const addedHeroes = newHeroes.filter(h => !customHeroes.includes(h));
             if (addedHeroes.length > 0) setCustomHeroes(prev => [...prev, ...addedHeroes]);
