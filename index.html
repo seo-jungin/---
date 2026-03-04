@@ -169,8 +169,11 @@
         const counts = {};
         records.forEach(record => {
           record.matches.forEach(match => {
-            if (match.myTeam && match.myTeam.filter(Boolean).length > 0) {
-              const deckArr = [...match.myTeam].map(h => h.trim()).filter(Boolean).sort();
+            // 과거 문자열 데이터와 최신 배열 데이터를 모두 호환하도록 안전하게 변환
+            let myArr = Array.isArray(match.myTeam) ? match.myTeam : (match.myTeam ? match.myTeam.split(',') : []);
+            
+            if (myArr.filter(Boolean).length > 0) {
+              const deckArr = myArr.map(h => h.trim()).filter(Boolean).sort();
               if (deckArr.length === 3) {
                 const deckKey = deckArr.join(', ');
                 if (!counts[deckKey]) counts[deckKey] = { deck: deckKey, count: 0, wins: 0 };
@@ -485,8 +488,9 @@
         const term = filterChar.toLowerCase().trim();
         if (record.nickname?.toLowerCase().includes(term)) return record;
         const filteredMatches = record.matches.filter(m => {
-          let myTeamStr = Array.isArray(m.myTeam) ? m.myTeam.join(',') : m.myTeam;
-          let enemyTeamStr = Array.isArray(m.enemyTeam) ? m.enemyTeam.join(',') : m.enemyTeam;
+          // 문자열 변환 시 null/undefined 방어 로직 추가
+          let myTeamStr = Array.isArray(m.myTeam) ? m.myTeam.join(',') : (m.myTeam || '');
+          let enemyTeamStr = Array.isArray(m.enemyTeam) ? m.enemyTeam.join(',') : (m.enemyTeam || '');
           return myTeamStr.toLowerCase().includes(term) || enemyTeamStr.toLowerCase().includes(term);
         });
         return { ...record, matches: filteredMatches };
