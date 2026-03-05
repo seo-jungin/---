@@ -70,10 +70,10 @@
     const IconChevronDown = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>;
     const IconChevronUp = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>;
     const IconX = () => <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>;
-    const IconZoomIn = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>;
     const IconLock = () => <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>;
     const IconDownload = () => <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>;
     const IconCalendar = () => <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>;
+    const IconClipboard = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>;
 
     // 한글 초성 추출 함수 (검색용)
     const getChosung = (str) => {
@@ -117,7 +117,6 @@
     const appId = typeof __app_id !== 'undefined' ? __app_id : 'sevens-guild-war-app';
     const COLLECTION_NAME = 'guild_war_records';
 
-    // 누락 영웅 전면 보강 및 재분류 (클레오 정정, 특수/암살단 추가, 후속작 추가)
     const PREDEFINED_HERO_GROUPS = [
       { group: "세븐나이츠", heroes: ["루디", "아일린", "레이첼", "델론즈", "제이브", "스파이크", "크리스", "바네사"] },
       { group: "다크나이츠", heroes: ["멜키르", "브란즈&브란셀", "플라튼", "콜트", "팔라누스", "실베스타"] },
@@ -180,7 +179,6 @@
           const heroUpper = h.toUpperCase();
           const heroChosung = getChosung(h);
           const searchChosung = getChosung(searchTerm);
-          // 전체 문자열 포함이거나 초성이 포함될 때 필터링 (초성 검색 구현)
           return heroUpper.includes(searchUpper) || heroChosung.includes(searchChosung);
         })
       })).filter(g => g.heroes.length > 0);
@@ -197,7 +195,7 @@
             }}
             onFocus={() => setIsOpen(true)}
             placeholder={placeholder}
-            className="w-full h-full px-3 py-3 border border-zinc-700 rounded-xl bg-zinc-800 text-zinc-100 font-bold focus:ring-2 focus:ring-red-600 outline-none transition-all placeholder-zinc-500"
+            className="w-full h-full px-3 py-3 border border-zinc-700 rounded-xl bg-zinc-800 text-zinc-100 font-bold focus:ring-2 focus:ring-red-600 outline-none transition-all placeholder-zinc-500 text-sm md:text-base"
           />
           {isOpen && (
             <div className="absolute z-50 top-full left-0 right-0 mt-1 max-h-56 overflow-y-auto bg-zinc-800 border border-zinc-600 rounded-xl shadow-2xl custom-scrollbar">
@@ -425,35 +423,60 @@
         setMatches(newMatches);
       };
 
-      const handleQuickPaste = (index) => {
-        const text = window.prompt("전투 기록을 붙여넣으세요.\n예: 프레이야, 바네사, 키리엘 (승리) / 프레이야, 초선, 키리엘");
-        if (!text) return;
+      // AI 파싱 로직 개선 (빠른 텍스트 붙여넣기)
+      const handleQuickPasteLogic = (index, text) => {
+        if (!text || text.trim() === '') return;
 
+        // 1. 승패 추출
         let result = '승리';
-        if (text.includes('(패배)') || text.includes('패배')) result = '패배';
+        if (text.includes('패배') || text.includes('(패)') || text.includes('[패]')) result = '패배';
 
-        let cleanText = text.replace(/\[.*?\]/g, '').replace(/\(.*?\)/g, '');
-        let sides = cleanText.split('/');
-        
-        let myTeamStr = sides[0] ? sides[0].trim() : '';
-        let enemyTeamStr = sides[1] ? sides[1].trim() : '';
+        // 2. 포괄적인 노이즈 제거 (명칭, 구분자 등)
+        let cleanText = text
+            .replace(/공격|방어|승리|패배|\(승\)|\(패\)|\[승\]|\[패\]|:/g, ' ')
+            .replace(/vs/gi, '/')
+            .replace(/[\[\]\(\)]/g, ' ')
+            .trim();
+
+        let myTeamStr = '';
+        let enemyTeamStr = '';
+
+        // 3. 진영 분리 (슬래시 기준 or 단순 배열 분리)
+        if (cleanText.includes('/')) {
+            let parts = cleanText.split('/');
+            myTeamStr = parts[0];
+            enemyTeamStr = parts.slice(1).join(' ');
+        } else {
+            let tokens = cleanText.split(/[\s,]+/).filter(Boolean);
+            myTeamStr = tokens.slice(0, 3).join(' ');
+            enemyTeamStr = tokens.slice(3, 6).join(' ');
+        }
 
         const parseTeam = (str) => {
-          if (!str) return ['', '', ''];
-          let arr = str.includes(',') ? str.split(',') : str.split(/\s+/);
-          arr = arr.map(s => s.trim()).filter(Boolean);
-          return [arr[0] || '', arr[1] || '', arr[2] || ''];
+            let arr = str.split(/[\s,]+/).filter(Boolean);
+            return [arr[0] || '', arr[1] || '', arr[2] || ''];
         };
 
         const parsedMyTeam = parseTeam(myTeamStr);
         const parsedEnemyTeam = parseTeam(enemyTeamStr);
 
+        // 4. 새로운 영웅 탐지
+        const allPredefined = PREDEFINED_HERO_GROUPS.flatMap(g => g.heroes);
+        const newDetectedHeroes = [...parsedMyTeam, ...parsedEnemyTeam].filter(
+            h => h !== '' && !allPredefined.includes(h) && !customHeroes.includes(h)
+        );
+        
+        if (newDetectedHeroes.length > 0) {
+            setCustomHeroes(prev => [...prev, ...newDetectedHeroes]);
+        }
+
+        // 5. 상태 반영
         const newMatches = [...matches];
         newMatches[index] = {
-          type: '공격',
-          myTeam: parsedMyTeam,
-          result,
-          enemyTeam: parsedEnemyTeam
+            type: '공격',
+            myTeam: parsedMyTeam,
+            result,
+            enemyTeam: parsedEnemyTeam
         };
         setMatches(newMatches);
       };
@@ -625,7 +648,6 @@
         document.body.appendChild(link); link.click(); document.body.removeChild(link);
       };
 
-      // 돋보기/전체 검색 창에도 초성 검색 기능 적용
       const filteredRecords = records.map(record => {
         if (!filterChar.trim()) return record;
         const term = filterChar.toLowerCase().trim();
@@ -740,60 +762,86 @@
                   </div>
 
                   <div className="space-y-5 pb-4">
-                    <label className="block text-base font-bold text-zinc-300 mb-3">전투 결과 입력 (돋보기를 눌러 텍스트 빠른 입력 가능 / 타이핑 시 초성 검색 및 자동 완성)</label>
+                    <label className="block text-base font-bold text-zinc-300 mb-3">전투 결과 입력 (빠른 입력 칸에 텍스트를 붙여넣으면 자동 완성됩니다)</label>
                     {matches.map((match, index) => (
-                      <div key={index} className="flex flex-col xl:flex-row gap-5 items-start xl:items-center bg-zinc-950/60 p-5 rounded-2xl border border-zinc-800 hover:border-zinc-600 transition-colors w-full shadow-sm">
-                        <div className="flex items-center justify-between w-full xl:w-auto shrink-0 border-b xl:border-none border-zinc-800 pb-4 xl:pb-0">
-                          <div className="flex items-center gap-3">
-                            <span className="font-black text-zinc-400 text-2xl w-10 text-center">{index + 1}.</span>
-                            <button onClick={() => handleQuickPaste(index)} className="text-red-400 hover:text-zinc-50 hover:bg-red-600 p-2.5 bg-zinc-800 rounded-xl transition-colors shadow-sm" title="텍스트 붙여넣기로 자동 완성">
-                              <IconZoomIn />
-                            </button>
+                      <div key={index} className="flex flex-col gap-4 bg-zinc-950/60 p-5 rounded-2xl border border-zinc-800 hover:border-zinc-600 transition-colors w-full shadow-sm">
+                        
+                        {/* 빠른 붙여넣기 전용 인풋창 추가 */}
+                        <div className="flex items-center gap-3 w-full border-b border-zinc-800 pb-4">
+                          <span className="font-black text-zinc-400 text-2xl w-10 text-center shrink-0">{index + 1}.</span>
+                          <div className="flex-1 relative flex items-center">
+                            <div className="absolute left-3 text-zinc-500 pointer-events-none"><IconClipboard /></div>
+                            <input 
+                              type="text" 
+                              placeholder="빠른 붙여넣기 (예: 손오공 루디 앨리스 승리 프레이야 밀리아 키리엘)"
+                              className="w-full pl-10 pr-4 py-3 bg-zinc-900 border border-zinc-700 rounded-xl text-sm md:text-base text-zinc-200 placeholder-zinc-600 focus:ring-2 focus:ring-red-600 outline-none transition-all"
+                              onPaste={(e) => {
+                                const pastedText = e.clipboardData.getData('Text');
+                                handleQuickPasteLogic(index, pastedText);
+                                e.preventDefault(); // 붙여넣기 후 텍스트가 남지 않도록 방지
+                              }}
+                              onChange={(e) => {
+                                // 사용자가 직접 타이핑해서 길게 썼을 때도 작동하게 함
+                                const val = e.target.value;
+                                if(val.length > 8) {
+                                  handleQuickPasteLogic(index, val);
+                                  e.target.value = '';
+                                }
+                              }}
+                            />
                           </div>
-                          <div className="xl:hidden">
+                          {/* 모바일 승패 드롭다운 (우측) */}
+                          <div className="xl:hidden shrink-0">
                             <select value={match.result} onChange={(e) => handleMatchChange(index, 'result', e.target.value)} className={`px-4 py-3 border border-zinc-700 rounded-xl bg-zinc-800 font-black text-lg text-center shadow-sm focus:ring-2 focus:ring-red-600 outline-none ${match.result === '승리' ? 'text-blue-300' : 'text-red-400'}`}>
                               <option value="승리">승리</option><option value="패배">패배</option>
                             </select>
                           </div>
                         </div>
 
-                        <div className="flex flex-col sm:flex-row gap-3 w-full xl:flex-1">
-                          <div className="px-4 py-3 bg-blue-900/30 text-blue-300 border border-blue-900/50 rounded-xl font-bold text-sm shrink-0 flex items-center justify-center shadow-sm h-12">⚔️ 공격</div>
-                          <div className="grid grid-cols-3 gap-3 w-full">
-                            {[0, 1, 2].map(heroIdx => (
-                              <SearchableSelect 
-                                key={`my-${heroIdx}`}
-                                value={match.myTeam[heroIdx]} 
-                                onChange={(val) => handleTeamChange(index, 'myTeam', heroIdx, val)}
-                                placeholder={`영웅 ${heroIdx + 1}`}
-                                groups={HERO_GROUPS}
-                              />
-                            ))}
+                        {/* 영웅 선택 덱 부분 */}
+                        <div className="flex flex-col xl:flex-row gap-5 items-start xl:items-center w-full">
+                          {/* 내 덱 (공격) */}
+                          <div className="flex flex-col sm:flex-row gap-3 w-full xl:flex-1">
+                            <div className="px-4 py-3 bg-blue-900/30 text-blue-300 border border-blue-900/50 rounded-xl font-bold text-sm shrink-0 flex items-center justify-center shadow-sm h-12">⚔️ 공격</div>
+                            <div className="grid grid-cols-3 gap-3 w-full">
+                              {[0, 1, 2].map(heroIdx => (
+                                <SearchableSelect 
+                                  key={`my-${heroIdx}`}
+                                  value={match.myTeam[heroIdx]} 
+                                  onChange={(val) => handleTeamChange(index, 'myTeam', heroIdx, val)}
+                                  placeholder={`아군 영웅 ${heroIdx + 1}`}
+                                  groups={HERO_GROUPS}
+                                />
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* PC용 승패 선택 */}
+                          <div className="hidden xl:flex items-center shrink-0">
+                            <select value={match.result} onChange={(e) => handleMatchChange(index, 'result', e.target.value)} className={`px-3 py-3 border border-zinc-700 rounded-xl bg-zinc-800 font-black text-lg w-28 text-center shadow-sm focus:ring-2 focus:ring-red-600 outline-none ${match.result === '승리' ? 'text-blue-300' : 'text-red-400'} h-12`}>
+                              <option value="승리">승리</option><option value="패배">패배</option>
+                            </select>
+                          </div>
+                          
+                          <span className="hidden xl:block text-zinc-600 font-black text-2xl shrink-0">/</span>
+
+                          {/* 상대 덱 (방어) */}
+                          <div className="flex flex-col sm:flex-row gap-3 w-full xl:flex-1">
+                            <div className="px-4 py-3 bg-red-900/30 text-red-300 border border-red-900/50 rounded-xl font-bold text-sm shrink-0 flex items-center justify-center shadow-sm h-12">🛡️ 방어</div>
+                            <div className="grid grid-cols-3 gap-3 w-full">
+                              {[0, 1, 2].map(heroIdx => (
+                                <SearchableSelect 
+                                  key={`enemy-${heroIdx}`}
+                                  value={match.enemyTeam[heroIdx]} 
+                                  onChange={(val) => handleTeamChange(index, 'enemyTeam', heroIdx, val)}
+                                  placeholder={`적군 영웅 ${heroIdx + 1}`}
+                                  groups={HERO_GROUPS}
+                                />
+                              ))}
+                            </div>
                           </div>
                         </div>
 
-                        <div className="hidden xl:flex items-center shrink-0">
-                          <select value={match.result} onChange={(e) => handleMatchChange(index, 'result', e.target.value)} className={`px-3 py-3 border border-zinc-700 rounded-xl bg-zinc-800 font-black text-lg w-28 text-center shadow-sm focus:ring-2 focus:ring-red-600 outline-none ${match.result === '승리' ? 'text-blue-300' : 'text-red-400'} h-12`}>
-                            <option value="승리">승리</option><option value="패배">패배</option>
-                          </select>
-                        </div>
-                        
-                        <span className="hidden xl:block text-zinc-600 font-black text-2xl shrink-0">/</span>
-
-                        <div className="flex flex-col sm:flex-row gap-3 w-full xl:flex-1">
-                          <div className="px-4 py-3 bg-red-900/30 text-red-300 border border-red-900/50 rounded-xl font-bold text-sm shrink-0 flex items-center justify-center shadow-sm h-12">🛡️ 방어</div>
-                          <div className="grid grid-cols-3 gap-3 w-full">
-                            {[0, 1, 2].map(heroIdx => (
-                              <SearchableSelect 
-                                key={`enemy-${heroIdx}`}
-                                value={match.enemyTeam[heroIdx]} 
-                                onChange={(val) => handleTeamChange(index, 'enemyTeam', heroIdx, val)}
-                                placeholder={`영웅 ${heroIdx + 1}`}
-                                groups={HERO_GROUPS}
-                              />
-                            ))}
-                          </div>
-                        </div>
                       </div>
                     ))}
                   </div>
