@@ -305,27 +305,35 @@
       };
 
       const handleMatchChange = (index, field, value) => {
-        const newMatches = [...matches]; newMatches[index][field] = value; setMatches(newMatches);
+        const newMatches = [...matches];
+        newMatches[index][field] = value;
+        setMatches(newMatches);
       };
 
+      // AI 파싱 로직 개선 (빠른 텍스트 붙여넣기용 포괄적 이해 기능)
       const handleQuickPasteLogic = (index, text) => {
         if (!text || text.trim() === '') return;
-        let result = '승리';
-        if (text.includes('패배') || text.includes('(패)') || text.includes('[패]')) result = '패배';
         
-        let cleanText = text.replace(/공격|방어|승리|패배|\(승\)|\(패\)|\[승\]|\[패\]|:/g, ' ').replace(/vs/gi, '/').replace(/[\[\]\(\)]/g, ' ').trim();
+        let result = '승리';
+        if (text.includes('패배') || text.includes('(패)') || text.includes('[패]') || text.includes(' 패 ')) result = '패배';
+        
+        // 정규식을 통해 방해되는 문자 및 기호들을 일괄 제거
+        let cleanText = text.replace(/공격|방어|승리|패배|\(승\)|\(패\)|\[승\]|\[패\]|:/g, ' ').replace(/vs/gi, '/').replace(/[\[\]\(\),]/g, ' ').trim();
         let myTeamStr = '', enemyTeamStr = '';
 
         if (cleanText.includes('/')) {
             let parts = cleanText.split('/');
-            myTeamStr = parts[0]; enemyTeamStr = parts.slice(1).join(' ');
+            myTeamStr = parts[0]; 
+            enemyTeamStr = parts.slice(1).join(' ');
         } else {
-            let tokens = cleanText.split(/[\s,]+/).filter(Boolean);
-            myTeamStr = tokens.slice(0, 3).join(' '); enemyTeamStr = tokens.slice(3, 6).join(' ');
+            // 구분자 없이 띄어쓰기만 되어있을 경우 앞 3명을 아군, 뒤 3명을 적군으로 자동 할당
+            let tokens = cleanText.split(/[\s]+/).filter(Boolean);
+            myTeamStr = tokens.slice(0, 3).join(' '); 
+            enemyTeamStr = tokens.slice(3, 6).join(' ');
         }
 
         const parseTeam = (str) => {
-            let arr = str.split(/[\s,]+/).filter(Boolean);
+            let arr = str.split(/[\s]+/).filter(Boolean);
             return [arr[0] || '', arr[1] || '', arr[2] || ''];
         };
 
@@ -538,6 +546,8 @@
                     <label className="block text-base font-bold text-zinc-300 mb-3">전투 결과 입력 (빠른 입력 칸에 텍스트를 붙여넣으면 자동 완성됩니다)</label>
                     {matches.map((match, index) => (
                       <div key={index} className="flex flex-col gap-4 bg-zinc-950/60 p-5 rounded-2xl border border-zinc-800 hover:border-zinc-600 transition-colors w-full shadow-sm">
+                        
+                        {/* 빠른 붙여넣기 전용 인풋창 (신설) */}
                         <div className="flex items-center gap-3 w-full border-b border-zinc-800 pb-4">
                           <span className="font-black text-zinc-400 text-2xl w-10 text-center shrink-0">{index + 1}.</span>
                           <div className="flex-1 relative flex items-center">
@@ -570,9 +580,11 @@
                             <div className="grid grid-cols-3 gap-3 w-full">
                               {[0, 1, 2].map(heroIdx => (
                                 <SearchableSelect 
-                                  key={`my-${heroIdx}`} value={match.myTeam[heroIdx]} 
+                                  key={`my-${heroIdx}`}
+                                  value={match.myTeam[heroIdx]} 
                                   onChange={(val) => handleTeamChange(index, 'myTeam', heroIdx, val)}
-                                  placeholder={`아군 영웅 ${heroIdx + 1}`} groups={HERO_GROUPS}
+                                  placeholder={`아군 영웅 ${heroIdx + 1}`}
+                                  groups={HERO_GROUPS}
                                 />
                               ))}
                             </div>
@@ -591,9 +603,11 @@
                             <div className="grid grid-cols-3 gap-3 w-full">
                               {[0, 1, 2].map(heroIdx => (
                                 <SearchableSelect 
-                                  key={`enemy-${heroIdx}`} value={match.enemyTeam[heroIdx]} 
+                                  key={`enemy-${heroIdx}`}
+                                  value={match.enemyTeam[heroIdx]} 
                                   onChange={(val) => handleTeamChange(index, 'enemyTeam', heroIdx, val)}
-                                  placeholder={`적군 영웅 ${heroIdx + 1}`} groups={HERO_GROUPS}
+                                  placeholder={`적군 영웅 ${heroIdx + 1}`}
+                                  groups={HERO_GROUPS}
                                 />
                               ))}
                             </div>
