@@ -5,55 +5,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>리더 길드 길드전 기록부</title>
   
-  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  
-  <!-- 최신 유행 폰트: Pretendard -->
   <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
   
-  <!-- React, ReactDOM, Babel (CDN) -->
   <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
   <style>
-    body {
-      font-family: 'Pretendard', sans-serif;
-      background-color: #09090b; /* zinc-950 */
-      color: #f4f4f5; /* zinc-50 */
-      
-      /* 드래그 방지 (입력창 제외) */
-      -webkit-user-select: none;
-      -moz-user-select: none;
-      -ms-user-select: none;
-      user-select: none;
-    }
-    input, select, textarea {
-      -webkit-user-select: auto;
-      -moz-user-select: auto;
-      -ms-user-select: auto;
-      user-select: auto;
-    }
-    .custom-scrollbar::-webkit-scrollbar {
-      width: 8px;
-      height: 8px;
-    }
-    .custom-scrollbar::-webkit-scrollbar-track {
-      background: transparent;
-    }
-    .custom-scrollbar::-webkit-scrollbar-thumb {
-      background-color: #52525b; /* zinc-600 */
-      border-radius: 20px;
-    }
-    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-      background-color: #71717a; /* zinc-500 */
-    }
+    body { font-family: 'Pretendard', sans-serif; background-color: #09090b; color: #f4f4f5; -webkit-user-select: none; user-select: none; }
+    input, select, textarea { -webkit-user-select: auto; user-select: auto; }
+    .custom-scrollbar::-webkit-scrollbar { width: 8px; height: 8px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #52525b; border-radius: 20px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background-color: #71717a; }
   </style>
 </head>
 <body class="text-zinc-100 selection:bg-red-500/30 selection:text-red-200" oncontextmenu="return false;">
   <div id="root"></div>
 
-  <!-- React Logic -->
   <script type="text/babel" data-type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js';
     import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js';
@@ -75,22 +45,17 @@
     const IconCalendar = () => <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>;
     const IconClipboard = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>;
 
-    // 한글 초성 추출 함수 (검색용)
     const getChosung = (str) => {
       const chosung = ["ㄱ","ㄲ","ㄴ","ㄷ","ㄸ","ㄹ","ㅁ","ㅂ","ㅃ","ㅅ","ㅆ","ㅇ","ㅈ","ㅉ","ㅊ","ㅋ","ㅌ","ㅍ","ㅎ"];
       let result = "";
       for (let i = 0; i < str.length; i++) {
         const code = str.charCodeAt(i) - 44032;
-        if (code > -1 && code < 11172) {
-          result += chosung[Math.floor(code / 588)];
-        } else {
-          result += str.charAt(i);
-        }
+        if (code > -1 && code < 11172) result += chosung[Math.floor(code / 588)];
+        else result += str.charAt(i);
       }
       return result;
     };
 
-    // 외부 배포용 Firebase 설정
     const fallbackFirebaseConfig = {
       apiKey: "AIzaSyAqSgVY3zJAmKpLSnxrM5YVMVnqTw8JfTI",
       authDomain: "warr-384d8.firebaseapp.com",
@@ -101,7 +66,6 @@
     };
     
     let myFirebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : fallbackFirebaseConfig;
-    
     let app = null, auth = null, db = null, hasFirebaseConfig = false;
     try {
       if (myFirebaseConfig && myFirebaseConfig.apiKey) {
@@ -110,9 +74,7 @@
         db = getFirestore(app);
         hasFirebaseConfig = true;
       }
-    } catch (error) {
-      console.error("Firebase 초기화 오류:", error);
-    }
+    } catch (error) { console.error("Firebase 초기화 오류:", error); }
 
     const appId = typeof __app_id !== 'undefined' ? __app_id : 'sevens-guild-war-app';
     const COLLECTION_NAME = 'guild_war_records';
@@ -143,9 +105,7 @@
             <h3 className="text-xl font-black text-zinc-100 mb-4">{title}</h3>
             <div className="text-zinc-300 font-medium mb-8 whitespace-pre-line leading-relaxed">{content}</div>
             <div className="flex gap-3">
-              {!hideCancel && (
-                <button onClick={onClose} className="flex-1 py-3 rounded-xl bg-zinc-800 text-zinc-300 font-bold hover:bg-zinc-700 transition-colors">취소</button>
-              )}
+              {!hideCancel && <button onClick={onClose} className="flex-1 py-3 rounded-xl bg-zinc-800 text-zinc-300 font-bold hover:bg-zinc-700 transition-colors">취소</button>}
               <button onClick={onConfirm} className="flex-1 py-3 rounded-xl bg-red-600 text-white font-bold hover:bg-red-700 transition-colors">{confirmText}</button>
             </div>
           </div>
@@ -158,69 +118,40 @@
       const [searchTerm, setSearchTerm] = useState(value || '');
       const wrapperRef = useRef(null);
 
+      useEffect(() => { setSearchTerm(value || ''); }, [value]);
       useEffect(() => {
-        setSearchTerm(value || '');
-      }, [value]);
-
-      useEffect(() => {
-        const handleClickOutside = (e) => {
-          if (wrapperRef.current && !wrapperRef.current.contains(e.target)) {
-            setIsOpen(false);
-          }
-        };
+        const handleClickOutside = (e) => { if (wrapperRef.current && !wrapperRef.current.contains(e.target)) setIsOpen(false); };
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
       }, []);
 
       const filteredGroups = groups.map(g => ({
-        ...g,
-        heroes: g.heroes.filter(h => {
-          const searchUpper = searchTerm.toUpperCase();
-          const heroUpper = h.toUpperCase();
-          const heroChosung = getChosung(h);
-          const searchChosung = getChosung(searchTerm);
-          return heroUpper.includes(searchUpper) || heroChosung.includes(searchChosung);
+        ...g, heroes: g.heroes.filter(h => {
+          return h.toUpperCase().includes(searchTerm.toUpperCase()) || getChosung(h).includes(getChosung(searchTerm));
         })
       })).filter(g => g.heroes.length > 0);
 
       return (
         <div ref={wrapperRef} className="relative w-full h-12">
-          <input
-            type="text"
-            value={searchTerm}
-            onChange={(e) => {
-              setSearchTerm(e.target.value);
-              onChange(e.target.value);
-              setIsOpen(true);
-            }}
-            onFocus={() => setIsOpen(true)}
-            placeholder={placeholder}
+          <input type="text" value={searchTerm}
+            onChange={(e) => { setSearchTerm(e.target.value); onChange(e.target.value); setIsOpen(true); }}
+            onFocus={() => setIsOpen(true)} placeholder={placeholder}
             className="w-full h-full px-3 py-3 border border-zinc-700 rounded-xl bg-zinc-800 text-zinc-100 font-bold focus:ring-2 focus:ring-red-600 outline-none transition-all placeholder-zinc-500 text-sm md:text-base"
           />
           {isOpen && (
             <div className="absolute z-50 top-full left-0 right-0 mt-1 max-h-56 overflow-y-auto bg-zinc-800 border border-zinc-600 rounded-xl shadow-2xl custom-scrollbar">
-              {filteredGroups.length === 0 ? (
-                <div className="p-4 text-sm text-zinc-400 font-medium text-center">검색 결과가 없습니다.</div>
-              ) : (
+              {filteredGroups.length === 0 ? <div className="p-4 text-sm text-zinc-400 font-medium text-center">검색 결과가 없습니다.</div> : 
                 filteredGroups.map(g => (
                   <div key={g.group}>
                     <div className="px-3 py-1.5 text-xs font-black text-red-400 bg-zinc-900/80 sticky top-0 backdrop-blur-sm z-10">{g.group}</div>
                     {g.heroes.map(h => (
-                      <div
-                        key={h}
-                        onClick={() => {
-                          onChange(h);
-                          setSearchTerm(h);
-                          setIsOpen(false);
-                        }}
+                      <div key={h} onClick={() => { onChange(h); setSearchTerm(h); setIsOpen(false); }}
                         className="px-4 py-2.5 text-sm font-bold text-zinc-200 hover:bg-red-600 hover:text-white cursor-pointer transition-colors"
-                      >
-                        {h}
-                      </div>
+                      >{h}</div>
                     ))}
                   </div>
                 ))
-              )}
+              }
             </div>
           )}
         </div>
@@ -252,11 +183,7 @@
       const [nickname, setNickname] = useState('');
       const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
       const [opponent, setOpponent] = useState('');
-      const [matches, setMatches] = useState(
-        Array.from({ length: 5 }, () => ({
-          type: '공격', myTeam: ['', '', ''], result: '승리', enemyTeam: ['', '', '']
-        }))
-      );
+      const [matches, setMatches] = useState(Array.from({ length: 5 }, () => ({ type: '공격', myTeam: ['', '', ''], result: '승리', enemyTeam: ['', '', ''] })));
 
       useEffect(() => {
         const handleKeyDown = (e) => {
@@ -264,44 +191,26 @@
           if (e.ctrlKey && e.shiftKey && ['I', 'J', 'C', 'i', 'j', 'c'].includes(e.key)) { e.preventDefault(); return false; }
           if (e.ctrlKey && (e.key === 'U' || e.key === 'u') && !e.altKey) { e.preventDefault(); return false; }
           if (e.ctrlKey && ['c', 'v', 'x', 'C', 'V', 'X'].includes(e.key)) {
-            if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA' && e.target.tagName !== 'SELECT') {
-              e.preventDefault(); return false;
-            }
+            if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA' && e.target.tagName !== 'SELECT') { e.preventDefault(); return false; }
           }
-          
           if (e.ctrlKey && e.altKey && (e.key === 'u' || e.key === 'U')) {
             e.preventDefault();
             if (!isAdminMode) {
-              setUnlockModalOpen(true);
-              setUnlockPwd('');
-              setUnlockError(false);
+              setUnlockModalOpen(true); setUnlockPwd(''); setUnlockError(false);
               setTimeout(() => { if (unlockInputRef.current) unlockInputRef.current.focus(); }, 100);
             }
           }
         };
-
         const handleContextMenu = (e) => { e.preventDefault(); return false; };
-
         document.addEventListener('keydown', handleKeyDown);
         document.addEventListener('contextmenu', handleContextMenu);
-
-        return () => {
-          document.removeEventListener('keydown', handleKeyDown);
-          document.removeEventListener('contextmenu', handleContextMenu);
-        };
+        return () => { document.removeEventListener('keydown', handleKeyDown); document.removeEventListener('contextmenu', handleContextMenu); };
       }, [isAdminMode]);
 
       const handleAdminUnlock = (e) => {
         e.preventDefault();
-        if (unlockPwd === "4979457") {
-          setIsAdminMode(true);
-          setUnlockModalOpen(false);
-          setActiveTab('management');
-        } else {
-          setUnlockError(true);
-          setUnlockPwd('');
-          if (unlockInputRef.current) unlockInputRef.current.focus();
-        }
+        if (unlockPwd === "4979457") { setIsAdminMode(true); setUnlockModalOpen(false); setActiveTab('management'); } 
+        else { setUnlockError(true); setUnlockPwd(''); if (unlockInputRef.current) unlockInputRef.current.focus(); }
       };
 
       const showAlert = (title, content) => setAlertModal({ isOpen: true, title, content });
@@ -316,14 +225,9 @@
         if (!hasFirebaseConfig || !auth) return;
         const initAuth = async () => {
           try {
-            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-              await signInWithCustomToken(auth, __initial_auth_token);
-            } else {
-              await signInAnonymously(auth);
-            }
-          } catch (error) {
-            console.error("인증 실패:", error);
-          }
+            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) await signInWithCustomToken(auth, __initial_auth_token);
+            else await signInAnonymously(auth);
+          } catch (error) { console.error("인증 실패:", error); }
         };
         initAuth();
         const unsubscribe = onAuthStateChanged(auth, setUser);
@@ -351,22 +255,14 @@
           if (!grouped[groupKey]) grouped[groupKey] = { date: r.date, names: new Set() };
           grouped[groupKey].names.add(r.nickname || '익명');
         });
-        
         return Object.entries(grouped)
           .map(([groupKey, data]) => {
             const names = Array.from(data.names).sort();
             const dateObj = new Date(data.date);
             const dayOfWeek = isNaN(dateObj) ? '' : ['일', '월', '화', '수', '목', '금', '토'][dateObj.getDay()];
-            return {
-              groupKey,
-              date: data.date,
-              dayOfWeek,
-              count: names.length,
-              names
-            };
+            return { groupKey, date: data.date, dayOfWeek, count: names.length, names };
           })
-          .sort((a, b) => b.groupKey.localeCompare(a.groupKey))
-          .slice(0, 7);
+          .sort((a, b) => b.groupKey.localeCompare(a.groupKey)).slice(0, 7);
       }, [records]);
 
       const fullDeckStats = useMemo(() => {
@@ -385,9 +281,7 @@
             }
           });
         });
-        return Object.values(counts)
-          .map(s => ({ ...s, winRate: ((s.wins / s.count) * 100).toFixed(1) }))
-          .sort((a, b) => b.count - a.count);
+        return Object.values(counts).map(s => ({ ...s, winRate: ((s.wins / s.count) * 100).toFixed(1) })).sort((a, b) => b.count - a.count);
       }, [records]);
 
       const deckStats = useMemo(() => fullDeckStats.slice(0, 5), [fullDeckStats]);
@@ -403,53 +297,31 @@
             if (match.result === '승리') stats[name].wins += 1;
           });
         });
-        return Object.values(stats)
-          .map(s => ({
-            ...s,
-            winRate: s.totalMatches > 0 ? ((s.wins / s.totalMatches) * 100).toFixed(1) : 0
-          }))
-          .sort((a, b) => b.recordsCount - a.recordsCount);
+        return Object.values(stats).map(s => ({ ...s, winRate: s.totalMatches > 0 ? ((s.wins / s.totalMatches) * 100).toFixed(1) : 0 })).sort((a, b) => b.recordsCount - a.recordsCount);
       }, [records]);
 
       const handleTeamChange = (index, teamType, heroIndex, value) => {
-        const newMatches = [...matches];
-        newMatches[index][teamType][heroIndex] = value;
-        setMatches(newMatches);
+        const newMatches = [...matches]; newMatches[index][teamType][heroIndex] = value; setMatches(newMatches);
       };
 
       const handleMatchChange = (index, field, value) => {
-        const newMatches = [...matches];
-        newMatches[index][field] = value;
-        setMatches(newMatches);
+        const newMatches = [...matches]; newMatches[index][field] = value; setMatches(newMatches);
       };
 
-      // AI 파싱 로직 개선 (빠른 텍스트 붙여넣기)
       const handleQuickPasteLogic = (index, text) => {
         if (!text || text.trim() === '') return;
-
-        // 1. 승패 추출
         let result = '승리';
         if (text.includes('패배') || text.includes('(패)') || text.includes('[패]')) result = '패배';
+        
+        let cleanText = text.replace(/공격|방어|승리|패배|\(승\)|\(패\)|\[승\]|\[패\]|:/g, ' ').replace(/vs/gi, '/').replace(/[\[\]\(\)]/g, ' ').trim();
+        let myTeamStr = '', enemyTeamStr = '';
 
-        // 2. 포괄적인 노이즈 제거 (명칭, 구분자 등)
-        let cleanText = text
-            .replace(/공격|방어|승리|패배|\(승\)|\(패\)|\[승\]|\[패\]|:/g, ' ')
-            .replace(/vs/gi, '/')
-            .replace(/[\[\]\(\)]/g, ' ')
-            .trim();
-
-        let myTeamStr = '';
-        let enemyTeamStr = '';
-
-        // 3. 진영 분리 (슬래시 기준 or 단순 배열 분리)
         if (cleanText.includes('/')) {
             let parts = cleanText.split('/');
-            myTeamStr = parts[0];
-            enemyTeamStr = parts.slice(1).join(' ');
+            myTeamStr = parts[0]; enemyTeamStr = parts.slice(1).join(' ');
         } else {
             let tokens = cleanText.split(/[\s,]+/).filter(Boolean);
-            myTeamStr = tokens.slice(0, 3).join(' ');
-            enemyTeamStr = tokens.slice(3, 6).join(' ');
+            myTeamStr = tokens.slice(0, 3).join(' '); enemyTeamStr = tokens.slice(3, 6).join(' ');
         }
 
         const parseTeam = (str) => {
@@ -460,33 +332,17 @@
         const parsedMyTeam = parseTeam(myTeamStr);
         const parsedEnemyTeam = parseTeam(enemyTeamStr);
 
-        // 4. 새로운 영웅 탐지
         const allPredefined = PREDEFINED_HERO_GROUPS.flatMap(g => g.heroes);
-        const newDetectedHeroes = [...parsedMyTeam, ...parsedEnemyTeam].filter(
-            h => h !== '' && !allPredefined.includes(h) && !customHeroes.includes(h)
-        );
-        
-        if (newDetectedHeroes.length > 0) {
-            setCustomHeroes(prev => [...prev, ...newDetectedHeroes]);
-        }
+        const newDetectedHeroes = [...parsedMyTeam, ...parsedEnemyTeam].filter(h => h !== '' && !allPredefined.includes(h) && !customHeroes.includes(h));
+        if (newDetectedHeroes.length > 0) setCustomHeroes(prev => [...prev, ...newDetectedHeroes]);
 
-        // 5. 상태 반영
         const newMatches = [...matches];
-        newMatches[index] = {
-            type: '공격',
-            myTeam: parsedMyTeam,
-            result,
-            enemyTeam: parsedEnemyTeam
-        };
+        newMatches[index] = { type: '공격', myTeam: parsedMyTeam, result, enemyTeam: parsedEnemyTeam };
         setMatches(newMatches);
       };
 
       const resetForm = () => {
-        setOpponent('');
-        setMatches(Array.from({ length: 5 }, () => ({
-          type: '공격', myTeam: ['', '', ''], result: '승리', enemyTeam: ['', '', '']
-        })));
-        setEditingId(null);
+        setOpponent(''); setMatches(Array.from({ length: 5 }, () => ({ type: '공격', myTeam: ['', '', ''], result: '승리', enemyTeam: ['', '', ''] }))); setEditingId(null);
       };
 
       const handleSave = () => {
@@ -498,7 +354,6 @@
         if (!hasValidMatch) { showAlert("입력 오류", "최소 1개 이상의 전투 기록(영웅 선택)을 입력해주세요."); return; }
 
         const formattedMatches = matches.filter(m => m.myTeam.some(h => h.trim() !== '') || m.enemyTeam.some(h => h.trim() !== ''));
-
         const allValidHeroes = PREDEFINED_HERO_GROUPS.flatMap(g => g.heroes);
         const usedHeroes = new Set();
         
@@ -508,89 +363,43 @@
         });
 
         const unknownHeroes = [...usedHeroes].filter(h => !allValidHeroes.includes(h));
-
         if (unknownHeroes.length > 0) {
-          showConfirm(
-            "오타 확인 필요",
-            `지정된 영웅 명단에 없는 이름이 포함되어 있습니다.\n\n[발견된 의심 이름]\n${unknownHeroes.join(', ')}\n\n오타가 확실하다면 '취소'를 눌러 수정하시고,\n정상적인 신규 영웅이라면 '강제 저장'을 눌러주세요.`,
-            () => { executeSave(formattedMatches, unknownHeroes); setConfirmModal({ isOpen: false }); },
-            "강제 저장"
-          );
-        } else {
-          executeSave(formattedMatches, []);
-        }
+          showConfirm("오타 확인 필요", `지정된 영웅 명단에 없는 이름이 포함되어 있습니다.\n\n[발견된 의심 이름]\n${unknownHeroes.join(', ')}\n\n오타가 확실하다면 '취소'를 눌러 수정하시고,\n정상적인 신규 영웅이라면 '강제 저장'을 눌러주세요.`, () => { executeSave(formattedMatches, unknownHeroes); setConfirmModal({ isOpen: false }); }, "강제 저장");
+        } else { executeSave(formattedMatches, []); }
       };
 
       const executeSave = async (formattedMatches, newHeroes) => {
         try {
-          if (editingId) {
-            await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', COLLECTION_NAME, editingId), { 
-              nickname, date, opponent, matches: formattedMatches, updatedAt: Date.now() 
-            });
-          } else {
-            await addDoc(collection(db, 'artifacts', appId, 'public', 'data', COLLECTION_NAME), { 
-              nickname, date, opponent, matches: formattedMatches, createdAt: Date.now(), authorId: user.uid 
-            });
-          }
-          
+          if (editingId) await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', COLLECTION_NAME, editingId), { nickname, date, opponent, matches: formattedMatches, updatedAt: Date.now() });
+          else await addDoc(collection(db, 'artifacts', appId, 'public', 'data', COLLECTION_NAME), { nickname, date, opponent, matches: formattedMatches, createdAt: Date.now(), authorId: user.uid });
           if (newHeroes.length > 0) {
             const addedHeroes = newHeroes.filter(h => !customHeroes.includes(h));
             if (addedHeroes.length > 0) setCustomHeroes(prev => [...prev, ...addedHeroes]);
           }
-
-          resetForm();
-          showAlert("저장 완료", "성공적으로 저장되었습니다.");
-        } catch (error) {
-          console.error("저장 실패:", error);
-          showAlert("시스템 오류", "데이터 저장 중 오류가 발생했습니다.");
-        }
+          resetForm(); showAlert("저장 완료", "성공적으로 저장되었습니다.");
+        } catch (error) { console.error("저장 실패:", error); showAlert("시스템 오류", "데이터 저장 중 오류가 발생했습니다."); }
       };
 
       const handleEditClick = (record) => {
-        setEditingId(record.id);
-        setNickname(record.nickname || '');
-        setDate(record.date || new Date().toISOString().split('T')[0]);
-        setOpponent(record.opponent || '');
-
+        setEditingId(record.id); setNickname(record.nickname || ''); setDate(record.date || new Date().toISOString().split('T')[0]); setOpponent(record.opponent || '');
         const loadedMatches = record.matches.map(m => {
           let myTeamArr = Array.isArray(m.myTeam) ? m.myTeam : (m.myTeam ? m.myTeam.split(',').map(s => s.trim()) : ['', '', '']);
           let enemyTeamArr = Array.isArray(m.enemyTeam) ? m.enemyTeam : (m.enemyTeam ? m.enemyTeam.split(',').map(s => s.trim()) : ['', '', '']);
-          
           const allPredefined = PREDEFINED_HERO_GROUPS.flatMap(g => g.heroes);
-          const newDetectedHeroes = [...myTeamArr, ...enemyTeamArr].filter(
-            h => h !== '' && !allPredefined.includes(h) && !customHeroes.includes(h)
-          );
-          if (newDetectedHeroes.length > 0) {
-            setCustomHeroes(prev => [...prev, ...newDetectedHeroes]);
-          }
-
-          return {
-            type: '공격',
-            myTeam: [...myTeamArr, '', '', ''].slice(0, 3),
-            result: m.result || '승리',
-            enemyTeam: [...enemyTeamArr, '', '', ''].slice(0, 3)
-          };
+          const newDetectedHeroes = [...myTeamArr, ...enemyTeamArr].filter(h => h !== '' && !allPredefined.includes(h) && !customHeroes.includes(h));
+          if (newDetectedHeroes.length > 0) setCustomHeroes(prev => [...prev, ...newDetectedHeroes]);
+          return { type: '공격', myTeam: [...myTeamArr, '', '', ''].slice(0, 3), result: m.result || '승리', enemyTeam: [...enemyTeamArr, '', '', ''].slice(0, 3) };
         });
-
-        while (loadedMatches.length < 5) {
-          loadedMatches.push({ type: '공격', myTeam: ['', '', ''], result: '승리', enemyTeam: ['', '', ''] });
-        }
-        setMatches(loadedMatches);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        while (loadedMatches.length < 5) loadedMatches.push({ type: '공격', myTeam: ['', '', ''], result: '승리', enemyTeam: ['', '', ''] });
+        setMatches(loadedMatches); window.scrollTo({ top: 0, behavior: 'smooth' });
       };
 
       const handleDelete = (id) => {
         if (!hasFirebaseConfig) return;
         if (!user && !isAdminMode) { showAlert("권한 오류", "삭제 권한을 확인할 수 없습니다."); return; }
         showConfirm("기록 삭제", "이 기록을 삭제하시겠습니까?\n삭제 후 복구할 수 없습니다.", async () => {
-          try {
-            await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', COLLECTION_NAME, id));
-            if (editingId === id) resetForm();
-            setConfirmModal({ isOpen: false });
-          } catch (error) { 
-            console.error("삭제 실패:", error); 
-            showAlert("오류", "삭제 권한이 부족합니다. Firestore 보안 규칙을 확인하세요.");
-          }
+          try { await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', COLLECTION_NAME, id)); if (editingId === id) resetForm(); setConfirmModal({ isOpen: false }); } 
+          catch (error) { console.error("삭제 실패:", error); showAlert("오류", "삭제 권한이 부족합니다. Firestore 보안 규칙을 확인하세요."); }
         }, "삭제 진행");
       };
 
@@ -599,12 +408,8 @@
         if (records.length === 0) { showAlert("알림", "삭제할 데이터가 없습니다."); return; }
         showConfirm("전적 전체 삭제", `총 ${records.length}개의 전적 데이터를 모두 삭제합니다.\n정말로 진행하시겠습니까?`, async () => {
           try {
-            let successCount = 0; let failCount = 0;
-            setConfirmModal({ isOpen: false });
-            for (const record of records) {
-              try { await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', COLLECTION_NAME, record.id)); successCount++; } 
-              catch (e) { failCount++; }
-            }
+            let successCount = 0; let failCount = 0; setConfirmModal({ isOpen: false });
+            for (const record of records) { try { await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', COLLECTION_NAME, record.id)); successCount++; } catch (e) { failCount++; } }
             let msg = `작업 완료.\n성공: ${successCount}건`;
             if (failCount > 0) msg += `\n실패(권한 부족 등): ${failCount}건\n※ Firebase 보안 규칙이 수정되지 않아 삭제되지 않았을 수 있습니다.`;
             showAlert("작업 결과", msg);
@@ -614,8 +419,7 @@
 
       const handleExportRawCSV = () => {
         if (records.length === 0) { showAlert("알림", "내보낼 데이터가 없습니다."); return; }
-        let csvContent = "\uFEFF";
-        csvContent += "날짜,작성자(닉네임),상대길드,매치번호,내덱1,내덱2,내덱3,결과,적덱1,적덱2,적덱3\n";
+        let csvContent = "\uFEFF날짜,작성자(닉네임),상대길드,매치번호,내덱1,내덱2,내덱3,결과,적덱1,적덱2,적덱3\n";
         records.forEach(record => {
           record.matches.forEach((match, index) => {
             const date = record.date || ""; const nickname = record.nickname || "익명"; const opponent = record.opponent || ""; const matchNum = index + 1;
@@ -632,8 +436,7 @@
 
       const handleExportStatsCSV = () => {
         if (records.length === 0) { showAlert("알림", "내보낼 데이터가 없습니다."); return; }
-        let csvContent = "\uFEFF";
-        csvContent += "--- 길드원 참여 및 승률 통계 ---\n순위,길드원 닉네임,기록제출 횟수,총 진행 전투(덱) 수,승리 횟수,승률(%)\n";
+        let csvContent = "\uFEFF--- 길드원 참여 및 승률 통계 ---\n순위,길드원 닉네임,기록제출 횟수,총 진행 전투(덱) 수,승리 횟수,승률(%)\n";
         memberStats.forEach((m, index) => { csvContent += `${index + 1},${m.name},${m.recordsCount},${m.totalMatches},${m.wins},${m.winRate}%\n`; });
         csvContent += "\n\n--- 많이 사용된 3인 덱 조합 통계 ---\n순위,사용된 덱 조합 (가나다순 정렬),사용 횟수,승리 횟수,승률(%)\n";
         fullDeckStats.forEach((d, index) => { csvContent += `${index + 1},"${d.deck}",${d.count},${d.wins},${d.winRate}%\n`; });
@@ -642,25 +445,19 @@
 
       const triggerDownload = (content, filename) => {
         const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement("a");
-        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a"); const url = URL.createObjectURL(blob);
         link.setAttribute("href", url); link.setAttribute("download", filename); link.style.visibility = 'hidden';
         document.body.appendChild(link); link.click(); document.body.removeChild(link);
       };
 
       const filteredRecords = records.map(record => {
         if (!filterChar.trim()) return record;
-        const term = filterChar.toLowerCase().trim();
-        const termChosung = getChosung(term);
-        
+        const term = filterChar.toLowerCase().trim(); const termChosung = getChosung(term);
         if (record.nickname?.toLowerCase().includes(term) || getChosung(record.nickname || '').includes(termChosung)) return record;
-        
         const filteredMatches = record.matches.filter(m => {
           let myTeamStr = Array.isArray(m.myTeam) ? m.myTeam.join(',') : (m.myTeam || '');
           let enemyTeamStr = Array.isArray(m.enemyTeam) ? m.enemyTeam.join(',') : (m.enemyTeam || '');
-          
-          return myTeamStr.toLowerCase().includes(term) || enemyTeamStr.toLowerCase().includes(term) ||
-                 getChosung(myTeamStr).includes(termChosung) || getChosung(enemyTeamStr).includes(termChosung);
+          return myTeamStr.toLowerCase().includes(term) || enemyTeamStr.toLowerCase().includes(term) || getChosung(myTeamStr).includes(termChosung) || getChosung(enemyTeamStr).includes(termChosung);
         });
         return { ...record, matches: filteredMatches };
       }).filter(record => record.matches && record.matches.length > 0);
@@ -669,8 +466,7 @@
         const groups = {};
         filteredRecords.forEach(record => {
           const groupKey = `${record.date} / vs ${record.opponent}`;
-          if (!groups[groupKey]) groups[groupKey] = [];
-          groups[groupKey].push(record);
+          if (!groups[groupKey]) groups[groupKey] = []; groups[groupKey].push(record);
         });
         return Object.entries(groups).sort((a, b) => b[0].localeCompare(a[0]));
       }, [filteredRecords]);
@@ -681,17 +477,8 @@
 
       return (
         <div className="min-h-screen p-4 md:p-8 text-[15px] pb-32">
-          
-          <CustomModal 
-            isOpen={alertModal.isOpen} onClose={() => setAlertModal({...alertModal, isOpen: false})} 
-            title={alertModal.title} content={alertModal.content} 
-            onConfirm={() => setAlertModal({...alertModal, isOpen: false})} hideCancel={true} 
-          />
-          <CustomModal 
-            isOpen={confirmModal.isOpen} onClose={() => setConfirmModal({...confirmModal, isOpen: false})} 
-            title={confirmModal.title} content={confirmModal.content} 
-            onConfirm={confirmModal.action} confirmText={confirmModal.confirmText} 
-          />
+          <CustomModal isOpen={alertModal.isOpen} onClose={() => setAlertModal({...alertModal, isOpen: false})} title={alertModal.title} content={alertModal.content} onConfirm={() => setAlertModal({...alertModal, isOpen: false})} hideCancel={true} />
+          <CustomModal isOpen={confirmModal.isOpen} onClose={() => setConfirmModal({...confirmModal, isOpen: false})} title={confirmModal.title} content={confirmModal.content} onConfirm={confirmModal.action} confirmText={confirmModal.confirmText} />
 
           {unlockModalOpen && (
             <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-200">
@@ -701,10 +488,7 @@
                 <h2 className="text-2xl font-black text-zinc-50 mb-2 text-center">숨겨진 기능 해제</h2>
                 <p className="text-zinc-400 mb-8 text-sm text-center">승인된 관리자 암호를 입력하세요.</p>
                 <form onSubmit={handleAdminUnlock} className="space-y-4">
-                  <input 
-                    ref={unlockInputRef} type="password" value={unlockPwd} onChange={(e) => setUnlockPwd(e.target.value)} placeholder="비밀번호" 
-                    className={`w-full px-5 py-4 border ${unlockError ? 'border-red-500 bg-red-950/20' : 'border-zinc-700 bg-zinc-950'} rounded-2xl focus:bg-zinc-900 focus:ring-2 focus:ring-red-600 outline-none text-center text-zinc-100 tracking-[0.5em] text-xl font-black shadow-inner transition-colors`}
-                  />
+                  <input ref={unlockInputRef} type="password" value={unlockPwd} onChange={(e) => setUnlockPwd(e.target.value)} placeholder="비밀번호" className={`w-full px-5 py-4 border ${unlockError ? 'border-red-500 bg-red-950/20' : 'border-zinc-700 bg-zinc-950'} rounded-2xl focus:bg-zinc-900 focus:ring-2 focus:ring-red-600 outline-none text-center text-zinc-100 tracking-[0.5em] text-xl font-black shadow-inner transition-colors`} />
                   {unlockError && <p className="text-red-500 text-xs text-center font-bold">비밀번호가 일치하지 않습니다.</p>}
                   <button type="submit" className="w-full bg-red-700 hover:bg-red-600 text-white text-lg font-black py-4 rounded-2xl shadow-lg transition-all mt-4">해제하기</button>
                 </form>
@@ -713,27 +497,16 @@
           )}
 
           <div className="max-w-6xl mx-auto space-y-8">
-            {!hasFirebaseConfig && (
-              <div className="bg-red-900/50 text-red-200 p-5 rounded-2xl border border-red-800 font-bold shadow-sm text-center text-lg">
-                ⚠️ 데이터베이스 미연결: Firebase 설정이 누락되었습니다.
-              </div>
-            )}
+            {!hasFirebaseConfig && <div className="bg-red-900/50 text-red-200 p-5 rounded-2xl border border-red-800 font-bold shadow-sm text-center text-lg">⚠️ 데이터베이스 미연결: Firebase 설정이 누락되었습니다.</div>}
 
             <div className="bg-zinc-900 rounded-3xl shadow-xl border border-zinc-800 overflow-hidden">
               <div className="p-6 md:p-10 bg-gradient-to-b from-zinc-900 to-zinc-950">
                 <h1 className="text-3xl md:text-4xl font-black text-zinc-50 tracking-tight">리더 길드 길드전 기록부</h1>
                 <p className="text-zinc-400 mt-3 font-medium">실시간 데이터 동기화 및 전적 분석 시스템</p>
               </div>
-              
               <div className="flex border-t border-zinc-800">
-                <button onClick={() => setActiveTab('records')} className={`flex-1 py-5 text-center font-bold text-base transition-colors ${activeTab === 'records' ? 'bg-red-700 text-white' : 'text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200'}`}>
-                  길드전 기록추가
-                </button>
-                {isAdminMode && (
-                  <button onClick={() => setActiveTab('management')} className={`flex-1 py-5 text-center font-bold text-base transition-colors ${activeTab === 'management' ? 'bg-red-700 text-white' : 'text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200'}`}>
-                    데이터 관리 (🔓)
-                  </button>
-                )}
+                <button onClick={() => setActiveTab('records')} className={`flex-1 py-5 text-center font-bold text-base transition-colors ${activeTab === 'records' ? 'bg-red-700 text-white' : 'text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200'}`}>길드전 기록추가</button>
+                {isAdminMode && <button onClick={() => setActiveTab('management')} className={`flex-1 py-5 text-center font-bold text-base transition-colors ${activeTab === 'management' ? 'bg-red-700 text-white' : 'text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200'}`}>데이터 관리 (🔓)</button>}
               </div>
             </div>
 
@@ -765,8 +538,6 @@
                     <label className="block text-base font-bold text-zinc-300 mb-3">전투 결과 입력 (빠른 입력 칸에 텍스트를 붙여넣으면 자동 완성됩니다)</label>
                     {matches.map((match, index) => (
                       <div key={index} className="flex flex-col gap-4 bg-zinc-950/60 p-5 rounded-2xl border border-zinc-800 hover:border-zinc-600 transition-colors w-full shadow-sm">
-                        
-                        {/* 빠른 붙여넣기 전용 인풋창 추가 */}
                         <div className="flex items-center gap-3 w-full border-b border-zinc-800 pb-4">
                           <span className="font-black text-zinc-400 text-2xl w-10 text-center shrink-0">{index + 1}.</span>
                           <div className="flex-1 relative flex items-center">
@@ -778,19 +549,14 @@
                               onPaste={(e) => {
                                 const pastedText = e.clipboardData.getData('Text');
                                 handleQuickPasteLogic(index, pastedText);
-                                e.preventDefault(); // 붙여넣기 후 텍스트가 남지 않도록 방지
+                                e.preventDefault();
                               }}
                               onChange={(e) => {
-                                // 사용자가 직접 타이핑해서 길게 썼을 때도 작동하게 함
                                 const val = e.target.value;
-                                if(val.length > 8) {
-                                  handleQuickPasteLogic(index, val);
-                                  e.target.value = '';
-                                }
+                                if(val.length > 8) { handleQuickPasteLogic(index, val); e.target.value = ''; }
                               }}
                             />
                           </div>
-                          {/* 모바일 승패 드롭다운 (우측) */}
                           <div className="xl:hidden shrink-0">
                             <select value={match.result} onChange={(e) => handleMatchChange(index, 'result', e.target.value)} className={`px-4 py-3 border border-zinc-700 rounded-xl bg-zinc-800 font-black text-lg text-center shadow-sm focus:ring-2 focus:ring-red-600 outline-none ${match.result === '승리' ? 'text-blue-300' : 'text-red-400'}`}>
                               <option value="승리">승리</option><option value="패배">패배</option>
@@ -798,25 +564,20 @@
                           </div>
                         </div>
 
-                        {/* 영웅 선택 덱 부분 */}
                         <div className="flex flex-col xl:flex-row gap-5 items-start xl:items-center w-full">
-                          {/* 내 덱 (공격) */}
                           <div className="flex flex-col sm:flex-row gap-3 w-full xl:flex-1">
                             <div className="px-4 py-3 bg-blue-900/30 text-blue-300 border border-blue-900/50 rounded-xl font-bold text-sm shrink-0 flex items-center justify-center shadow-sm h-12">⚔️ 공격</div>
                             <div className="grid grid-cols-3 gap-3 w-full">
                               {[0, 1, 2].map(heroIdx => (
                                 <SearchableSelect 
-                                  key={`my-${heroIdx}`}
-                                  value={match.myTeam[heroIdx]} 
+                                  key={`my-${heroIdx}`} value={match.myTeam[heroIdx]} 
                                   onChange={(val) => handleTeamChange(index, 'myTeam', heroIdx, val)}
-                                  placeholder={`아군 영웅 ${heroIdx + 1}`}
-                                  groups={HERO_GROUPS}
+                                  placeholder={`아군 영웅 ${heroIdx + 1}`} groups={HERO_GROUPS}
                                 />
                               ))}
                             </div>
                           </div>
 
-                          {/* PC용 승패 선택 */}
                           <div className="hidden xl:flex items-center shrink-0">
                             <select value={match.result} onChange={(e) => handleMatchChange(index, 'result', e.target.value)} className={`px-3 py-3 border border-zinc-700 rounded-xl bg-zinc-800 font-black text-lg w-28 text-center shadow-sm focus:ring-2 focus:ring-red-600 outline-none ${match.result === '승리' ? 'text-blue-300' : 'text-red-400'} h-12`}>
                               <option value="승리">승리</option><option value="패배">패배</option>
@@ -825,23 +586,19 @@
                           
                           <span className="hidden xl:block text-zinc-600 font-black text-2xl shrink-0">/</span>
 
-                          {/* 상대 덱 (방어) */}
                           <div className="flex flex-col sm:flex-row gap-3 w-full xl:flex-1">
                             <div className="px-4 py-3 bg-red-900/30 text-red-300 border border-red-900/50 rounded-xl font-bold text-sm shrink-0 flex items-center justify-center shadow-sm h-12">🛡️ 방어</div>
                             <div className="grid grid-cols-3 gap-3 w-full">
                               {[0, 1, 2].map(heroIdx => (
                                 <SearchableSelect 
-                                  key={`enemy-${heroIdx}`}
-                                  value={match.enemyTeam[heroIdx]} 
+                                  key={`enemy-${heroIdx}`} value={match.enemyTeam[heroIdx]} 
                                   onChange={(val) => handleTeamChange(index, 'enemyTeam', heroIdx, val)}
-                                  placeholder={`적군 영웅 ${heroIdx + 1}`}
-                                  groups={HERO_GROUPS}
+                                  placeholder={`적군 영웅 ${heroIdx + 1}`} groups={HERO_GROUPS}
                                 />
                               ))}
                             </div>
                           </div>
                         </div>
-
                       </div>
                     ))}
                   </div>
@@ -872,38 +629,25 @@
                   <section className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-in slide-in-from-top-4 duration-300">
                     <div className="bg-zinc-900 p-6 md:p-8 rounded-3xl shadow-lg border border-zinc-800 md:col-span-2">
                       <h3 className="text-xl font-black text-zinc-100 mb-6 flex items-center gap-3">
-                        <span className="p-2.5 bg-blue-900/30 text-blue-400 rounded-xl"><IconCalendar /></span> 
-                        제출 현황 (최근 7건)
+                        <span className="p-2.5 bg-blue-900/30 text-blue-400 rounded-xl"><IconCalendar /></span> 제출 현황 (최근 7건)
                       </h3>
-                      {dailySubmissionStats.length === 0 ? (
-                        <p className="text-zinc-400 text-base text-center py-6 font-medium">제출된 데이터가 없습니다.</p>
-                      ) : (
+                      {dailySubmissionStats.length === 0 ? <p className="text-zinc-400 text-base text-center py-6 font-medium">제출된 데이터가 없습니다.</p> : (
                         <div className="space-y-4">
                           {dailySubmissionStats.map(stat => {
                             const isExpanded = expandedStats[stat.groupKey];
                             return (
                               <div key={stat.groupKey} className="bg-zinc-800/60 rounded-2xl border border-zinc-700/50 overflow-hidden shadow-sm">
-                                <div 
-                                  className="flex items-center justify-between p-5 cursor-pointer hover:bg-zinc-700/80 transition-colors select-none"
-                                  onClick={() => toggleStat(stat.groupKey)}
-                                >
+                                <div className="flex items-center justify-between p-5 cursor-pointer hover:bg-zinc-700/80 transition-colors select-none" onClick={() => toggleStat(stat.groupKey)}>
                                   <div className="flex items-center gap-4">
                                     <span className="font-black text-zinc-100 text-lg tracking-tight">{stat.groupKey} <span className="text-zinc-400 text-sm font-bold ml-1">({stat.dayOfWeek})</span></span>
                                     <span className="text-sm px-3 py-1.5 bg-blue-900/50 text-blue-300 font-bold rounded-xl border border-blue-800/50">{stat.count}명 참여</span>
                                   </div>
-                                  <div className="text-zinc-400 hover:text-zinc-200 transition-colors bg-zinc-800 p-2 rounded-xl">
-                                    {isExpanded ? <IconChevronUp /> : <IconChevronDown />}
-                                  </div>
+                                  <div className="text-zinc-400 hover:text-zinc-200 transition-colors bg-zinc-800 p-2 rounded-xl">{isExpanded ? <IconChevronUp /> : <IconChevronDown />}</div>
                                 </div>
-                                
                                 {isExpanded && (
                                   <div className="p-5 border-t border-zinc-700/50 bg-zinc-900/50 animate-in slide-in-from-top-2 duration-200">
                                     <div className="flex flex-wrap gap-2.5">
-                                      {stat.names.map(name => (
-                                        <span key={name} className="text-sm font-bold bg-zinc-800 text-zinc-200 px-3.5 py-2 rounded-lg border border-zinc-700 shadow-sm hover:bg-zinc-700 transition-colors cursor-default">
-                                          {name}
-                                        </span>
-                                      ))}
+                                      {stat.names.map(name => <span key={name} className="text-sm font-bold bg-zinc-800 text-zinc-200 px-3.5 py-2 rounded-lg border border-zinc-700 shadow-sm hover:bg-zinc-700 transition-colors cursor-default">{name}</span>)}
                                     </div>
                                   </div>
                                 )}
@@ -913,7 +657,6 @@
                         </div>
                       )}
                     </div>
-
                     <div className="bg-zinc-900 p-6 md:p-8 rounded-3xl shadow-lg border border-zinc-800">
                       <h3 className="text-xl font-black text-zinc-100 mb-6 flex items-center gap-3"><span className="p-2.5 bg-red-900/30 text-red-400 rounded-xl"><IconBarChart /></span> 많이 사용된 3인 덱 조합 (Top 5)</h3>
                       {deckStats.length === 0 ? <p className="text-zinc-400 text-base text-center py-10 font-medium">데이터가 부족합니다.</p> : (
@@ -968,22 +711,13 @@
 
                       return (
                         <div key={groupKey} className="animate-in fade-in duration-300 bg-zinc-900/60 rounded-3xl shadow-sm border border-zinc-800 overflow-hidden">
-                          <div 
-                            className="flex items-center justify-between p-5 md:p-6 cursor-pointer hover:bg-zinc-800/50 transition-colors select-none"
-                            onClick={() => toggleGroup(groupKey)}
-                          >
+                          <div className="flex items-center justify-between p-5 md:p-6 cursor-pointer hover:bg-zinc-800/50 transition-colors select-none" onClick={() => toggleGroup(groupKey)}>
                             <div className="flex items-center gap-4">
-                              <div className="p-3 bg-red-900/30 text-red-400 rounded-xl shadow-sm border border-red-900/50 hidden sm:block">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-                              </div>
-                              <div>
-                                <h2 className="text-xl md:text-2xl font-black text-zinc-50 tracking-tight">{groupKey}</h2>
-                              </div>
+                              <div className="p-3 bg-red-900/30 text-red-400 rounded-xl shadow-sm border border-red-900/50 hidden sm:block"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></div>
+                              <div><h2 className="text-xl md:text-2xl font-black text-zinc-50 tracking-tight">{groupKey}</h2></div>
                               <span className="text-sm px-3 py-1.5 bg-zinc-800 text-zinc-300 font-bold rounded-xl border border-zinc-700">{groupRecords.length}명 제출</span>
                             </div>
-                            <div className="text-zinc-400 bg-zinc-800 p-2 rounded-xl transition-transform duration-200">
-                              {isGroupExpanded ? <IconChevronUp /> : <IconChevronDown />}
-                            </div>
+                            <div className="text-zinc-400 bg-zinc-800 p-2 rounded-xl transition-transform duration-200">{isGroupExpanded ? <IconChevronUp /> : <IconChevronDown />}</div>
                           </div>
                           
                           {isGroupExpanded && (
@@ -998,16 +732,13 @@
                                         <button onClick={(e) => { e.stopPropagation(); handleDelete(record.id); }} className="text-zinc-300 hover:text-red-500 p-2 bg-zinc-900 hover:bg-zinc-800 rounded-lg transition-colors" title="기록 삭제"><IconTrash /></button>
                                       </div>
                                     )}
-                                    
                                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 cursor-pointer select-none" onClick={() => toggleRecord(record.id)}>
                                       <h3 className="text-lg font-bold text-zinc-100 flex items-center gap-3">
                                         <span className="bg-gradient-to-r from-red-800 to-red-950 border border-red-800 text-zinc-100 px-4 py-2 rounded-xl text-base font-black shadow-sm">{record.nickname || '익명'}</span>
                                         <span className="text-zinc-400 font-bold">님의 기록</span>
                                       </h3>
                                       <div className={`flex items-center ${(record.authorId === user?.uid || isAdminMode) ? 'pr-16 md:pr-0' : ''}`}>
-                                        <div className="text-zinc-400 hover:text-zinc-200 transition-colors flex items-center gap-2 font-bold text-sm bg-zinc-800 px-4 py-2 rounded-xl">
-                                          {isExpanded ? '닫기' : '열기'} {isExpanded ? <IconChevronUp /> : <IconChevronDown />}
-                                        </div>
+                                        <div className="text-zinc-400 hover:text-zinc-200 transition-colors flex items-center gap-2 font-bold text-sm bg-zinc-800 px-4 py-2 rounded-xl">{isExpanded ? '닫기' : '열기'} {isExpanded ? <IconChevronUp /> : <IconChevronDown />}</div>
                                       </div>
                                     </div>
                                     
@@ -1017,9 +748,7 @@
                                           {record.matches.map((match, idx) => {
                                             let myArr = Array.isArray(match.myTeam) ? match.myTeam : (match.myTeam ? match.myTeam.split(',') : []);
                                             let enArr = Array.isArray(match.enemyTeam) ? match.enemyTeam : (match.enemyTeam ? match.enemyTeam.split(',') : []);
-                                            let myStr = myArr.join(', ').trim();
-                                            let enStr = enArr.join(', ').trim();
-                                            
+                                            let myStr = myArr.join(', ').trim(); let enStr = enArr.join(', ').trim();
                                             return (
                                               <li key={idx} className="flex flex-col xl:flex-row gap-5 bg-zinc-950/80 p-5 rounded-2xl border border-zinc-800/60 hover:bg-zinc-800 transition-colors w-full">
                                                 <div className="flex items-center justify-between w-full xl:w-auto">
@@ -1066,33 +795,21 @@
                       <h2 className="text-3xl font-black text-zinc-50">데이터 관리 대시보드</h2>
                       <p className="text-zinc-400 mt-3 font-bold text-base">관리자 권한이 확인되었습니다.</p>
                     </div>
-                    
                     <div className="flex flex-col gap-3 w-full md:w-auto">
-                      <button onClick={handleExportStatsCSV} className="flex items-center justify-center gap-3 px-6 py-4 bg-emerald-900/40 text-emerald-400 hover:bg-emerald-800/60 border border-emerald-800/50 font-bold text-base rounded-2xl shadow-sm transition-all">
-                        <IconBarChart /> 통계 결과 내보내기 (CSV)
-                      </button>
-                      <button onClick={handleExportRawCSV} className="flex items-center justify-center gap-3 px-6 py-4 bg-zinc-800 text-zinc-200 hover:bg-zinc-700 hover:text-white border border-zinc-700 font-bold text-base rounded-2xl shadow-sm transition-all">
-                        <IconDownload /> 원본 데이터 내보내기 (CSV)
-                      </button>
+                      <button onClick={handleExportStatsCSV} className="flex items-center justify-center gap-3 px-6 py-4 bg-emerald-900/40 text-emerald-400 hover:bg-emerald-800/60 border border-emerald-800/50 font-bold text-base rounded-2xl shadow-sm transition-all"><IconBarChart /> 통계 결과 내보내기 (CSV)</button>
+                      <button onClick={handleExportRawCSV} className="flex items-center justify-center gap-3 px-6 py-4 bg-zinc-800 text-zinc-200 hover:bg-zinc-700 hover:text-white border border-zinc-700 font-bold text-base rounded-2xl shadow-sm transition-all"><IconDownload /> 원본 데이터 내보내기 (CSV)</button>
                     </div>
                   </div>
-
                   <div className="bg-red-950/30 p-8 md:p-10 rounded-3xl border border-red-900/50 flex flex-col md:flex-row items-center justify-between gap-8 shadow-sm">
                     <div>
                       <h3 className="text-xl font-black text-red-500 mb-3 flex items-center gap-3"><IconTrash /> 전적 전체 삭제</h3>
-                      <p className="text-red-400/80 text-base font-bold">
-                        현재 저장된 <strong className="text-red-400 font-black text-lg">{records.length}개</strong>의 모든 기록을 삭제합니다.<br/>
-                        ※ Firebase 규칙에 따라 권한이 없는 글은 삭제되지 않을 수 있습니다.
-                      </p>
+                      <p className="text-red-400/80 text-base font-bold">현재 저장된 <strong className="text-red-400 font-black text-lg">{records.length}개</strong>의 모든 기록을 삭제합니다.<br/>※ Firebase 규칙에 따라 권한이 없는 글은 삭제되지 않을 수 있습니다.</p>
                     </div>
-                    <button onClick={handleDeleteAll} className="w-full md:w-auto px-10 py-5 bg-red-700 hover:bg-red-600 text-white text-lg font-black rounded-2xl shadow-lg transition-all shrink-0">
-                      모든 데이터 삭제
-                    </button>
+                    <button onClick={handleDeleteAll} className="w-full md:w-auto px-10 py-5 bg-red-700 hover:bg-red-600 text-white text-lg font-black rounded-2xl shadow-lg transition-all shrink-0">모든 데이터 삭제</button>
                   </div>
                 </div>
               </div>
             )}
-
           </div>
         </div>
       );
