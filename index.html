@@ -310,15 +310,16 @@
         setMatches(newMatches);
       };
 
-      // AI 파싱 로직 개선 (빠른 텍스트 붙여넣기용 포괄적 이해 기능)
+      // 빠른 텍스트 붙여넣기용 AI 파싱 로직
       const handleQuickPasteLogic = (index, text) => {
         if (!text || text.trim() === '') return;
         
         let result = '승리';
+        // 승패 텍스트 감지
         if (text.includes('패배') || text.includes('(패)') || text.includes('[패]') || text.includes(' 패 ')) result = '패배';
         
-        // 정규식을 통해 방해되는 문자 및 기호들을 일괄 제거
-        let cleanText = text.replace(/공격|방어|승리|패배|\(승\)|\(패\)|\[승\]|\[패\]|:/g, ' ').replace(/vs/gi, '/').replace(/[\[\]\(\),]/g, ' ').trim();
+        // 정규식으로 불필요한 기호 및 단어 제거
+        let cleanText = text.replace(/공격|방어|승리|패배|\(승\)|\(패\)|\[승\]|\[패\]|:/gi, ' ').replace(/vs/gi, '/').replace(/[\[\]\(\),]/g, ' ').replace(/or/gi, ' ').trim();
         let myTeamStr = '', enemyTeamStr = '';
 
         if (cleanText.includes('/')) {
@@ -326,7 +327,7 @@
             myTeamStr = parts[0]; 
             enemyTeamStr = parts.slice(1).join(' ');
         } else {
-            // 구분자 없이 띄어쓰기만 되어있을 경우 앞 3명을 아군, 뒤 3명을 적군으로 자동 할당
+            // 구분자 없이 띄어쓰기만 있으면 앞 3명을 아군, 뒤 3명을 적군으로 할당
             let tokens = cleanText.split(/[\s]+/).filter(Boolean);
             myTeamStr = tokens.slice(0, 3).join(' '); 
             enemyTeamStr = tokens.slice(3, 6).join(' ');
@@ -543,27 +544,31 @@
                   </div>
 
                   <div className="space-y-5 pb-4">
-                    <label className="block text-base font-bold text-zinc-300 mb-3">전투 결과 입력 (빠른 입력 칸에 텍스트를 붙여넣으면 자동 완성됩니다)</label>
+                    <label className="block text-base font-bold text-zinc-300 mb-3">전투 결과 입력 (빠른 입력 칸에 텍스트를 붙여넣거나 입력 후 엔터를 누르면 자동 완성됩니다)</label>
                     {matches.map((match, index) => (
                       <div key={index} className="flex flex-col gap-4 bg-zinc-950/60 p-5 rounded-2xl border border-zinc-800 hover:border-zinc-600 transition-colors w-full shadow-sm">
                         
-                        {/* 빠른 붙여넣기 전용 인풋창 (신설) */}
+                        {/* 빠른 붙여넣기 전용 인풋창 */}
                         <div className="flex items-center gap-3 w-full border-b border-zinc-800 pb-4">
                           <span className="font-black text-zinc-400 text-2xl w-10 text-center shrink-0">{index + 1}.</span>
                           <div className="flex-1 relative flex items-center">
                             <div className="absolute left-3 text-zinc-500 pointer-events-none"><IconClipboard /></div>
                             <input 
                               type="text" 
-                              placeholder="빠른 붙여넣기 (예: 손오공 루디 앨리스 승리 프레이야 밀리아 키리엘)"
+                              placeholder="빠른 붙여넣기 (예: 공격: 손오공 루디 앨리스 (승리) / 방어: 프레이야 밀리아 키리엘)"
                               className="w-full pl-10 pr-4 py-3 bg-zinc-900 border border-zinc-700 rounded-xl text-sm md:text-base text-zinc-200 placeholder-zinc-600 focus:ring-2 focus:ring-red-600 outline-none transition-all"
                               onPaste={(e) => {
                                 const pastedText = e.clipboardData.getData('Text');
                                 handleQuickPasteLogic(index, pastedText);
-                                e.preventDefault();
+                                e.preventDefault(); // 붙여넣기 후 텍스트가 남지 않도록 방지
                               }}
-                              onChange={(e) => {
-                                const val = e.target.value;
-                                if(val.length > 8) { handleQuickPasteLogic(index, val); e.target.value = ''; }
+                              onKeyDown={(e) => {
+                                // 직접 타이핑 후 엔터를 눌렀을 때만 파싱되도록 변경 (글자 수 강제 잘림 현상 제거)
+                                if (e.key === 'Enter') {
+                                  e.preventDefault();
+                                  handleQuickPasteLogic(index, e.target.value);
+                                  e.target.value = '';
+                                }
                               }}
                             />
                           </div>
