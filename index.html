@@ -132,11 +132,11 @@
       })).filter(g => g.heroes.length > 0);
 
       return (
-        <div ref={wrapperRef} className="relative w-full h-12">
+        <div ref={wrapperRef} className="relative w-full h-14">
           <input type="text" value={searchTerm}
             onChange={(e) => { setSearchTerm(e.target.value); onChange(e.target.value); setIsOpen(true); }}
             onFocus={() => setIsOpen(true)} placeholder={placeholder}
-            className="w-full h-full px-3 py-3 border border-zinc-700 rounded-xl bg-zinc-800 text-zinc-100 font-bold focus:ring-2 focus:ring-red-600 outline-none transition-all placeholder-zinc-500 text-sm md:text-base"
+            className="w-full h-full px-4 py-4 border border-zinc-700 rounded-xl bg-zinc-800 text-zinc-100 font-bold focus:ring-2 focus:ring-red-600 outline-none transition-all placeholder-zinc-500 text-sm md:text-base"
           />
           {isOpen && (
             <div className="absolute z-50 top-full left-0 right-0 mt-1 max-h-56 overflow-y-auto bg-zinc-800 border border-zinc-600 rounded-xl shadow-2xl custom-scrollbar">
@@ -172,6 +172,7 @@
       
       const [activeTab, setActiveTab] = useState('records');
       const [isAdminMode, setIsAdminMode] = useState(false);
+      const [isMobileView, setIsMobileView] = useState(false);
       
       const [alertModal, setAlertModal] = useState({ isOpen: false, title: '', content: '' });
       const [confirmModal, setConfirmModal] = useState({ isOpen: false, title: '', content: '', action: null, confirmText: '확인' });
@@ -184,6 +185,11 @@
       const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
       const [opponent, setOpponent] = useState('');
       const [matches, setMatches] = useState(Array.from({ length: 5 }, () => ({ type: '공격', myTeam: ['', '', ''], result: '승리', enemyTeam: ['', '', ''] })));
+
+      useEffect(() => {
+        // 최초 접속 시 화면 너비를 확인하여 모바일/PC 모드 초기 설정 (1024px 기준)
+        setIsMobileView(window.innerWidth < 1024);
+      }, []);
 
       useEffect(() => {
         const handleKeyDown = (e) => {
@@ -509,9 +515,17 @@
             {!hasFirebaseConfig && <div className="bg-red-900/50 text-red-200 p-5 rounded-2xl border border-red-800 font-bold shadow-sm text-center text-lg">⚠️ 데이터베이스 미연결: Firebase 설정이 누락되었습니다.</div>}
 
             <div className="bg-zinc-900 rounded-3xl shadow-xl border border-zinc-800 overflow-hidden">
-              <div className="p-6 md:p-10 bg-gradient-to-b from-zinc-900 to-zinc-950">
-                <h1 className="text-3xl md:text-4xl font-black text-zinc-50 tracking-tight">리더 길드 길드전 기록부</h1>
-                <p className="text-zinc-400 mt-3 font-medium">실시간 데이터 동기화 및 전적 분석 시스템</p>
+              <div className="p-6 md:p-10 bg-gradient-to-b from-zinc-900 to-zinc-950 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                  <h1 className="text-3xl md:text-4xl font-black text-zinc-50 tracking-tight">리더 길드 길드전 기록부</h1>
+                  <p className="text-zinc-400 mt-3 font-medium">실시간 데이터 동기화 및 전적 분석 시스템</p>
+                </div>
+                <button 
+                  onClick={() => setIsMobileView(!isMobileView)}
+                  className="flex items-center justify-center gap-2 px-5 py-3 bg-zinc-800 text-zinc-200 rounded-xl font-bold hover:bg-zinc-700 transition-colors border border-zinc-700 shadow-sm whitespace-nowrap"
+                >
+                  {isMobileView ? '🖥️ PC 화면으로 보기' : '📱 모바일 화면으로 보기'}
+                </button>
               </div>
               <div className="flex border-t border-zinc-800">
                 <button onClick={() => setActiveTab('records')} className={`flex-1 py-5 text-center font-bold text-base transition-colors ${activeTab === 'records' ? 'bg-red-700 text-white' : 'text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200'}`}>길드전 기록추가</button>
@@ -531,39 +545,44 @@
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
                     <div>
                       <label className="block text-base font-bold text-zinc-300 mb-2">길드원 닉네임</label>
-                      <input type="text" placeholder="내 닉네임 입력" value={nickname} onChange={(e) => setNickname(e.target.value)} className="w-full px-5 py-4 border border-zinc-700 rounded-xl bg-zinc-800 text-zinc-100 text-lg font-bold focus:bg-zinc-950 focus:ring-2 focus:ring-red-600 outline-none transition-all placeholder-zinc-500 shadow-inner"/>
+                      <input type="text" placeholder="내 닉네임 입력" value={nickname} onChange={(e) => setNickname(e.target.value)} className="w-full px-6 py-5 border border-zinc-700 rounded-xl bg-zinc-800 text-zinc-100 text-lg font-bold focus:bg-zinc-950 focus:ring-2 focus:ring-red-600 outline-none transition-all placeholder-zinc-500 shadow-inner"/>
                     </div>
                     <div>
                       <label className="block text-base font-bold text-zinc-300 mb-2">날짜</label>
-                      <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="w-full px-5 py-4 border border-zinc-700 rounded-xl bg-zinc-800 text-zinc-100 text-lg font-bold focus:bg-zinc-950 focus:ring-2 focus:ring-red-600 outline-none transition-all shadow-inner"/>
+                      <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="w-full px-6 py-5 border border-zinc-700 rounded-xl bg-zinc-800 text-zinc-100 text-lg font-bold focus:bg-zinc-950 focus:ring-2 focus:ring-red-600 outline-none transition-all shadow-inner"/>
                     </div>
                     <div>
                       <label className="block text-base font-bold text-zinc-300 mb-2">상대 길드</label>
-                      <input type="text" placeholder="예: 일루나" value={opponent} onChange={(e) => setOpponent(e.target.value)} className="w-full px-5 py-4 border border-zinc-700 rounded-xl bg-zinc-800 text-zinc-100 text-lg font-bold focus:bg-zinc-950 focus:ring-2 focus:ring-red-600 outline-none transition-all placeholder-zinc-500 shadow-inner"/>
+                      <input type="text" placeholder="예: 일루나" value={opponent} onChange={(e) => setOpponent(e.target.value)} className="w-full px-6 py-5 border border-zinc-700 rounded-xl bg-zinc-800 text-zinc-100 text-lg font-bold focus:bg-zinc-950 focus:ring-2 focus:ring-red-600 outline-none transition-all placeholder-zinc-500 shadow-inner"/>
                     </div>
                   </div>
 
                   <div className="space-y-5 pb-4">
                     <label className="block text-base font-bold text-zinc-300 mb-3">전투 결과 입력 (빠른 입력 칸에 텍스트를 붙여넣거나 입력 후 엔터를 누르면 자동 완성됩니다)</label>
                     {matches.map((match, index) => (
-                      <div key={index} className="flex flex-col gap-4 bg-zinc-950/60 p-5 rounded-2xl border border-zinc-800 hover:border-zinc-600 transition-colors w-full shadow-sm">
+                      <div key={index} className="flex flex-col gap-4 bg-zinc-950/60 p-4 md:p-6 rounded-2xl border border-zinc-800 hover:border-zinc-600 transition-colors w-full shadow-sm">
                         
-                        {/* 빠른 붙여넣기 전용 인풋창 */}
-                        <div className="flex items-center gap-3 w-full border-b border-zinc-800 pb-4">
-                          <span className="font-black text-zinc-400 text-2xl w-10 text-center shrink-0">{index + 1}.</span>
-                          <div className="flex-1 relative flex items-center">
-                            <div className="absolute left-3 text-zinc-500 pointer-events-none"><IconClipboard /></div>
+                        <div className={`flex w-full border-b border-zinc-800 pb-4 ${isMobileView ? 'flex-col gap-3' : 'flex-row items-center gap-3'}`}>
+                          <div className="flex items-center justify-between w-full sm:w-auto">
+                            <span className="font-black text-zinc-400 text-xl md:text-2xl w-8 md:w-10 text-center shrink-0">{index + 1}.</span>
+                            <div className={`${isMobileView ? 'block' : 'hidden'} shrink-0`}>
+                              <select value={match.result} onChange={(e) => handleMatchChange(index, 'result', e.target.value)} className={`px-5 py-3 border border-zinc-700 rounded-xl bg-zinc-800 font-black text-lg text-center shadow-sm focus:ring-2 focus:ring-red-600 outline-none ${match.result === '승리' ? 'text-blue-400' : 'text-red-500'}`}>
+                                <option value="승리">승리</option><option value="패배">패배</option>
+                              </select>
+                            </div>
+                          </div>
+                          <div className="flex-1 relative flex items-center w-full mt-2 sm:mt-0">
+                            <div className="absolute left-4 text-zinc-500 pointer-events-none"><IconClipboard /></div>
                             <input 
                               type="text" 
-                              placeholder="빠른 붙여넣기 (예: 손오공 루디 앨리스 승리 / 프레이야 밀리아 키리엘)"
-                              className="w-full pl-10 pr-4 py-3 bg-zinc-900 border border-zinc-700 rounded-xl text-sm md:text-base text-zinc-200 placeholder-zinc-600 focus:ring-2 focus:ring-red-600 outline-none transition-all"
+                              placeholder="빠른 붙여넣기 (예: 손오공 루디 앨리스 승리 프레이야 밀리아 키리엘)"
+                              className="w-full pl-12 pr-4 py-4 bg-zinc-900 border border-zinc-700 rounded-xl text-sm md:text-base text-zinc-200 placeholder-zinc-600 focus:ring-2 focus:ring-red-600 outline-none transition-all"
                               onPaste={(e) => {
                                 const pastedText = e.clipboardData.getData('Text');
                                 handleQuickPasteLogic(index, pastedText);
-                                e.preventDefault(); // 붙여넣기 후 텍스트가 남지 않도록 방지
+                                e.preventDefault();
                               }}
                               onKeyDown={(e) => {
-                                // 직접 타이핑 후 엔터를 눌렀을 때만 파싱되도록 변경 (글자 수 강제 잘림 현상 제거)
                                 if (e.key === 'Enter') {
                                   e.preventDefault();
                                   handleQuickPasteLogic(index, e.target.value);
@@ -572,47 +591,38 @@
                               }}
                             />
                           </div>
-                          <div className="xl:hidden shrink-0">
-                            <select value={match.result} onChange={(e) => handleMatchChange(index, 'result', e.target.value)} className={`px-4 py-3 border border-zinc-700 rounded-xl bg-zinc-800 font-black text-lg text-center shadow-sm focus:ring-2 focus:ring-red-600 outline-none ${match.result === '승리' ? 'text-blue-300' : 'text-red-400'}`}>
-                              <option value="승리">승리</option><option value="패배">패배</option>
-                            </select>
-                          </div>
                         </div>
 
-                        <div className="flex flex-col xl:flex-row gap-5 items-start xl:items-center w-full">
-                          <div className="flex flex-col sm:flex-row gap-3 w-full xl:flex-1">
-                            <div className="px-4 py-3 bg-blue-900/30 text-blue-300 border border-blue-900/50 rounded-xl font-bold text-sm shrink-0 flex items-center justify-center shadow-sm h-12">⚔️ 공격</div>
-                            <div className="grid grid-cols-3 gap-3 w-full">
+                        <div className={`flex w-full ${isMobileView ? 'flex-col gap-4 items-stretch' : 'flex-row gap-5 items-center'}`}>
+                          <div className={`flex w-full bg-blue-950/10 p-3 rounded-xl border border-blue-900/30 ${isMobileView ? 'flex-col gap-3' : 'flex-row gap-3 flex-1'}`}>
+                            <div className={`px-3 bg-blue-900/40 text-blue-300 rounded-lg font-bold text-sm shrink-0 flex items-center justify-center shadow-sm w-full ${isMobileView ? 'py-3 h-auto' : 'sm:w-auto h-14'}`}>아군 영웅</div>
+                            <div className="grid grid-cols-3 gap-2 w-full">
                               {[0, 1, 2].map(heroIdx => (
                                 <SearchableSelect 
-                                  key={`my-${heroIdx}`}
-                                  value={match.myTeam[heroIdx]} 
+                                  key={`my-${heroIdx}`} value={match.myTeam[heroIdx]} 
                                   onChange={(val) => handleTeamChange(index, 'myTeam', heroIdx, val)}
-                                  placeholder={`아군 영웅 ${heroIdx + 1}`}
-                                  groups={HERO_GROUPS}
+                                  placeholder={`선택 ${heroIdx + 1}`} groups={HERO_GROUPS}
                                 />
                               ))}
                             </div>
                           </div>
 
-                          <div className="hidden xl:flex items-center shrink-0">
-                            <select value={match.result} onChange={(e) => handleMatchChange(index, 'result', e.target.value)} className={`px-3 py-3 border border-zinc-700 rounded-xl bg-zinc-800 font-black text-lg w-28 text-center shadow-sm focus:ring-2 focus:ring-red-600 outline-none ${match.result === '승리' ? 'text-blue-300' : 'text-red-400'} h-12`}>
+                          <div className={`${isMobileView ? 'hidden' : 'flex'} items-center shrink-0 px-2`}>
+                            <select value={match.result} onChange={(e) => handleMatchChange(index, 'result', e.target.value)} className={`px-3 py-4 border border-zinc-700 rounded-xl bg-zinc-800 font-black text-lg w-28 text-center shadow-sm focus:ring-2 focus:ring-red-600 outline-none ${match.result === '승리' ? 'text-blue-400' : 'text-red-500'} h-14`}>
                               <option value="승리">승리</option><option value="패배">패배</option>
                             </select>
                           </div>
                           
-                          <span className="hidden xl:block text-zinc-600 font-black text-2xl shrink-0">/</span>
+                          <span className={`${isMobileView ? 'hidden' : 'block'} text-zinc-700 font-black text-2xl shrink-0`}>/</span>
 
-                          <div className="flex flex-col sm:flex-row gap-3 w-full xl:flex-1">
-                            <div className="px-4 py-3 bg-red-900/30 text-red-300 border border-red-900/50 rounded-xl font-bold text-sm shrink-0 flex items-center justify-center shadow-sm h-12">🛡️ 방어</div>
-                            <div className="grid grid-cols-3 gap-3 w-full">
+                          <div className={`flex w-full bg-red-950/10 p-3 rounded-xl border border-red-900/30 ${isMobileView ? 'flex-col gap-3 mt-2' : 'flex-row gap-3 flex-1'}`}>
+                            <div className={`px-3 bg-red-900/40 text-red-300 rounded-lg font-bold text-sm shrink-0 flex items-center justify-center shadow-sm w-full ${isMobileView ? 'py-3 h-auto' : 'sm:w-auto h-14'}`}>적군 영웅</div>
+                            <div className="grid grid-cols-3 gap-2 w-full">
                               {[0, 1, 2].map(heroIdx => (
                                 <SearchableSelect 
-                                  key={`enemy-${heroIdx}`}
-                                  value={match.enemyTeam[heroIdx]} 
+                                  key={`enemy-${heroIdx}`} value={match.enemyTeam[heroIdx]} 
                                   onChange={(val) => handleTeamChange(index, 'enemyTeam', heroIdx, val)}
-                                  placeholder={`적군 영웅 ${heroIdx + 1}`}
-                                  groups={HERO_GROUPS}
+                                  placeholder={`선택 ${heroIdx + 1}`} groups={HERO_GROUPS}
                                 />
                               ))}
                             </div>
@@ -768,24 +778,43 @@
                                             let myArr = Array.isArray(match.myTeam) ? match.myTeam : (match.myTeam ? match.myTeam.split(',') : []);
                                             let enArr = Array.isArray(match.enemyTeam) ? match.enemyTeam : (match.enemyTeam ? match.enemyTeam.split(',') : []);
                                             let myStr = myArr.join(', ').trim(); let enStr = enArr.join(', ').trim();
+                                            
                                             return (
-                                              <li key={idx} className="flex flex-col xl:flex-row gap-5 bg-zinc-950/80 p-5 rounded-2xl border border-zinc-800/60 hover:bg-zinc-800 transition-colors w-full">
-                                                <div className="flex items-center justify-between w-full xl:w-auto">
-                                                  <div className="flex items-center gap-3 w-10 shrink-0"><span className="font-black text-zinc-500 text-xl">{idx + 1}.</span></div>
-                                                  <div className={`xl:hidden font-black text-xl ${match.result === '승리' ? 'text-blue-400' : 'text-red-500'}`}>{match.result}</div>
+                                              <li key={idx} className={`flex bg-zinc-950/80 p-4 md:p-5 rounded-2xl border border-zinc-800/60 hover:bg-zinc-800/80 transition-colors w-full relative overflow-hidden shadow-sm ${isMobileView ? 'flex-col gap-3' : 'flex-row gap-3 items-center'}`}>
+                                                
+                                                {/* 좌측 승패 상태 표시줄 */}
+                                                <div className={`absolute left-0 top-0 bottom-0 w-1.5 ${match.result === '승리' ? 'bg-blue-500' : 'bg-red-500'}`}></div>
+
+                                                {/* 모바일 전용 헤더 */}
+                                                <div className={`flex items-center justify-between w-full pl-3 mb-2 border-b border-zinc-800/50 pb-2 ${isMobileView ? '' : 'hidden'}`}>
+                                                  <span className="font-bold text-zinc-500 text-sm tracking-widest">MATCH {idx + 1}</span>
+                                                  <span className={`font-black text-lg ${match.result === '승리' ? 'text-blue-400' : 'text-red-500'}`}>{match.result}</span>
                                                 </div>
-                                                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full xl:flex-1">
-                                                  <div className="px-4 py-2 bg-blue-900/30 text-blue-300 rounded-lg text-sm font-bold shrink-0 shadow-sm border border-blue-900/50 text-center">⚔️ 공격</div>
-                                                  <div className="flex-1 flex items-center justify-center gap-2 bg-zinc-900 px-5 py-4 rounded-xl border border-zinc-700 shadow-sm text-center">
-                                                    <span className="font-bold text-zinc-100 text-base tracking-wide select-all">{myStr || '-'}</span>
+
+                                                <div className={`flex w-full gap-3 pl-3 lg:pl-2 ${isMobileView ? 'flex-col items-stretch' : 'flex-row items-center'}`}>
+                                                  {/* PC 전용 매치번호 */}
+                                                  <div className={`${isMobileView ? 'hidden' : 'flex'} w-10 shrink-0 justify-center items-center`}>
+                                                    <span className="font-black text-zinc-600 text-xl">{idx + 1}.</span>
                                                   </div>
-                                                </div>
-                                                <div className={`hidden xl:block font-black text-xl w-16 text-center shrink-0 ${match.result === '승리' ? 'text-blue-400' : 'text-red-500'}`}>{match.result}</div>
-                                                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full xl:flex-1">
-                                                  <div className="px-4 py-2 bg-red-900/30 text-red-300 rounded-lg text-sm font-bold shrink-0 shadow-sm border border-red-900/50 text-center">🛡️ 방어</div>
-                                                  <div className="flex-1 flex items-center justify-center gap-2 bg-zinc-900 px-5 py-4 rounded-xl border border-zinc-700 shadow-sm text-center">
-                                                    <span className="font-bold text-zinc-100 text-base tracking-wide select-all">{enStr || '-'}</span>
-                                                </div>
+
+                                                  {/* 아군 덱 출력 */}
+                                                  <div className={`flex w-full ${isMobileView ? 'flex-col items-stretch gap-2' : 'flex-row items-center gap-2 flex-1'}`}>
+                                                    <div className={`px-3 py-1.5 bg-blue-900/20 text-blue-400 rounded-lg text-xs md:text-sm font-bold shrink-0 border border-blue-900/40 text-center ${isMobileView ? 'w-20' : 'w-auto'}`}>아군</div>
+                                                    <div className="flex-1 flex items-center justify-start gap-2 bg-zinc-900 px-4 py-3 rounded-xl border border-zinc-700 shadow-sm text-left">
+                                                      <span className="font-bold text-zinc-200 text-sm md:text-base tracking-wide break-keep select-all">{myStr || '-'}</span>
+                                                    </div>
+                                                  </div>
+
+                                                  {/* PC 전용 결과 */}
+                                                  <div className={`${isMobileView ? 'hidden' : 'flex'} font-black text-lg w-16 items-center justify-center shrink-0 ${match.result === '승리' ? 'text-blue-400' : 'text-red-500'}`}>{match.result}</div>
+
+                                                  {/* 적군 덱 출력 */}
+                                                  <div className={`flex w-full ${isMobileView ? 'flex-col items-stretch gap-2 mt-1' : 'flex-row items-center gap-2 flex-1'}`}>
+                                                    <div className={`px-3 py-1.5 bg-red-900/20 text-red-400 rounded-lg text-xs md:text-sm font-bold shrink-0 border border-red-900/40 text-center ${isMobileView ? 'w-20' : 'w-auto'}`}>적군</div>
+                                                    <div className="flex-1 flex items-center justify-start gap-2 bg-zinc-900 px-4 py-3 rounded-xl border border-zinc-700 shadow-sm text-left">
+                                                      <span className="font-bold text-zinc-200 text-sm md:text-base tracking-wide break-keep select-all">{enStr || '-'}</span>
+                                                    </div>
+                                                  </div>
                                                 </div>
                                               </li>
                                             )
