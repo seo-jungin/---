@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>리더 길드 길드전 기록부</title>
+  <title>리더 길드전 기록부</title>
   
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
@@ -20,9 +20,43 @@
     .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #52525b; border-radius: 10px; }
     .custom-scrollbar::-webkit-scrollbar-thumb:hover { background-color: #71717a; }
     .glass-panel { background: rgba(24, 24, 27, 0.65); backdrop-filter: blur(12px); border: 1px solid rgba(63, 63, 70, 0.4); }
+    
+    .gold-gradient-text {
+      background: linear-gradient(to right, #bf953f, #fff2cd, #b38728);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .gold-bg-active {
+      background: linear-gradient(135deg, rgba(191, 149, 63, 0.15) 0%, rgba(252, 246, 186, 0.05) 50%, rgba(179, 135, 40, 0.15) 100%);
+      border-bottom: 2px solid #fcf6ba;
+      box-shadow: inset 0 -10px 20px -10px rgba(191, 149, 63, 0.4);
+    }
+    .gold-panel {
+      background: linear-gradient(to bottom right, #18181b, #09090b);
+      border: 1px solid rgba(191, 149, 63, 0.4);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.8), inset 0 0 20px rgba(191, 149, 63, 0.05);
+    }
+    .gold-button {
+      background-color: #09090b;
+      border: 1px solid rgba(191, 149, 63, 0.6);
+      color: #fcf6ba;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+      transition: all 0.2s ease-in-out;
+    }
+    .gold-button:hover {
+      background-color: #18181b;
+      border-color: #fcf6ba;
+      color: #ffffff;
+      box-shadow: 0 0 12px rgba(191, 149, 63, 0.35);
+      transform: translateY(-1px);
+    }
+    .gold-button:active {
+      transform: translateY(1px);
+    }
   </style>
 </head>
-<body class="selection:bg-blue-500/30 selection:text-blue-200" oncontextmenu="return false;">
+<body class="selection:bg-yellow-500/30 selection:text-yellow-200" oncontextmenu="return false;">
   <div id="root"></div>
 
   <script type="text/babel" data-type="module">
@@ -92,7 +126,6 @@
       { group: "후속작 오리지널", heroes: ["렌", "코제트", "챙첸", "밍", "이안", "앙리", "케이드", "루키", "멜리사", "스캇", "피네", "엘카", "샬롯", "티티", "레일라", "스텔라", "세일럼", "렘", "루아", "세레나", "샤이", "트리스탄"] }
     ];
 
-    // 블랙 화면 원천 차단을 위한 배열/문자열 검증 유틸리티 함수
     const getSafeArray = (arr) => {
       if (Array.isArray(arr)) return arr;
       if (typeof arr === 'string') return arr.split(',').map(s => s.trim());
@@ -115,12 +148,12 @@
       if (!isOpen) return null;
       return (
         <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 p-4 animate-in fade-in duration-200">
-          <div className="bg-zinc-900 border border-zinc-700 p-6 md:p-8 rounded-2xl shadow-2xl max-w-sm w-full">
-            <h3 className="text-lg font-bold text-zinc-100 mb-3">{title}</h3>
+          <div className="gold-panel p-6 md:p-8 rounded-2xl shadow-2xl max-w-sm w-full">
+            <h3 className="text-lg font-black gold-gradient-text mb-3">{title}</h3>
             <div className="text-sm text-zinc-300 font-medium mb-6 whitespace-pre-line">{content}</div>
             <div className="flex gap-3">
               {!hideCancel && <button onClick={onClose} className="flex-1 py-3 rounded-xl bg-zinc-800 border border-zinc-700 text-zinc-300 font-bold text-sm hover:bg-zinc-700 transition-colors">취소</button>}
-              <button onClick={onConfirm} className="flex-1 py-3 rounded-xl bg-blue-600 text-white font-bold text-sm hover:bg-blue-500 transition-colors">{confirmText}</button>
+              <button onClick={onConfirm} className="flex-1 py-3 rounded-xl gold-button font-bold text-sm">{confirmText}</button>
             </div>
           </div>
         </div>
@@ -148,17 +181,17 @@
           <input type="text" value={searchTerm}
             onChange={(e) => { setSearchTerm(e.target.value); onChange(e.target.value); setIsOpen(true); }}
             onFocus={() => setIsOpen(true)} placeholder={placeholder}
-            className="w-full h-full px-3 py-2 bg-zinc-900 border border-zinc-700 rounded-xl text-zinc-100 font-bold focus:ring-2 focus:ring-blue-500 outline-none transition-all placeholder-zinc-600 text-xs md:text-sm shadow-sm"
+            className="w-full h-full px-3 py-2 bg-zinc-900 border border-zinc-700 rounded-xl text-zinc-100 font-bold focus:ring-2 focus:ring-yellow-600 outline-none transition-all placeholder-zinc-600 text-xs md:text-sm shadow-sm"
           />
           {isOpen && (
             <div className="absolute z-50 top-full left-0 right-0 mt-1 max-h-56 overflow-y-auto bg-zinc-800 border border-zinc-700 rounded-xl shadow-xl custom-scrollbar py-1">
               {filteredGroups.length === 0 ? <div className="p-3 text-xs text-zinc-500 font-bold text-center">결과 없음</div> : 
                 filteredGroups.map(g => (
                   <div key={g.group}>
-                    <div className="px-3 py-1.5 text-[10px] font-black text-blue-400 bg-zinc-900 sticky top-0 z-10 border-y border-zinc-800">{g.group}</div>
+                    <div className="px-3 py-1.5 text-[10px] font-black text-yellow-600 bg-zinc-900 sticky top-0 z-10 border-y border-zinc-800">{g.group}</div>
                     {g.heroes.map(h => (
                       <div key={h} onClick={() => { onChange(h); setSearchTerm(h); setIsOpen(false); }}
-                        className="px-4 py-2 text-xs font-bold text-zinc-200 hover:bg-blue-600 hover:text-white cursor-pointer transition-colors"
+                        className="px-4 py-2 text-xs font-bold text-zinc-200 hover:bg-yellow-700 hover:text-white cursor-pointer transition-colors"
                       >{h}</div>
                     ))}
                   </div>
@@ -175,31 +208,33 @@
       const [records, setRecords] = useState([]);
       const [filterChar, setFilterChar] = useState('');
       const [showStats, setShowStats] = useState(false);
-      const [editingId, setEditingId] = useState(null);
-      const [customHeroes, setCustomHeroes] = useState([]); 
       
+      const [editingId, setEditingId] = useState(null);
+      const [editingAuthorId, setEditingAuthorId] = useState(null); 
+      
+      const [customHeroes, setCustomHeroes] = useState([]); 
       const [expandedGroups, setExpandedGroups] = useState({}); 
       const [expandedRecords, setExpandedRecords] = useState({});
-      const [activeTab, setActiveTab] = useState('attack'); // 'attack', 'defense', 'management'
+      const [activeTab, setActiveTab] = useState('attack');
       const [isAdminMode, setIsAdminMode] = useState(false);
       const [isMobileView, setIsMobileView] = useState(false);
       const [showFloatingBtn, setShowFloatingBtn] = useState(true);
       
       const [alertModal, setAlertModal] = useState({ isOpen: false, title: '', content: '' });
       const [confirmModal, setConfirmModal] = useState({ isOpen: false, title: '', content: '', action: null, confirmText: '확인' });
+      
       const [unlockModalOpen, setUnlockModalOpen] = useState(false);
       const [unlockPwd, setUnlockPwd] = useState('');
       const [unlockError, setUnlockError] = useState(false);
+      const [titleClickCount, setTitleClickCount] = useState(0);
+      const clickTimeoutRef = useRef(null);
+      const unlockInputRef = useRef(null);
 
-      // 폼 공통 상태
       const [nickname, setNickname] = useState('');
       const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
       const [opponent, setOpponent] = useState('');
       
-      // 공격 폼 상태
       const [attackMatches, setAttackMatches] = useState(Array.from({ length: 5 }, () => ({ myTeam: ['', '', ''], result: '승리', enemyTeam: ['', '', ''] })));
-      
-      // 방어 폼 상태
       const [defenseMyTeam, setDefenseMyTeam] = useState(['', '', '']);
       const [defenseMatches, setDefenseMatches] = useState([{ enemyTeam: ['', '', ''], result: '방어 성공' }]);
 
@@ -228,19 +263,45 @@
 
       useEffect(() => {
         const handleKeyDown = (e) => {
-          if (e.ctrlKey && e.altKey && (e.key === 'u' || e.key === 'U')) {
+          if (e.ctrlKey && e.altKey && (e.code === 'KeyU' || e.key === 'u' || e.key === 'U' || e.key === 'ㅕ')) {
             e.preventDefault();
-            if (!isAdminMode) { setUnlockModalOpen(true); setUnlockPwd(''); setUnlockError(false); }
+            if (!isAdminMode) { 
+              setUnlockModalOpen(true); 
+              setUnlockPwd(''); 
+              setUnlockError(false); 
+              setTimeout(() => { if (unlockInputRef.current) unlockInputRef.current.focus(); }, 100);
+            }
           }
         };
         document.addEventListener('keydown', handleKeyDown);
         return () => document.removeEventListener('keydown', handleKeyDown);
       }, [isAdminMode]);
 
+      const handleTitleClick = () => {
+        setTitleClickCount(prev => {
+          const newCount = prev + 1;
+          if (newCount >= 5) {
+            if (!isAdminMode) { 
+              setUnlockModalOpen(true); 
+              setUnlockPwd(''); 
+              setUnlockError(false); 
+              setTimeout(() => { if (unlockInputRef.current) unlockInputRef.current.focus(); }, 100);
+            }
+            return 0;
+          }
+          return newCount;
+        });
+
+        if (clickTimeoutRef.current) clearTimeout(clickTimeoutRef.current);
+        clickTimeoutRef.current = setTimeout(() => {
+          setTitleClickCount(0);
+        }, 1500);
+      };
+
       const handleAdminUnlock = (e) => {
         e.preventDefault();
         if (unlockPwd === "4979457") { setIsAdminMode(true); setUnlockModalOpen(false); setActiveTab('management'); } 
-        else { setUnlockError(true); setUnlockPwd(''); }
+        else { setUnlockError(true); setUnlockPwd(''); if (unlockInputRef.current) unlockInputRef.current.focus(); }
       };
 
       const showAlert = (title, content) => setAlertModal({ isOpen: true, title, content });
@@ -275,7 +336,6 @@
         return () => unsubscribe();
       }, [user]);
 
-      // 데이터 필터링 (현재 탭에 맞춰 공격/방어 데이터 분리)
       const currentRecords = useMemo(() => {
         return records.filter(r => {
           const type = r.recordType || 'attack';
@@ -283,7 +343,6 @@
         });
       }, [records, activeTab]);
 
-      // 통계 - 활성화된 탭 기준 분리 연산
       const statsData = useMemo(() => {
         const deckCounts = {};
         const memberData = {};
@@ -308,18 +367,17 @@
               }
             });
           } else if (activeTab === 'defense') {
-            // 방어 통계: 아군 방어 덱 기준 성공률, 길드원 방어 성공률 (방어 횟수 기반)
             const defTeamArr = getSafeArray(record.myTeam);
             const validDefHeroes = defTeamArr.map(h => h && typeof h === 'string' ? h.trim() : '').filter(Boolean).sort();
             const defDeckKey = validDefHeroes.length === 3 ? validDefHeroes.join(', ') : null;
             
             record.defenseMatches?.forEach(match => {
-              memberData[name].totalMatches += 1; // 1회 피격 당 1회 매치로 간주
+              memberData[name].totalMatches += 1; 
               if (match.result === '방어 성공') memberData[name].wins += 1;
 
               if (defDeckKey) {
                 if (!deckCounts[defDeckKey]) deckCounts[defDeckKey] = { deck: defDeckKey, count: 0, wins: 0 };
-                deckCounts[defDeckKey].count += 1; // 피격 누적 횟수
+                deckCounts[defDeckKey].count += 1; 
                 if (match.result === '방어 성공') deckCounts[defDeckKey].wins += 1;
               }
             });
@@ -337,7 +395,6 @@
         return { deckStats, memberStats };
       }, [currentRecords, activeTab]);
 
-      // 공격 폼 핸들러
       const handleAttackTeamChange = (index, teamType, heroIndex, value) => {
         const newMatches = [...attackMatches]; newMatches[index][teamType][heroIndex] = value; setAttackMatches(newMatches);
       };
@@ -345,7 +402,6 @@
         const newMatches = [...attackMatches]; newMatches[index].result = value; setAttackMatches(newMatches);
       };
 
-      // 공격 폼 전용 단일 라인 빠른 붙여넣기
       const handleAttackQuickPaste = (index, text) => {
         if (!text || text.trim() === '') return;
         let result = '승리';
@@ -376,7 +432,6 @@
         setAttackMatches(newMatches);
       };
 
-      // 방어 폼 핸들러
       const handleDefenseMyTeamChange = (heroIndex, value) => {
         const newTeam = [...defenseMyTeam]; newTeam[heroIndex] = value; setDefenseMyTeam(newTeam);
       };
@@ -391,11 +446,9 @@
         else showAlert("추가 불가", "방어 기록은 한 번에 최대 15개까지만 입력 가능합니다.");
       };
 
-      // 방어 기록지 전용 다중 파싱 로직
       const handleDefenseGlobalPaste = (text) => {
         if (!text || text.trim() === '') return;
         
-        // 엔터, 파이프, 슬래시 등으로 줄바꿈 기준을 나눔
         const lines = text.split(/\n|\||\//).map(l => l.trim()).filter(Boolean);
         const allPredefined = PREDEFINED_HERO_GROUPS.flatMap(g => g.heroes);
         
@@ -416,7 +469,6 @@
             });
 
             if (extractedHeroes.length > 0) {
-                // 첫 줄에 영웅이 있고 내 덱이 비어있다면 내 덱으로 간주
                 if (lineIdx === 0 && !newMyTeam.some(h => h.trim())) {
                     newMyTeam = [extractedHeroes[0]||'', extractedHeroes[1]||'', extractedHeroes[2]||''];
                 } else {
@@ -441,7 +493,7 @@
       };
 
       const resetForm = () => {
-        setOpponent(''); setEditingId(null);
+        setOpponent(''); setEditingId(null); setEditingAuthorId(null);
         setAttackMatches(Array.from({ length: 5 }, () => ({ myTeam: ['', '', ''], result: '승리', enemyTeam: ['', '', ''] })));
         setDefenseMyTeam(['', '', '']);
         setDefenseMatches([{ enemyTeam: ['', '', ''], result: '방어 성공' }]);
@@ -452,7 +504,11 @@
         if (!user) return showAlert("인증 오류", "인증 정보가 없습니다.");
         if (!nickname || !date || !opponent) return showAlert("입력 오류", "상단 기본 정보(닉네임, 날짜, 상대)를 모두 입력해주세요.");
 
-        let dataToSave = { nickname, date, opponent, recordType: activeTab, authorId: user.uid };
+        let dataToSave = { 
+          nickname, date, opponent, recordType: activeTab, 
+          authorId: editingId ? (editingAuthorId || user.uid) : user.uid 
+        };
+        
         let allInputHeroes = [];
 
         if (activeTab === 'attack') {
@@ -497,7 +553,9 @@
       };
 
       const handleEditClick = (record) => {
-        setEditingId(record.id); setNickname(record.nickname || ''); setDate(record.date || new Date().toISOString().split('T')[0]); setOpponent(record.opponent || '');
+        setEditingId(record.id); 
+        setEditingAuthorId(record.authorId || null); 
+        setNickname(record.nickname || ''); setDate(record.date || new Date().toISOString().split('T')[0]); setOpponent(record.opponent || '');
         
         if (activeTab === 'attack') {
           const loaded = record.matches?.map(m => ({
@@ -566,6 +624,73 @@
         document.body.appendChild(link); link.click(); document.body.removeChild(link);
       };
 
+      const handleExportStatsCSV = () => {
+        if (records.length === 0) return showAlert("알림", "데이터가 없습니다.");
+
+        const memberStatsExport = {};
+        const attackDeckCounts = {};
+        const defenseDeckCounts = {};
+
+        records.forEach(r => {
+          const name = r.nickname || '익명';
+          if (!memberStatsExport[name]) memberStatsExport[name] = { name, atkTotal: 0, atkWins: 0, defTotal: 0, defWins: 0 };
+
+          if (r.recordType === 'attack' || !r.recordType) {
+            r.matches?.forEach(m => {
+              memberStatsExport[name].atkTotal++;
+              if (m.result === '승리') memberStatsExport[name].atkWins++;
+
+              const myArr = getSafeArray(m.myTeam);
+              const validHeroes = myArr.map(h => h && typeof h === 'string' ? h.trim() : '').filter(Boolean).sort();
+              if (validHeroes.length === 3) {
+                const deckKey = validHeroes.join(', ');
+                if (!attackDeckCounts[deckKey]) attackDeckCounts[deckKey] = { deck: deckKey, count: 0, wins: 0 };
+                attackDeckCounts[deckKey].count++;
+                if (m.result === '승리') attackDeckCounts[deckKey].wins++;
+              }
+            });
+          } else if (r.recordType === 'defense') {
+            const defTeamArr = getSafeArray(r.myTeam);
+            const validDefHeroes = defTeamArr.map(h => h && typeof h === 'string' ? h.trim() : '').filter(Boolean).sort();
+            const defDeckKey = validDefHeroes.length === 3 ? validDefHeroes.join(', ') : null;
+
+            r.defenseMatches?.forEach(m => {
+              memberStatsExport[name].defTotal++;
+              if (m.result === '방어 성공') memberStatsExport[name].defWins++;
+
+              if (defDeckKey) {
+                if (!defenseDeckCounts[defDeckKey]) defenseDeckCounts[defDeckKey] = { deck: defDeckKey, count: 0, wins: 0 };
+                defenseDeckCounts[defDeckKey].count++;
+                if (m.result === '방어 성공') defenseDeckCounts[defDeckKey].wins++;
+              }
+            });
+          }
+        });
+
+        let csv = "\uFEFF=== [길드원 종합 통계] ===\n닉네임,공격 진행,공격 승리,공격 승률(%),방어 피격,방어 성공,방어 성공률(%)\n";
+        Object.values(memberStatsExport).forEach(m => {
+          const atkRate = m.atkTotal > 0 ? ((m.atkWins / m.atkTotal) * 100).toFixed(1) : 0;
+          const defRate = m.defTotal > 0 ? ((m.defWins / m.defTotal) * 100).toFixed(1) : 0;
+          csv += `${m.name},${m.atkTotal},${m.atkWins},${atkRate},${m.defTotal},${m.defWins},${defRate}\n`;
+        });
+
+        csv += "\n=== [많이 사용된 공격 덱 Top 통계] ===\n덱 조합,사용 횟수,승리 횟수,승률(%)\n";
+        Object.values(attackDeckCounts).sort((a,b)=>b.count-a.count).forEach(d => {
+          const rate = d.count > 0 ? ((d.wins / d.count) * 100).toFixed(1) : 0;
+          csv += `"${d.deck}",${d.count},${d.wins},${rate}\n`;
+        });
+
+        csv += "\n=== [가장 방어율이 높은 방어 덱 Top 통계] ===\n덱 조합,피격 횟수,방어 성공,방어 성공률(%)\n";
+        Object.values(defenseDeckCounts).sort((a,b)=>b.count-a.count).forEach(d => {
+          const rate = d.count > 0 ? ((d.wins / d.count) * 100).toFixed(1) : 0;
+          csv += `"${d.deck}",${d.count},${d.wins},${rate}\n`;
+        });
+
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = `길드전_종합통계_${new Date().toISOString().split('T')[0]}.csv`;
+        document.body.appendChild(link); link.click(); document.body.removeChild(link);
+      };
+
       const groupedRecords = useMemo(() => {
         const groups = {};
         let search = filterChar.toLowerCase().trim();
@@ -606,34 +731,68 @@
           <CustomModal isOpen={alertModal.isOpen} onClose={() => setAlertModal({...alertModal, isOpen: false})} title={alertModal.title} content={alertModal.content} onConfirm={() => setAlertModal({...alertModal, isOpen: false})} hideCancel={true} />
           <CustomModal isOpen={confirmModal.isOpen} onClose={() => setConfirmModal({...confirmModal, isOpen: false})} title={confirmModal.title} content={confirmModal.content} onConfirm={confirmModal.action} confirmText={confirmModal.confirmText} />
 
-          <button onClick={() => setIsMobileView(!isMobileView)} className={`fixed top-4 right-4 z-50 flex items-center gap-2 px-4 py-2 glass-panel text-zinc-200 rounded-full font-bold text-xs shadow-lg transform ${showFloatingBtn?'translate-y-0 opacity-100':'-translate-y-20 opacity-0'} transition-all duration-300`}>
-            {isMobileView ? '🖥️ PC' : '📱 모바일'}
+          {unlockModalOpen && (
+            <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4 animate-in fade-in duration-200">
+              <div className="gold-panel p-8 md:p-12 rounded-3xl shadow-2xl max-w-sm w-full relative">
+                <button onClick={() => setUnlockModalOpen(false)} className="absolute top-4 right-4 p-2 text-zinc-500 hover:text-zinc-300 transition-colors"><IconX /></button>
+                <div className="w-14 h-14 bg-yellow-900/30 text-yellow-500 rounded-full flex items-center justify-center mx-auto mb-5 shadow-sm border border-yellow-700/50"><IconLock /></div>
+                <h2 className="text-xl font-bold gold-gradient-text mb-2 text-center">숨겨진 기능 해제</h2>
+                <p className="text-zinc-400 mb-8 text-sm text-center">관리자 암호를 입력하세요.</p>
+                <form onSubmit={handleAdminUnlock} className="space-y-4">
+                  <input ref={unlockInputRef} type="password" value={unlockPwd} onChange={(e) => setUnlockPwd(e.target.value)} placeholder="비밀번호" className={`w-full px-5 py-4 border ${unlockError ? 'border-red-500 bg-red-950/20' : 'border-yellow-700/50 bg-zinc-900'} rounded-2xl focus:ring-2 focus:ring-yellow-600 outline-none text-center text-zinc-100 tracking-[0.5em] text-lg font-bold transition-colors shadow-inner`} />
+                  {unlockError && <p className="text-red-400 text-xs text-center font-medium">비밀번호가 일치하지 않습니다.</p>}
+                  <button type="submit" className="w-full gold-button font-black py-4 rounded-2xl shadow-md transition-all mt-2">해제하기</button>
+                </form>
+              </div>
+            </div>
+          )}
+
+          <button onClick={() => setIsMobileView(!isMobileView)} className={`fixed top-4 right-4 z-50 flex items-center gap-2 px-4 py-2.5 gold-button rounded-full font-bold text-xs md:text-sm transform ${showFloatingBtn?'translate-y-0 opacity-100':'-translate-y-20 opacity-0'} transition-all duration-300`}>
+            {isMobileView ? '🖥️ PC 모드' : '📱 모바일 모드'}
           </button>
 
           <div className="max-w-6xl mx-auto space-y-6 md:space-y-8 mt-10 md:mt-0">
-            <div className="bg-zinc-900 border border-zinc-700 rounded-2xl shadow-lg overflow-hidden">
-              <div className="p-6 md:p-8 flex flex-col md:flex-row items-center justify-between">
+            <div className="bg-zinc-900 border border-zinc-700 rounded-2xl shadow-2xl overflow-hidden">
+              <div className="p-6 md:p-8 flex flex-col md:flex-row items-center justify-between bg-gradient-to-b from-zinc-800 to-zinc-900">
                 <div>
-                  <h1 className="text-2xl md:text-3xl font-black text-zinc-50">세븐나이츠 길드전 기록부</h1>
+                  <h1 
+                    className="text-3xl md:text-4xl font-black gold-gradient-text cursor-pointer select-none drop-shadow-md" 
+                    onClick={handleTitleClick}
+                    title="타이틀 5번 연속 클릭 시 관리자 모드 열림"
+                  >
+                    리더 길드전 기록부
+                  </h1>
                 </div>
               </div>
-              <div className="flex border-t border-zinc-700 overflow-x-auto custom-scrollbar">
-                <button onClick={() => {setActiveTab('attack'); resetForm();}} className={`flex-1 min-w-[120px] py-4 font-bold text-sm md:text-base transition-colors ${activeTab === 'attack' ? 'bg-blue-900/40 text-blue-400 border-b-2 border-blue-500' : 'text-zinc-400 hover:bg-zinc-800'}`}>⚔️ 승리 기록지</button>
-                <button onClick={() => {setActiveTab('defense'); resetForm();}} className={`flex-1 min-w-[120px] py-4 font-bold text-sm md:text-base transition-colors ${activeTab === 'defense' ? 'bg-rose-900/40 text-rose-400 border-b-2 border-rose-500' : 'text-zinc-400 hover:bg-zinc-800'}`}>🛡️ 방어 기록지</button>
-                {isAdminMode && <button onClick={() => setActiveTab('management')} className={`flex-1 min-w-[120px] py-4 font-bold text-sm md:text-base transition-colors ${activeTab === 'management' ? 'bg-emerald-900/40 text-emerald-400 border-b-2 border-emerald-500' : 'text-zinc-400 hover:bg-zinc-800'}`}>⚙️ 데이터 관리</button>}
+              
+              <div className="flex border-t border-zinc-700 overflow-x-auto custom-scrollbar bg-zinc-900">
+                <button onClick={() => {setActiveTab('attack'); resetForm();}} className={`flex-1 min-w-[120px] py-5 font-black text-sm md:text-base transition-all flex items-center justify-center gap-2 ${activeTab === 'attack' ? 'gold-bg-active' : 'text-zinc-400 hover:bg-zinc-800/50 hover:text-zinc-200'}`}>
+                  <span>⚔️</span>
+                  <span className={activeTab === 'attack' ? 'gold-gradient-text drop-shadow-sm' : ''}>승리 기록지[길드원]</span>
+                </button>
+                <button onClick={() => {setActiveTab('defense'); resetForm();}} className={`flex-1 min-w-[120px] py-5 font-black text-sm md:text-base transition-all flex items-center justify-center gap-2 ${activeTab === 'defense' ? 'gold-bg-active' : 'text-zinc-400 hover:bg-zinc-800/50 hover:text-zinc-200'}`}>
+                  <span>🛡️</span>
+                  <span className={activeTab === 'defense' ? 'gold-gradient-text drop-shadow-sm' : ''}>방어 기록지[운영진]</span>
+                </button>
+                {isAdminMode && (
+                  <button onClick={() => setActiveTab('management')} className={`flex-1 min-w-[120px] py-5 font-black text-sm md:text-base transition-all flex items-center justify-center gap-2 ${activeTab === 'management' ? 'gold-bg-active' : 'text-zinc-400 hover:bg-zinc-800/50 hover:text-zinc-200'}`}>
+                    <span>⚙️</span>
+                    <span className={activeTab === 'management' ? 'gold-gradient-text drop-shadow-sm' : ''}>데이터 관리[관리자]</span>
+                  </button>
+                )}
               </div>
             </div>
 
             {(activeTab === 'attack' || activeTab === 'defense') && (
               <div className="space-y-6 animate-in fade-in duration-300">
-                <section className={`bg-zinc-900 border border-zinc-700 p-5 md:p-8 rounded-2xl shadow-lg ${editingId ? 'border-sky-500 bg-sky-950/10' : ''}`}>
+                <section className={`bg-zinc-900 border border-zinc-700 p-5 md:p-8 rounded-2xl shadow-lg ${editingId ? 'border-yellow-600 bg-yellow-950/10' : ''}`}>
                   <h2 className="text-lg md:text-xl font-black text-zinc-100 mb-6 flex items-center gap-2">
-                    {editingId ? <><span className="text-sky-400"><IconEdit /></span> 기록 수정 중 ({activeTab==='attack'?'공격':'방어'})</> : (activeTab==='attack'?'⚔️ 길드전 공격(승리) 기록 추가':'🛡️ 길드전 방어 기록 추가')}
+                    {editingId ? <><span className="gold-gradient-text"><IconEdit /></span> 기록 수정 중 ({activeTab==='attack'?'공격':'방어'})</> : (activeTab==='attack'?'⚔️ 길드전 공격(승리) 기록 추가':'🛡️ 길드전 방어 기록 추가')}
                   </h2>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                    <div><label className="block text-sm font-bold text-zinc-400 mb-1">길드원 닉네임</label><input type="text" value={nickname} onChange={(e) => setNickname(e.target.value)} className="w-full px-4 py-3 bg-zinc-800 border border-zinc-600 rounded-xl text-zinc-100 font-bold outline-none focus:ring-2 focus:ring-blue-500"/></div>
-                    <div><label className="block text-sm font-bold text-zinc-400 mb-1">날짜</label><input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="w-full px-4 py-3 bg-zinc-800 border border-zinc-600 rounded-xl text-zinc-100 font-bold outline-none focus:ring-2 focus:ring-blue-500"/></div>
-                    <div><label className="block text-sm font-bold text-zinc-400 mb-1">상대 길드</label><input type="text" value={opponent} onChange={(e) => setOpponent(e.target.value)} className="w-full px-4 py-3 bg-zinc-800 border border-zinc-600 rounded-xl text-zinc-100 font-bold outline-none focus:ring-2 focus:ring-blue-500"/></div>
+                    <div><label className="block text-sm font-bold text-zinc-400 mb-1">길드원 닉네임</label><input type="text" value={nickname} onChange={(e) => setNickname(e.target.value)} className="w-full px-4 py-3 bg-zinc-800 border border-zinc-600 rounded-xl text-zinc-100 font-bold outline-none focus:ring-2 focus:ring-yellow-600"/></div>
+                    <div><label className="block text-sm font-bold text-zinc-400 mb-1">날짜</label><input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="w-full px-4 py-3 bg-zinc-800 border border-zinc-600 rounded-xl text-zinc-100 font-bold outline-none focus:ring-2 focus:ring-yellow-600"/></div>
+                    <div><label className="block text-sm font-bold text-zinc-400 mb-1">상대 길드</label><input type="text" value={opponent} onChange={(e) => setOpponent(e.target.value)} className="w-full px-4 py-3 bg-zinc-800 border border-zinc-600 rounded-xl text-zinc-100 font-bold outline-none focus:ring-2 focus:ring-yellow-600"/></div>
                   </div>
 
                   {activeTab === 'attack' ? (
@@ -646,11 +805,11 @@
                             <div className="relative flex-1 flex items-center">
                               <div className="absolute left-3 text-zinc-500"><IconClipboard /></div>
                               <input id={`atk-paste-${index}`} type="text" placeholder="한 줄 빠른 붙여넣기 (예: 루디 크리스 델론즈 승리 밀리아 카일 로지)" 
-                                className="w-full pl-10 pr-3 py-2.5 bg-zinc-900 border border-zinc-600 rounded-lg text-sm text-zinc-200 outline-none focus:ring-2 focus:ring-blue-500"
+                                className="w-full pl-10 pr-3 py-2.5 bg-zinc-900 border border-zinc-600 rounded-lg text-sm text-zinc-200 outline-none focus:ring-2 focus:ring-yellow-600"
                                 onKeyDown={(e)=>{if(e.key==='Enter'){e.preventDefault();handleAttackQuickPaste(index, e.target.value);e.target.value='';}}}
                               />
                             </div>
-                            <button onClick={()=>{const el=document.getElementById(`atk-paste-${index}`); if(el&&el.value){handleAttackQuickPaste(index, el.value);el.value='';}}} className="px-3 py-2.5 bg-zinc-700 text-white font-bold rounded-lg text-sm">확인</button>
+                            <button onClick={()=>{const el=document.getElementById(`atk-paste-${index}`); if(el&&el.value){handleAttackQuickPaste(index, el.value);el.value='';}}} className="px-4 py-2.5 gold-button font-bold rounded-lg text-sm">확인</button>
                           </div>
 
                           <div className={`flex w-full ${isMobileView ? 'flex-col gap-3' : 'flex-row items-center gap-4'}`}>
@@ -679,19 +838,17 @@
                         <label className="block text-sm font-bold text-zinc-400 mb-2 flex items-center gap-2"><IconClipboard/> 텍스트로 한 번에 입력 (다중 파싱 지원)</label>
                         <div className="flex flex-col sm:flex-row gap-2">
                           <textarea id="def-global-paste" rows="3" placeholder="예시: [내 방어덱] 루디 크리스 델론즈 / [1타] 밀리아 카일 로지 (방어 성공) / [2타] 프레이야 트루드 연희 (방어 실패) 등 여러 줄을 붙여넣으세요." 
-                            className="flex-1 p-3 bg-zinc-900 border border-zinc-600 rounded-lg text-sm text-zinc-200 outline-none focus:ring-2 focus:ring-blue-500 custom-scrollbar"></textarea>
-                          <button onClick={()=>{const el=document.getElementById('def-global-paste'); if(el&&el.value){handleDefenseGlobalPaste(el.value);el.value='';}}} className="px-4 py-3 bg-blue-700 hover:bg-blue-600 text-white font-bold rounded-lg shrink-0">자동 완성</button>
+                            className="flex-1 p-3 bg-zinc-900 border border-zinc-600 rounded-lg text-sm text-zinc-200 outline-none focus:ring-2 focus:ring-yellow-600 custom-scrollbar"></textarea>
+                          <button onClick={()=>{const el=document.getElementById('def-global-paste'); if(el&&el.value){handleDefenseGlobalPaste(el.value);el.value='';}}} className="px-4 py-3 gold-button font-black rounded-lg shrink-0">자동 완성</button>
                         </div>
                       </div>
 
-                      {/* 방어 폼: 아군 고정 덱 */}
                       <div className="bg-blue-950/30 p-4 border border-blue-800 rounded-xl">
                         <label className="block text-sm font-black text-blue-300 mb-3 flex items-center gap-2"><IconShield/> [고정] 아군 방어 영웅</label>
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                           {[0,1,2].map(i => <SearchableSelect key={i} value={defenseMyTeam[i]} onChange={(v)=>handleDefenseMyTeamChange(i, v)} placeholder="아군 방어 영웅" groups={HERO_GROUPS} className="h-12" />)}
                         </div>
                       </div>
-                      {/* 적군 공격 기록 (모바일 스크롤 최적화 적용) */}
                       <div className="space-y-3">
                         <label className="block text-sm font-black text-rose-300 mb-1 flex justify-between items-center">
                           <span>적군 공격 기록 (최대 15회 추가 가능)</span>
@@ -709,7 +866,7 @@
                                   <option value="방어 성공">방어 성공</option><option value="방어 실패">방어 실패</option>
                                 </select>
                                 {index === defenseMatches.length - 1 && index < 14 && (
-                                  <button onClick={addDefenseMatch} className="h-10 px-3 bg-zinc-700 text-zinc-300 hover:text-white rounded-lg font-bold flex items-center gap-1 border border-zinc-600 shrink-0"><IconPlus/> 추가</button>
+                                  <button onClick={addDefenseMatch} className="h-10 px-4 gold-button rounded-lg font-bold flex items-center gap-1 shrink-0"><IconPlus/> 추가</button>
                                 )}
                               </div>
                             </div>
@@ -720,20 +877,20 @@
                   )}
 
                   <div className="flex gap-3 mt-6">
-                    <button onClick={handleSave} className="flex-1 bg-blue-700 hover:bg-blue-600 text-white font-black py-4 rounded-xl shadow-md transition-all flex items-center justify-center gap-2"><IconSave /> 저장하기</button>
-                    {editingId && <button onClick={resetForm} className="bg-zinc-800 text-zinc-300 font-bold py-4 px-6 rounded-xl hover:bg-zinc-700 border border-zinc-600"><IconX /> 취소</button>}
+                    <button onClick={handleSave} className="flex-1 gold-button font-black py-4 rounded-xl transition-all flex items-center justify-center gap-2"><IconSave /> 저장하기</button>
+                    {editingId && <button onClick={resetForm} className="bg-zinc-800 text-zinc-400 font-bold py-4 px-6 rounded-xl hover:bg-zinc-700 hover:text-zinc-200 border border-zinc-700 transition-colors"><IconX /> 취소</button>}
                   </div>
                 </section>
 
                 <section className="flex flex-col sm:flex-row gap-3">
-                  <input type="text" placeholder="영웅/닉네임 초성 검색" value={filterChar} onChange={(e) => setFilterChar(e.target.value)} className="flex-1 px-4 py-4 bg-zinc-900 border border-zinc-700 rounded-xl text-zinc-100 font-bold outline-none focus:ring-2 focus:ring-blue-500" />
-                  <button onClick={() => setShowStats(!showStats)} className="px-6 py-4 bg-zinc-900 border border-zinc-700 text-blue-400 rounded-xl font-black flex items-center justify-center gap-2 hover:bg-zinc-800 shrink-0"><IconBarChart /> {showStats?'통계 닫기':'통계 열기'}</button>
+                  <input type="text" placeholder="영웅/닉네임 초성 검색" value={filterChar} onChange={(e) => setFilterChar(e.target.value)} className="flex-1 px-4 py-4 bg-zinc-900 border border-zinc-700 rounded-xl text-zinc-100 font-bold outline-none focus:ring-2 focus:ring-yellow-600" />
+                  <button onClick={() => setShowStats(!showStats)} className="px-6 py-4 gold-button rounded-xl font-black flex items-center justify-center gap-2 shrink-0"><IconBarChart /> {showStats?'통계 닫기':'통계 열기'}</button>
                 </section>
 
                 {showStats && (
                   <section className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-in slide-in-from-top-4">
                     <div className="bg-zinc-900 border border-zinc-700 p-5 rounded-2xl shadow-sm">
-                      <h3 className="text-base font-black text-zinc-100 mb-4 flex items-center gap-2"><IconBarChart/> {activeTab==='attack'?'많이 사용된 공격 덱':'가장 방어율이 높은 방어 덱'} (Top 5)</h3>
+                      <h3 className="text-base font-black gold-gradient-text mb-4 flex items-center gap-2"><IconBarChart/> {activeTab==='attack'?'많이 사용된 공격 덱':'가장 방어율이 높은 방어 덱'} (Top 5)</h3>
                       <ul className="space-y-3">
                         {statsData.deckStats.length === 0 ? <li className="text-zinc-500 text-sm text-center py-4">데이터 없음</li> : statsData.deckStats.map((stat, idx) => (
                           <li key={idx} className="flex justify-between items-center p-3 bg-zinc-800 rounded-xl border border-zinc-600">
@@ -747,7 +904,7 @@
                       </ul>
                     </div>
                     <div className="bg-zinc-900 border border-zinc-700 p-5 rounded-2xl shadow-sm">
-                      <h3 className="text-base font-black text-zinc-100 mb-4 flex items-center gap-2"><IconUsers/> 길드원 {activeTab==='attack'?'공격 승률':'방어 성공률'}</h3>
+                      <h3 className="text-base font-black gold-gradient-text mb-4 flex items-center gap-2"><IconUsers/> 길드원 {activeTab==='attack'?'공격 승률':'방어 성공률'}</h3>
                       <div className="max-h-[300px] overflow-y-auto pr-2 custom-scrollbar space-y-3">
                         {statsData.memberStats.length === 0 ? <div className="text-zinc-500 text-sm text-center py-4">데이터 없음</div> : statsData.memberStats.map((member, idx) => (
                           <li key={idx} className="flex justify-between items-center p-3 bg-zinc-800 rounded-xl border border-zinc-600">
@@ -782,12 +939,12 @@
                                   <div key={record.id} className="bg-zinc-800 p-4 rounded-xl border border-zinc-600 relative">
                                     {(record.authorId === user?.uid || isAdminMode) && (
                                       <div className="absolute top-3 right-3 flex gap-2">
-                                        <button onClick={(e) => { e.stopPropagation(); handleEditClick(record); }} className="text-zinc-400 hover:text-blue-400 p-1"><IconEdit /></button>
+                                        <button onClick={(e) => { e.stopPropagation(); handleEditClick(record); }} className="text-zinc-400 hover:text-yellow-500 p-1"><IconEdit /></button>
                                         <button onClick={(e) => { e.stopPropagation(); handleDelete(record.id); }} className="text-zinc-400 hover:text-red-500 p-1"><IconTrash /></button>
                                       </div>
                                     )}
                                     <div className="cursor-pointer flex items-center justify-between" onClick={() => toggleRecord(record.id)}>
-                                      <h3 className="font-bold text-zinc-200 flex items-center"><span className="text-blue-400 bg-blue-900/20 px-2 py-0.5 rounded mr-2">{record.nickname||'익명'}</span> 님의 {activeTab==='attack'?'공격':'방어'} 기록</h3>
+                                      <h3 className="font-bold text-zinc-200 flex items-center"><span className="gold-gradient-text border border-yellow-700/50 px-2 py-0.5 rounded mr-2">{record.nickname||'익명'}</span> 님의 {activeTab==='attack'?'공격':'방어'} 기록</h3>
                                       <div className={`text-zinc-500 ${(record.authorId === user?.uid || isAdminMode) ? 'mr-14' : ''}`}>{isExpanded ? <IconChevronUp /> : <IconChevronDown />}</div>
                                     </div>
                                     
@@ -841,16 +998,22 @@
             )}
 
             {activeTab === 'management' && isAdminMode && (
-              <div className="bg-zinc-900 border border-zinc-700 p-8 rounded-2xl shadow-xl space-y-8 animate-in fade-in">
+              <div className="gold-panel p-8 rounded-2xl space-y-10 animate-in fade-in">
                 <div>
-                  <h2 className="text-xl md:text-2xl font-black text-zinc-100 mb-4">전체 데이터 다운로드</h2>
-                  <button onClick={handleExportAllCSV} className="w-full sm:w-auto px-6 py-4 bg-zinc-800 text-zinc-200 border border-zinc-600 font-bold rounded-xl hover:bg-zinc-700 flex items-center justify-center gap-2"><IconDownload /> 공격/방어 통합 데이터 다운로드 (CSV)</button>
-                </div>
-                <div className="border-t border-zinc-700 pt-8">
-                  <h2 className="text-xl md:text-2xl font-black text-red-500 mb-4">위험 구역 (데이터 삭제)</h2>
+                  <h2 className="text-2xl font-black gold-gradient-text mb-4">데이터 통합 다운로드 센터</h2>
+                  <p className="text-zinc-400 mb-6 text-sm font-medium">원하시는 데이터 유형을 선택하여 CSV(엑셀) 파일로 추출하세요.</p>
                   <div className="flex flex-col sm:flex-row gap-4">
-                    <button onClick={() => handleDeleteAllByType('attack')} className="flex-1 py-4 bg-red-900/30 text-red-400 border border-red-800 font-black rounded-xl hover:bg-red-800 hover:text-white transition-colors">공격 기록지 전체 삭제</button>
-                    <button onClick={() => handleDeleteAllByType('defense')} className="flex-1 py-4 bg-rose-900/30 text-rose-400 border border-rose-800 font-black rounded-xl hover:bg-rose-800 hover:text-white transition-colors">방어 기록지 전체 삭제</button>
+                    <button onClick={handleExportStatsCSV} className="flex-1 px-6 py-5 gold-button font-black rounded-xl flex items-center justify-center gap-2 text-base shadow-lg"><IconBarChart /> 통계 데이터 다운로드</button>
+                    <button onClick={handleExportAllCSV} className="flex-1 px-6 py-5 gold-button font-black rounded-xl flex items-center justify-center gap-2 text-base shadow-lg"><IconDownload /> 원본 로그 다운로드</button>
+                  </div>
+                </div>
+                
+                <div className="border-t border-yellow-900/30 pt-8">
+                  <h2 className="text-2xl font-black text-red-500 mb-4 drop-shadow-md">위험 구역 (데이터 영구 삭제)</h2>
+                  <p className="text-zinc-400 mb-6 text-sm font-medium">삭제된 데이터는 서버에서 영구히 지워지며 복구할 수 없습니다.</p>
+                  <div className="flex flex-col sm:flex-row gap-4">
+                    <button onClick={() => handleDeleteAllByType('attack')} className="flex-1 py-5 bg-red-950/40 text-red-400 border border-red-900 font-black rounded-xl hover:bg-red-800 hover:text-white transition-colors shadow-inner">공격 기록지 전체 삭제</button>
+                    <button onClick={() => handleDeleteAllByType('defense')} className="flex-1 py-5 bg-rose-950/40 text-rose-400 border border-rose-900 font-black rounded-xl hover:bg-rose-800 hover:text-white transition-colors shadow-inner">방어 기록지 전체 삭제</button>
                   </div>
                 </div>
               </div>
