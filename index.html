@@ -837,7 +837,7 @@
                       <div className="bg-zinc-800 p-4 rounded-xl border border-zinc-600 mb-2">
                         <label className="block text-sm font-bold text-zinc-400 mb-2 flex items-center gap-2"><IconClipboard/> 텍스트로 한 번에 입력 (다중 파싱 지원)</label>
                         <div className="flex flex-col sm:flex-row gap-2">
-                          <textarea id="def-global-paste" rows="3" placeholder="예시: [내 방어덱] 루디 크리스 델론즈 / [1타] 밀리아 카일 로지 (방어 성공) / [2타] 프레이야 트루드 연희 (방어 실패) 등 여러 줄을 붙여넣으세요." 
+                          <textarea id="def-global-paste" rows="3" placeholder="예시: 손오공 루디 앨리스 카일 트루드 브브 방어 성공 or 방어 실패 등 붙여넣으세요." 
                             className="flex-1 p-3 bg-zinc-900 border border-zinc-600 rounded-lg text-sm text-zinc-200 outline-none focus:ring-2 focus:ring-yellow-600 custom-scrollbar"></textarea>
                           <button onClick={()=>{const el=document.getElementById('def-global-paste'); if(el&&el.value){handleDefenseGlobalPaste(el.value);el.value='';}}} className="px-4 py-3 gold-button font-black rounded-lg shrink-0">자동 완성</button>
                         </div>
