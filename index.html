@@ -54,6 +54,41 @@
     .gold-button:active {
       transform: translateY(1px);
     }
+
+    /* 커스텀 체크박스 스타일 */
+    .keep-checkbox {
+      appearance: none;
+      background-color: #18181b;
+      margin: 0;
+      font: inherit;
+      color: currentColor;
+      width: 1.15em;
+      height: 1.15em;
+      border: 1px solid rgba(191, 149, 63, 0.5);
+      border-radius: 0.25em;
+      display: grid;
+      place-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .keep-checkbox::before {
+      content: "";
+      width: 0.65em;
+      height: 0.65em;
+      transform: scale(0);
+      transition: 120ms transform ease-in-out;
+      box-shadow: inset 1em 1em #fcf6ba;
+      background-color: #fcf6ba;
+      transform-origin: center;
+      clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+    }
+    .keep-checkbox:checked {
+      border-color: #fcf6ba;
+      background-color: rgba(191, 149, 63, 0.2);
+    }
+    .keep-checkbox:checked::before {
+      transform: scale(1);
+    }
   </style>
 </head>
 <body class="selection:bg-yellow-500/30 selection:text-yellow-200" oncontextmenu="return false;">
@@ -234,6 +269,11 @@
       const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
       const [opponent, setOpponent] = useState('');
       
+      // 입력 고정(Keep) 기능용 상태 (새로고침 시 기본값 false로 자연 초기화됨)
+      const [keepNickname, setKeepNickname] = useState(false);
+      const [keepDate, setKeepDate] = useState(false);
+      const [keepOpponent, setKeepOpponent] = useState(false);
+
       const [attackMatches, setAttackMatches] = useState(Array.from({ length: 5 }, () => ({ myTeam: ['', '', ''], result: '승리', enemyTeam: ['', '', ''] })));
       const [defenseMyTeam, setDefenseMyTeam] = useState(['', '', '']);
       const [defenseMatches, setDefenseMatches] = useState([{ enemyTeam: ['', '', ''], result: '방어 성공' }]);
@@ -492,8 +532,22 @@
         }
       };
 
+      // 입력 폼 초기화 로직 변경 (고정/Keep 기능 반영)
       const resetForm = () => {
-        setOpponent(''); setEditingId(null); setEditingAuthorId(null);
+        if (editingId) {
+          // 수정 모드 종료 시에는 꼬임 방지를 위해 강제 전체 초기화
+          setNickname('');
+          setDate(new Date().toISOString().split('T')[0]);
+          setOpponent('');
+        } else {
+          // 새 글 작성 모드에서는 체크박스 상태를 확인하여 초기화 분기
+          if (!keepNickname) setNickname('');
+          if (!keepDate) setDate(new Date().toISOString().split('T')[0]);
+          if (!keepOpponent) setOpponent('');
+        }
+
+        setEditingId(null); 
+        setEditingAuthorId(null);
         setAttackMatches(Array.from({ length: 5 }, () => ({ myTeam: ['', '', ''], result: '승리', enemyTeam: ['', '', ''] })));
         setDefenseMyTeam(['', '', '']);
         setDefenseMatches([{ enemyTeam: ['', '', ''], result: '방어 성공' }]);
@@ -768,16 +822,16 @@
               <div className="flex border-t border-zinc-700 overflow-x-auto custom-scrollbar bg-zinc-900">
                 <button onClick={() => {setActiveTab('attack'); resetForm();}} className={`flex-1 min-w-[120px] py-5 font-black text-sm md:text-base transition-all flex items-center justify-center gap-2 ${activeTab === 'attack' ? 'gold-bg-active' : 'text-zinc-400 hover:bg-zinc-800/50 hover:text-zinc-200'}`}>
                   <span>⚔️</span>
-                  <span className={activeTab === 'attack' ? 'gold-gradient-text drop-shadow-sm' : ''}>승리 기록지[길드원]</span>
+                  <span className={activeTab === 'attack' ? 'gold-gradient-text drop-shadow-sm' : ''}>승리 기록지</span>
                 </button>
                 <button onClick={() => {setActiveTab('defense'); resetForm();}} className={`flex-1 min-w-[120px] py-5 font-black text-sm md:text-base transition-all flex items-center justify-center gap-2 ${activeTab === 'defense' ? 'gold-bg-active' : 'text-zinc-400 hover:bg-zinc-800/50 hover:text-zinc-200'}`}>
                   <span>🛡️</span>
-                  <span className={activeTab === 'defense' ? 'gold-gradient-text drop-shadow-sm' : ''}>방어 기록지[운영진]</span>
+                  <span className={activeTab === 'defense' ? 'gold-gradient-text drop-shadow-sm' : ''}>방어 기록지</span>
                 </button>
                 {isAdminMode && (
                   <button onClick={() => setActiveTab('management')} className={`flex-1 min-w-[120px] py-5 font-black text-sm md:text-base transition-all flex items-center justify-center gap-2 ${activeTab === 'management' ? 'gold-bg-active' : 'text-zinc-400 hover:bg-zinc-800/50 hover:text-zinc-200'}`}>
                     <span>⚙️</span>
-                    <span className={activeTab === 'management' ? 'gold-gradient-text drop-shadow-sm' : ''}>데이터 관리[관리자]</span>
+                    <span className={activeTab === 'management' ? 'gold-gradient-text drop-shadow-sm' : ''}>데이터 관리</span>
                   </button>
                 )}
               </div>
@@ -789,10 +843,39 @@
                   <h2 className="text-lg md:text-xl font-black text-zinc-100 mb-6 flex items-center gap-2">
                     {editingId ? <><span className="gold-gradient-text"><IconEdit /></span> 기록 수정 중 ({activeTab==='attack'?'공격':'방어'})</> : (activeTab==='attack'?'⚔️ 길드전 공격(승리) 기록 추가':'🛡️ 길드전 방어 기록 추가')}
                   </h2>
+                  
+                  {/* 변경된 공통 입력 폼: 체크박스 추가 */}
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                    <div><label className="block text-sm font-bold text-zinc-400 mb-1">길드원 닉네임</label><input type="text" value={nickname} onChange={(e) => setNickname(e.target.value)} className="w-full px-4 py-3 bg-zinc-800 border border-zinc-600 rounded-xl text-zinc-100 font-bold outline-none focus:ring-2 focus:ring-yellow-600"/></div>
-                    <div><label className="block text-sm font-bold text-zinc-400 mb-1">날짜</label><input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="w-full px-4 py-3 bg-zinc-800 border border-zinc-600 rounded-xl text-zinc-100 font-bold outline-none focus:ring-2 focus:ring-yellow-600"/></div>
-                    <div><label className="block text-sm font-bold text-zinc-400 mb-1">상대 길드</label><input type="text" value={opponent} onChange={(e) => setOpponent(e.target.value)} className="w-full px-4 py-3 bg-zinc-800 border border-zinc-600 rounded-xl text-zinc-100 font-bold outline-none focus:ring-2 focus:ring-yellow-600"/></div>
+                    <div>
+                      <div className="flex justify-between items-center mb-1.5">
+                        <label className="block text-sm font-bold text-zinc-400">길드원 닉네임</label>
+                        <label className="flex items-center gap-1.5 text-xs text-yellow-600/80 cursor-pointer hover:text-yellow-500 font-bold">
+                          <input type="checkbox" checked={keepNickname} onChange={(e) => setKeepNickname(e.target.checked)} className="keep-checkbox" />
+                          입력 유지
+                        </label>
+                      </div>
+                      <input type="text" value={nickname} onChange={(e) => setNickname(e.target.value)} className="w-full px-4 py-3 bg-zinc-800 border border-zinc-600 rounded-xl text-zinc-100 font-bold outline-none focus:ring-2 focus:ring-yellow-600"/>
+                    </div>
+                    <div>
+                      <div className="flex justify-between items-center mb-1.5">
+                        <label className="block text-sm font-bold text-zinc-400">날짜</label>
+                        <label className="flex items-center gap-1.5 text-xs text-yellow-600/80 cursor-pointer hover:text-yellow-500 font-bold">
+                          <input type="checkbox" checked={keepDate} onChange={(e) => setKeepDate(e.target.checked)} className="keep-checkbox" />
+                          입력 유지
+                        </label>
+                      </div>
+                      <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="w-full px-4 py-3 bg-zinc-800 border border-zinc-600 rounded-xl text-zinc-100 font-bold outline-none focus:ring-2 focus:ring-yellow-600"/>
+                    </div>
+                    <div>
+                      <div className="flex justify-between items-center mb-1.5">
+                        <label className="block text-sm font-bold text-zinc-400">상대 길드</label>
+                        <label className="flex items-center gap-1.5 text-xs text-yellow-600/80 cursor-pointer hover:text-yellow-500 font-bold">
+                          <input type="checkbox" checked={keepOpponent} onChange={(e) => setKeepOpponent(e.target.checked)} className="keep-checkbox" />
+                          입력 유지
+                        </label>
+                      </div>
+                      <input type="text" value={opponent} onChange={(e) => setOpponent(e.target.value)} className="w-full px-4 py-3 bg-zinc-800 border border-zinc-600 rounded-xl text-zinc-100 font-bold outline-none focus:ring-2 focus:ring-yellow-600"/>
+                    </div>
                   </div>
 
                   {activeTab === 'attack' ? (
@@ -837,7 +920,7 @@
                       <div className="bg-zinc-800 p-4 rounded-xl border border-zinc-600 mb-2">
                         <label className="block text-sm font-bold text-zinc-400 mb-2 flex items-center gap-2"><IconClipboard/> 텍스트로 한 번에 입력 (다중 파싱 지원)</label>
                         <div className="flex flex-col sm:flex-row gap-2">
-                          <textarea id="def-global-paste" rows="3" placeholder="예시: 손오공 루디 앨리스 카일 트루드 브브 방어 성공 or 방어 실패 등 붙여넣으세요." 
+                          <textarea id="def-global-paste" rows="3" placeholder="예시: [내 방어덱] 루디 크리스 델론즈 / [1타] 밀리아 카일 로지 (방어 성공) / [2타] 프레이야 트루드 연희 (방어 실패) 등 여러 줄을 붙여넣으세요." 
                             className="flex-1 p-3 bg-zinc-900 border border-zinc-600 rounded-lg text-sm text-zinc-200 outline-none focus:ring-2 focus:ring-yellow-600 custom-scrollbar"></textarea>
                           <button onClick={()=>{const el=document.getElementById('def-global-paste'); if(el&&el.value){handleDefenseGlobalPaste(el.value);el.value='';}}} className="px-4 py-3 gold-button font-black rounded-lg shrink-0">자동 완성</button>
                         </div>
