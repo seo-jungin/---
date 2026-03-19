@@ -73,6 +73,7 @@
     .chart-card { background: rgba(24, 24, 27, 0.8); border: 1px solid rgba(191, 149, 63, 0.3); border-radius: 16px; padding: 20px; position: relative; box-shadow: inset 0 0 20px rgba(191, 149, 63, 0.05); }
     .chart-title { font-size: 15px; font-weight: 800; color: #fcf6ba; margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 
+    /* 히트맵 가독성 및 UI 최적화 */
     .heatmap-wrapper { max-height: 65vh; overflow: auto; border-radius: 12px; border: 1px solid rgba(191, 149, 63, 0.3); background: #09090b; position: relative; }
     .heatmap-table { border-collapse: separate; border-spacing: 0; width: 100%; text-align: center; font-size: 11px; min-width: 800px; }
     .heatmap-table th, .heatmap-table td { padding: 8px 6px; border-right: 1px solid rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.05); min-width: 50px; }
@@ -90,8 +91,8 @@
     .basic-atk-list li:last-child { border-bottom: none; }
     .basic-atk-list li::before { content: '└'; position: absolute; left: 5px; color: #666; pointer-events: none; }
 
-    /* 수정된 로그인 배경화면 처리 (새로운 URL 반영) */
-    .login-bg-anim { position: absolute; inset: -5%; background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('https://img.freepik.com/free-photo/gyeongbokgung-palace-with-cherry-blossom-spring-seoul-korea_335224-387.jpg'); background-size: cover; background-position: center; background-repeat: no-repeat; animation: slowZoom 20s ease-in-out infinite alternate; z-index: -1; }
+    /* 수정된 로그인 배경화면 (경복궁 벚꽃 이미지) */
+    .login-bg-anim { position: absolute; inset: -5%; background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.7)), url('https://img.freepik.com/free-photo/gyeongbokgung-palace-with-cherry-blossom-spring-seoul-korea_335224-387.jpg'); background-size: cover; background-position: center; background-repeat: no-repeat; animation: slowZoom 20s ease-in-out infinite alternate; z-index: -1; }
     @keyframes slowZoom { from { transform: scale(1); } to { transform: scale(1.1); } }
     .login-card { background: rgba(20, 20, 23, 0.6); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border: 1px solid rgba(191, 149, 63, 0.4); padding: 50px 40px; width: 340px; text-align: center; border-radius: 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.8); position: relative; }
     .login-title-text { color: #fcf6ba; margin-top: 0; margin-bottom: 30px; font-weight: 900; font-size: 24px; letter-spacing: 2px; text-shadow: 0 2px 10px rgba(191, 149, 63, 0.5); }
@@ -1147,6 +1148,7 @@
 
             {mainTab === 'strategy' && (
                <div className="flex gap-2 flex-wrap">
+                 {/* 하단 카테고리 순서 변경: 카운터 보관소 - 방어팀 추천 덱 - 기본덱조합 - 전체전적 - 상성히트맵 */}
                  <button onClick={() => setSubTab('counter')} className={`px-5 py-2.5 rounded-full font-bold text-sm transition-colors border ${subTab === 'counter' ? 'bg-zinc-800 text-zinc-100 border-zinc-500' : 'bg-transparent text-zinc-500 border-transparent hover:text-zinc-300'}`}>카운터 보관소</button>
                  <button onClick={() => setSubTab('recommend')} className={`px-5 py-2.5 rounded-full font-bold text-sm transition-colors border ${subTab === 'recommend' ? 'bg-zinc-800 text-zinc-100 border-zinc-500' : 'bg-transparent text-zinc-500 border-transparent hover:text-zinc-300'}`}>방어팀 추천 덱</button>
                  <button onClick={() => setSubTab('basic')} className={`px-5 py-2.5 rounded-full font-bold text-sm transition-colors border ${subTab === 'basic' ? 'bg-zinc-800 text-zinc-100 border-zinc-500' : 'bg-transparent text-zinc-500 border-transparent hover:text-zinc-300'}`}>기본덱조합</button>
@@ -1282,9 +1284,43 @@
                   </div>
                 </section>
 
-                <section className="flex flex-col sm:flex-row gap-3 mt-8">
-                  <input type="text" placeholder="영웅/닉네임 검색..." value={filterChar} onChange={(e) => setFilterChar(e.target.value)} className="flex-1 px-4 py-4 bg-zinc-900 border border-zinc-700 rounded-xl text-zinc-100 font-bold outline-none focus:ring-2 focus:ring-yellow-600" />
+                <section className="flex flex-col sm:flex-row gap-3">
+                  <input type="text" placeholder="영웅/닉네임 초성 검색" value={filterChar} onChange={(e) => setFilterChar(e.target.value)} className="flex-1 px-4 py-4 bg-zinc-900 border border-zinc-700 rounded-xl text-zinc-100 font-bold outline-none focus:ring-2 focus:ring-yellow-600" />
+                  <button onClick={() => setShowStats(!showStats)} className="px-6 py-4 gold-button rounded-xl font-black flex items-center justify-center gap-2 shrink-0"><IconBarChart /> {showStats?'통계 닫기':'통계 열기'}</button>
                 </section>
+
+                {showStats && (
+                  <section className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-in slide-in-from-top-4">
+                    <div className="bg-zinc-900 border border-zinc-700 p-5 rounded-2xl shadow-sm">
+                      <h3 className="text-base font-black gold-gradient-text mb-4 flex items-center gap-2"><IconBarChart/> {subTab==='attack'?'많이 사용된 공격 덱':'가장 방어율이 높은 방어 덱'} (Top 5)</h3>
+                      <ul className="space-y-3">
+                        {statsData.deckStats.length === 0 ? <li className="text-zinc-500 text-sm text-center py-4">데이터 없음</li> : statsData.deckStats.map((stat, idx) => (
+                          <li key={idx} className="flex justify-between items-center p-3 bg-zinc-800 rounded-xl border border-zinc-600">
+                            <span className="font-bold text-zinc-200 text-sm">{stat.deck}</span>
+                            <div className="text-right">
+                              <p className="text-xs text-zinc-400 mb-1">{stat.count}{subTab==='attack'?'회 기록':'회 피격'}</p>
+                              <p className={`font-black text-sm ${parseFloat(stat.winRate)>=50?'text-blue-400':'text-red-400'}`}>{stat.winRate}% <span className="text-[10px] text-zinc-500 ml-1">({stat.wins}{subTab==='attack'?'승':'회 성공'})</span></p>
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                    <div className="bg-zinc-900 border border-zinc-700 p-5 rounded-2xl shadow-sm">
+                      <h3 className="text-base font-black gold-gradient-text mb-4 flex items-center gap-2"><IconUsers/> 길드원 {subTab==='attack'?'공격 승률':'방어 성공률'}</h3>
+                      <div className="max-h-[300px] overflow-y-auto pr-2 custom-scrollbar space-y-3">
+                        {statsData.memberStats.length === 0 ? <div className="text-zinc-500 text-sm text-center py-4">데이터 없음</div> : statsData.memberStats.map((member, idx) => (
+                          <li key={idx} className="flex justify-between items-center p-3 bg-zinc-800 rounded-xl border border-zinc-600">
+                            <div>
+                              <p className="font-bold text-zinc-200">{member.name}</p>
+                              <p className="text-xs text-zinc-400">제출 {member.recordsCount}회 / {subTab==='attack'?`총 ${member.totalMatches}전 ${member.wins}승`:`총 피격 ${member.totalMatches}회 / ${member.wins}회 성공`}</p>
+                            </div>
+                            <p className={`font-black text-lg ${parseFloat(member.winRate)>=50?'text-blue-400':'text-red-400'}`}>{member.winRate}%</p>
+                          </li>
+                        ))}
+                      </div>
+                    </div>
+                  </section>
+                )}
 
                 <section className="space-y-5">
                   {groupedRecords.length === 0 ? <div className="bg-zinc-900 border border-zinc-700 p-10 text-center rounded-2xl text-zinc-500 font-bold">기록이 없습니다.</div> : 
@@ -1421,6 +1457,7 @@
                         <div key={idx} className="bg-zinc-900 border border-zinc-700 rounded-2xl overflow-hidden shadow-md flex flex-col">
                           <div className="p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-zinc-800 bg-zinc-800/30">
                             
+                            {/* 상단 (메인): 방어 덱 렌더링으로 변경 */}
                             <div className="flex items-center gap-4">
                               <div className={`w-8 h-8 rounded-full flex items-center justify-center font-black text-sm shrink-0 ${idx < 3 ? 'bg-yellow-600/20 text-yellow-500 border border-yellow-600/30' : 'bg-zinc-800 text-zinc-500'}`}>
                                 {idx + 1}
@@ -1434,6 +1471,7 @@
                                 <div className="text-xs font-bold text-zinc-500 flex items-center flex-wrap gap-2 mt-2">
                                   <span>카운터 덱: <span className="text-zinc-300 ml-1">{getSafeArray(data.attackerTeam).join(', ')}</span></span>
                                   
+                                  {/* 하단 (서브): 카운터 덱 옆 공략 제안 버튼 이동 */}
                                   {!data.hasGuide && (
                                     <button onClick={() => setGuideModal({
                                         isOpen: true, defTeam: data.defenseTeam, atkTeam: data.attackerTeam,
@@ -1544,6 +1582,148 @@
                         </div>
                       </div>
                     ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {mainTab === 'strategy' && subTab === 'basic' && (
+              <div className="gold-panel p-6 md:p-8 rounded-2xl animate-in fade-in duration-300">
+                <h2 className="text-xl font-black gold-gradient-text mb-2">🛡️ 최근 1000판 기반 기본덱 매핑</h2>
+                <p className="text-sm text-zinc-400 mb-8">가장 많이 등장한 방어덱 상위 21개와 그에 대응하는 카운터덱(최소 5전 이상 데이터)을 자동 분석합니다.</p>
+                
+                {basicDeckData.length === 0 ? (
+                  <div className="text-center py-10 text-zinc-500 font-bold">분석할 데이터가 부족합니다.</div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {basicDeckData.map((data, idx) => (
+                      <div key={idx} className="basic-deck-item">
+                        <div className="basic-def">
+                          <span>{data.normDef}</span>
+                          <span className="text-[11px] text-zinc-400 font-medium ml-2">출현 {data.count}회</span>
+                        </div>
+                        <ul className="basic-atk-list">
+                          {data.counters.length > 0 ? data.counters.map((c, cIdx) => (
+                            <li key={cIdx}>
+                              <span>{c.normAtk}</span>
+                              <span className={c.rate >= 70 ? 'text-blue-400' : (c.rate >= 50 ? 'text-green-400' : 'text-red-400')}>
+                                {c.rate.toFixed(0)}% ({c.w}W {c.l}L)
+                              </span>
+                            </li>
+                          )) : <li className="text-zinc-600 justify-center">유효 카운터 데이터 없음</li>}
+                        </ul>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {mainTab === 'strategy' && subTab === 'dashboard' && (
+              <div className="space-y-6 animate-in fade-in duration-300">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="stat-box">
+                    <div className="stat-val">{dashboardStats?.totalWin + dashboardStats?.totalLose || 0}</div>
+                    <div className="stat-lbl">TOTAL MATCHES</div>
+                  </div>
+                  <div className="stat-box">
+                    <div className="stat-val" style={{color: '#00d2d3'}}>
+                      {dashboardStats?.totalWin + dashboardStats?.totalLose > 0 
+                        ? ((dashboardStats.totalWin / (dashboardStats.totalWin + dashboardStats.totalLose)) * 100).toFixed(1) + '%' 
+                        : '0.0%'}
+                    </div>
+                    <div className="stat-lbl">GLOBAL WIN RATE</div>
+                  </div>
+                  <div className="stat-box">
+                    <div className="stat-val" style={{color: '#2ed573'}}>{dashboardStats?.totalWin || 0}</div>
+                    <div className="stat-lbl">WINS</div>
+                  </div>
+                  <div className="stat-box">
+                    <div className="stat-val" style={{color: '#ff4757'}}>{dashboardStats?.totalLose || 0}</div>
+                    <div className="stat-lbl">LOSES</div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="chart-card col-span-1" style={{height: '300px'}}>
+                    <div className="chart-title"><IconBarChart /> 전체 승률 (Win Rate)</div>
+                    <canvas ref={winRateChartRef}></canvas>
+                  </div>
+                  <div className="chart-card col-span-1 md:col-span-2" style={{height: '300px'}}>
+                    <div className="chart-title"><IconUsers /> 가장 많이 만난 방어덱 TOP 5</div>
+                    <canvas ref={defMetaChartRef}></canvas>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {mainTab === 'strategy' && subTab === 'heatmap' && (
+              <div className="gold-panel p-6 md:p-8 rounded-2xl animate-in fade-in duration-300">
+                <h2 className="text-xl font-black gold-gradient-text mb-2">💡 상성 히트맵 (Heatmap)</h2>
+                <p className="text-sm text-zinc-400 mb-6">전체 전적을 기반으로 공격 덱과 방어 덱 간의 상성을 시각화합니다.</p>
+                
+                <div className="flex gap-4 mb-4">
+                  <label className="keep-checkbox-wrapper flex items-center gap-2 text-sm text-zinc-300 font-bold cursor-pointer">
+                    <input type="checkbox" checked={heatmapFilters.high} onChange={e=>setHeatmapFilters({...heatmapFilters, high: e.target.checked})} className="keep-checkbox"/>
+                    <span className="text-blue-400">우위 (70%↑)</span>
+                  </label>
+                  <label className="keep-checkbox-wrapper flex items-center gap-2 text-sm text-zinc-300 font-bold cursor-pointer">
+                    <input type="checkbox" checked={heatmapFilters.mid} onChange={e=>setHeatmapFilters({...heatmapFilters, mid: e.target.checked})} className="keep-checkbox"/>
+                    <span className="text-green-400">경합 (50~69%)</span>
+                  </label>
+                  <label className="keep-checkbox-wrapper flex items-center gap-2 text-sm text-zinc-300 font-bold cursor-pointer">
+                    <input type="checkbox" checked={heatmapFilters.low} onChange={e=>setHeatmapFilters({...heatmapFilters, low: e.target.checked})} className="keep-checkbox"/>
+                    <span className="text-red-400">열세 (50%↓)</span>
+                  </label>
+                </div>
+
+                {!heatmapData || heatmapData.cols.length === 0 ? (
+                  <div className="text-center py-10 text-zinc-500 font-bold border border-zinc-800 rounded-xl">데이터가 부족합니다.</div>
+                ) : (
+                  <div className="heatmap-wrapper custom-scrollbar">
+                    <table className="heatmap-table">
+                      <thead>
+                        <tr>
+                          <th>공격 덱 \ 방어 덱</th>
+                          {heatmapData.cols.map((col, i) => (
+                            <th key={i}>
+                              <div className="flex flex-col items-center">
+                                {col.split(' ').map((h, hi) => <span key={hi} className="text-[11px] leading-tight">{h}</span>)}
+                              </div>
+                            </th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {heatmapData.rows.map((row, i) => (
+                          <tr key={i}>
+                            <th>
+                              <div className="flex flex-col items-start">
+                                {row.atk.split(' ').map((h, hi) => <span key={hi} className="text-[11px] leading-tight">{h}</span>)}
+                              </div>
+                            </th>
+                            {row.defs.map((d, j) => {
+                              if (d.t === 0) return <td key={j} style={{background:'#09090b', color:'#3f3f46'}}>-</td>;
+                              const rate = Math.round((d.w/d.t)*100);
+                              let bg = '', color = '', show = false;
+                              if (rate >= 70 && heatmapFilters.high) { bg = 'rgba(96, 165, 250, 0.15)'; color = '#60a5fa'; show = true; }
+                              else if (rate >= 50 && rate < 70 && heatmapFilters.mid) { bg = 'rgba(74, 222, 128, 0.15)'; color = '#4ade80'; show = true; }
+                              else if (rate < 50 && heatmapFilters.low) { bg = 'rgba(248, 113, 113, 0.15)'; color = '#f87171'; show = true; }
+
+                              if (show) {
+                                return (
+                                  <td key={j} style={{background:bg, color:color}}>
+                                    <div className="cell-count">{d.w}W {d.l}L</div>
+                                  </td>
+                                );
+                              } else {
+                                return <td key={j} className="cell-hidden" style={{background:'#09090b', color:'#3f3f46'}}>-</td>;
+                              }
+                            })}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
                 )}
               </div>
