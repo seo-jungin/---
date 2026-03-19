@@ -1,0 +1,1763 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>리더 길드전 전략실</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+  
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    body { font-family: 'Pretendard', sans-serif; background-color: #09090b; color: #e4e4e7; -webkit-user-select: none; user-select: none; }
+    input, select, textarea { -webkit-user-select: auto; user-select: auto; }
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background-color: rgba(191, 149, 63, 0.4); border-radius: 10px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background-color: rgba(191, 149, 63, 0.8); }
+    
+    .gold-gradient-text {
+      background: linear-gradient(to right, #bf953f, #fff2cd, #b38728);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .gold-bg-active {
+      background: linear-gradient(135deg, rgba(191, 149, 63, 0.15) 0%, rgba(252, 246, 186, 0.05) 50%, rgba(179, 135, 40, 0.15) 100%);
+      border-bottom: 2px solid #fcf6ba;
+      box-shadow: inset 0 -10px 20px -10px rgba(191, 149, 63, 0.4);
+    }
+    .gold-panel {
+      background: linear-gradient(to bottom right, #18181b, #09090b);
+      border: 1px solid rgba(191, 149, 63, 0.4);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.8), inset 0 0 20px rgba(191, 149, 63, 0.05);
+    }
+    .gold-button {
+      background-color: #09090b;
+      border: 1px solid rgba(191, 149, 63, 0.6);
+      color: #fcf6ba;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+      transition: all 0.2s ease-in-out;
+    }
+    .gold-button:hover {
+      background-color: #18181b;
+      border-color: #fcf6ba;
+      color: #ffffff;
+      box-shadow: 0 0 12px rgba(191, 149, 63, 0.35);
+      transform: translateY(-1px);
+    }
+    .gold-button:active { transform: translateY(1px); }
+
+    .keep-checkbox {
+      appearance: none; background-color: #18181b; margin: 0; font: inherit; color: currentColor;
+      width: 1.15em; height: 1.15em; border: 1px solid rgba(191, 149, 63, 0.5); border-radius: 0.25em; display: grid; place-content: center; cursor: pointer; transition: all 0.2s;
+    }
+    .keep-checkbox::before {
+      content: ""; width: 0.65em; height: 0.65em; transform: scale(0); transition: 120ms transform ease-in-out;
+      box-shadow: inset 1em 1em #fcf6ba; background-color: #fcf6ba; transform-origin: center;
+      clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+    }
+    .keep-checkbox:checked { border-color: #fcf6ba; background-color: rgba(191, 149, 63, 0.2); }
+    .keep-checkbox:checked::before { transform: scale(1); }
+
+    .stat-box { background: rgba(24, 24, 27, 0.8); padding: 25px; border-radius: 16px; border: 1px solid rgba(191, 149, 63, 0.3); text-align: center; position: relative; overflow: hidden; box-shadow: inset 0 0 20px rgba(191, 149, 63, 0.05); }
+    .stat-box::before { content:''; position: absolute; top:0; left:0; width:100%; height:3px; background: linear-gradient(90deg, transparent, #bf953f, transparent); }
+    .stat-val { font-size: 36px; font-weight: 900; margin-bottom: 5px; color: #fff; text-shadow: 0 2px 10px rgba(191, 149, 63, 0.3); }
+    .stat-lbl { font-size: 12px; color: #94a3b8; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;}
+    
+    .chart-card { background: rgba(24, 24, 27, 0.8); border: 1px solid rgba(191, 149, 63, 0.3); border-radius: 16px; padding: 20px; position: relative; box-shadow: inset 0 0 20px rgba(191, 149, 63, 0.05); }
+    .chart-title { font-size: 15px; font-weight: 800; color: #fcf6ba; margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+
+    .heatmap-wrapper { max-height: 65vh; overflow: auto; border-radius: 12px; border: 1px solid rgba(191, 149, 63, 0.3); background: #09090b; position: relative; }
+    .heatmap-table { border-collapse: separate; border-spacing: 0; width: 100%; text-align: center; font-size: 11px; min-width: 800px; }
+    .heatmap-table th, .heatmap-table td { padding: 8px 6px; border-right: 1px solid rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.05); min-width: 50px; }
+    .heatmap-table thead th { font-size: 11px; font-weight: 800; color: #fcf6ba; padding: 10px 6px; background: linear-gradient(180deg, #18181b, #09090b); border-bottom: 2px solid #bf953f; position: sticky; top: 0; z-index: 10; }
+    .heatmap-table tbody th { font-size: 11px; font-weight: 800; color: #e4e4e7; padding: 8px 10px; background: linear-gradient(90deg, #18181b, #09090b); border-right: 2px solid #bf953f; position: sticky; left: 0; z-index: 10; text-align: left; }
+    .heatmap-table thead th:first-child { background: #09090b; border-right: 2px solid #bf953f; position: sticky; left: 0; top: 0; z-index: 20; }
+    .cell-count { font-size: 11px; font-weight: bold; text-shadow: 0 1px 2px rgba(0,0,0,0.8); }
+    .cell-hidden { opacity: 0.1; }
+
+    .basic-deck-item { border: 1px solid rgba(191, 149, 63, 0.2); border-radius: 12px; background: rgba(0,0,0,0.4); padding: 15px; margin-bottom: 15px; transition: 0.2s; }
+    .basic-deck-item:hover { border-color: rgba(191, 149, 63, 0.6); box-shadow: 0 0 15px rgba(191, 149, 63, 0.1); background: rgba(0,0,0,0.6); }
+    .basic-def { font-size: 14px; font-weight: 800; color: #fcf6ba; margin-bottom: 12px; background: rgba(191, 149, 63, 0.1); padding: 8px 12px; border-radius: 8px; border-left: 4px solid #bf953f; line-height: 1.4; display: flex; justify-content: space-between; align-items: center;}
+    .basic-atk-list { list-style: none; padding: 0; margin: 0; font-size: 12px; color: #e4e4e7; font-weight: 600; line-height: 2; }
+    .basic-atk-list li { position: relative; padding: 6px 12px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed rgba(255,255,255,0.05); border-radius: 6px; }
+    .basic-atk-list li:last-child { border-bottom: none; }
+    .basic-atk-list li::before { content: '└'; position: absolute; left: 5px; color: #666; pointer-events: none; }
+
+    .login-bg-anim { position: absolute; inset: -5%; background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('https://pbs.twimg.com/media/Exnr5egU8AMr2uw.jpg'); background-size: cover; background-position: center; background-repeat: no-repeat; animation: slowZoom 20s ease-in-out infinite alternate; z-index: -1; }
+    @keyframes slowZoom { from { transform: scale(1); } to { transform: scale(1.1); } }
+    .login-card { background: rgba(20, 20, 23, 0.6); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border: 1px solid rgba(191, 149, 63, 0.4); padding: 50px 40px; width: 340px; text-align: center; border-radius: 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.8); position: relative; }
+    .login-title-text { color: #fcf6ba; margin-top: 0; margin-bottom: 30px; font-weight: 900; font-size: 24px; letter-spacing: 2px; text-shadow: 0 2px 10px rgba(191, 149, 63, 0.5); }
+    .login-input { width: 100%; padding: 16px; margin: 10px 0; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(10px); border: 1px solid rgba(191, 149, 63, 0.3); color: #fff; border-radius: 12px; text-align: center; font-size: 16px; transition: 0.3s; box-sizing: border-box; outline: none;}
+    .login-input:focus { border-color: #fcf6ba; background: rgba(0, 0, 0, 0.8); box-shadow: 0 0 15px rgba(191, 149, 63, 0.4), inset 0 2px 5px rgba(0,0,0,0.5); }
+    .shake-anim { animation: shake 0.5s ease-in-out; }
+    @keyframes shake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-10px); } 40%, 80% { transform: translateX(10px); } }
+
+  </style>
+</head>
+<body class="selection:bg-yellow-500/30 selection:text-yellow-200" oncontextmenu="return false;">
+  <div id="root"></div>
+
+  <script type="text/babel" data-type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js';
+    import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js';
+    import { getFirestore, collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
+
+    const { useState, useEffect, useMemo, useRef } = React;
+
+    function IconTrash() { return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>; }
+    function IconEdit() { return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>; }
+    function IconSave() { return <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>; }
+    function IconSearch() { return <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>; }
+    function IconBarChart() { return <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="20" x2="12" y2="10"></line><line x1="18" y1="20" x2="18" y2="4"></line><line x1="6" y1="20" x2="6" y2="16"></line></svg>; }
+    function IconUsers() { return <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>; }
+    function IconChevronDown() { return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>; }
+    function IconChevronUp() { return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>; }
+    function IconX() { return <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>; }
+    function IconLock() { return <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>; }
+    function IconDownload() { return <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>; }
+    function IconPlus() { return <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>; }
+    function IconShield() { return <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>; }
+    function IconClipboard() { return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>; }
+    function IconSword() { return <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 17.5L3 6V3h3l11.5 11.5"></path><path d="M13 19l6-6"></path><path d="M16 16l4 4"></path><path d="M19 21l2-2"></path><path d="M14.5 6.5L17.5 3h3v3l-3.5 3.5"></path><path d="M10 13L4 19"></path><path d="M5 16l-4 4"></path><path d="M2 21l2-2"></path></svg>; }
+    function IconInfo() { return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>; }
+
+    function getChosung(str) {
+      if (!str) return "";
+      const chosung = ["ㄱ","ㄲ","ㄴ","ㄷ","ㄸ","ㄹ","ㅁ","ㅂ","ㅃ","ㅅ","ㅆ","ㅇ","ㅈ","ㅉ","ㅊ","ㅋ","ㅌ","ㅍ","ㅎ"];
+      let result = "";
+      for (let i = 0; i < str.length; i++) {
+        const code = str.charCodeAt(i) - 44032;
+        if (code > -1 && code < 11172) result += chosung[Math.floor(code / 588)];
+        else result += str.charAt(i);
+      }
+      return result;
+    }
+
+    function getSafeArray(arr) {
+      if (Array.isArray(arr)) return arr;
+      if (typeof arr === 'string') return arr.split(',').map(s => s.trim());
+      return [];
+    }
+
+    function renderHeroTags(teamArr) {
+      const heroes = getSafeArray(teamArr).filter(h => h && typeof h === 'string' && h.trim() !== '');
+      if (heroes.length === 0) return <span className="text-zinc-600 font-medium">-</span>;
+      return (
+        <div className="flex flex-wrap gap-1 justify-start">
+          {heroes.map((hero, idx) => (
+            <span key={idx} className="px-2 py-1 bg-zinc-800 border border-zinc-700 rounded-md text-zinc-200 text-xs md:text-[13px] font-bold shadow-sm whitespace-nowrap">{hero}</span>
+          ))}
+        </div>
+      );
+    }
+
+    function CustomModal({ isOpen, onClose, title, content, onConfirm, confirmText = "확인", hideCancel = false }) {
+      if (!isOpen) return null;
+      return (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 p-4 animate-in fade-in duration-200">
+          <div className="gold-panel p-6 md:p-8 rounded-2xl shadow-2xl max-w-sm w-full">
+            <h3 className="text-lg font-black gold-gradient-text mb-3">{title}</h3>
+            <div className="text-sm text-zinc-300 font-medium mb-6 whitespace-pre-line">{content}</div>
+            <div className="flex gap-3">
+              {!hideCancel && <button onClick={onClose} className="flex-1 py-3 rounded-xl bg-zinc-800 border border-zinc-700 text-zinc-300 font-bold text-sm hover:bg-zinc-700 transition-colors">취소</button>}
+              <button onClick={onConfirm} className="flex-1 py-3 rounded-xl gold-button font-bold text-sm">{confirmText}</button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    function SearchableSelect({ value, onChange, placeholder, groups, className = "" }) {
+      const [isOpen, setIsOpen] = useState(false);
+      const [searchTerm, setSearchTerm] = useState(value || '');
+      const wrapperRef = useRef(null);
+
+      useEffect(() => { setSearchTerm(value || ''); }, [value]);
+      useEffect(() => {
+        const handleClickOutside = (e) => { if (wrapperRef.current && !wrapperRef.current.contains(e.target)) setIsOpen(false); };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+      }, []);
+
+      const filteredGroups = groups.map(g => ({
+        ...g, heroes: g.heroes.filter(h => h && typeof h === 'string' && (h.toUpperCase().includes((searchTerm||'').toUpperCase()) || getChosung(h).includes(getChosung(searchTerm||''))))
+      })).filter(g => g.heroes.length > 0);
+
+      return (
+        <div ref={wrapperRef} className={`relative w-full ${className}`}>
+          <input type="text" value={searchTerm}
+            onChange={(e) => { setSearchTerm(e.target.value); onChange(e.target.value); setIsOpen(true); }}
+            onFocus={() => setIsOpen(true)} placeholder={placeholder}
+            className="w-full h-full px-3 py-2 bg-zinc-900 border border-zinc-700 rounded-xl text-zinc-100 font-bold focus:ring-2 focus:ring-yellow-600 outline-none transition-all placeholder-zinc-600 text-xs md:text-sm shadow-sm"
+          />
+          {isOpen && (
+            <div className="absolute z-50 top-full left-0 right-0 mt-1 max-h-56 overflow-y-auto bg-zinc-800 border border-zinc-700 rounded-xl shadow-xl custom-scrollbar py-1 z-[60]">
+              {filteredGroups.length === 0 ? <div className="p-3 text-xs text-zinc-500 font-bold text-center">결과 없음</div> : 
+                filteredGroups.map(g => (
+                  <div key={g.group}>
+                    <div className="px-3 py-1.5 text-[10px] font-black text-yellow-600 bg-zinc-900 sticky top-0 z-10 border-y border-zinc-800">{g.group}</div>
+                    {g.heroes.map(h => (
+                      <div key={h} onClick={() => { onChange(h); setSearchTerm(h); setIsOpen(false); }}
+                        className="px-4 py-2 text-xs font-bold text-zinc-200 hover:bg-yellow-700 hover:text-white cursor-pointer transition-colors"
+                      >{h}</div>
+                    ))}
+                  </div>
+                ))
+              }
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    if (typeof window !== 'undefined' && window.Chart) {
+      window.Chart.defaults.color = '#94a3b8';
+      window.Chart.defaults.font.family = "'Pretendard', sans-serif";
+    }
+
+    function initFirebase() {
+      const fallback = {
+        apiKey: "AIzaSyAqSgVY3zJAmKpLSnxrM5YVMVnqTw8JfTI",
+        authDomain: "warr-384d8.firebaseapp.com",
+        projectId: "warr-384d8",
+        storageBucket: "warr-384d8.firebasestorage.app",
+        messagingSenderId: "619085647485",
+        appId: "1:619085647485:web:03cf09b1a9f0d7e6062b14"
+      };
+      
+      try {
+        const config = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : fallback;
+        if (config && config.apiKey) {
+          const app = initializeApp(config);
+          return { app, auth: getAuth(app), db: getFirestore(app), isValid: true };
+        }
+      } catch (error) {
+        console.error("Firebase Init Error:", error);
+      }
+      return { app: null, auth: null, db: null, isValid: false };
+    }
+    
+    const fb = initFirebase();
+    const APP_ID = typeof __app_id !== 'undefined' ? __app_id : 'sevens-guild-war-app';
+    const COLLECTION_NAME = 'guild_war_records';
+    const GUIDE_COLLECTION = 'custom_guides';
+
+    function App() {
+      const [isLoggedIn, setIsLoggedIn] = useState(false);
+      const [loginId, setLoginId] = useState('');
+      const [loginPw, setLoginPw] = useState('');
+      const [loginError, setLoginError] = useState(false);
+      
+      const [user, setUser] = useState(null);
+      const [records, setRecords] = useState([]);
+      const [customGuides, setCustomGuides] = useState([]); 
+      
+      const [editingId, setEditingId] = useState(null);
+      const [editingAuthorId, setEditingAuthorId] = useState(null); 
+      
+      const [customHeroes, setCustomHeroes] = useState([]); 
+      const [expandedGroups, setExpandedGroups] = useState({}); 
+      const [expandedRecords, setExpandedRecords] = useState({});
+      
+      const [mainTab, setMainTab] = useState('records');
+      const [subTab, setSubTab] = useState('attack');
+      
+      const [isAdminMode, setIsAdminMode] = useState(false);
+      const [isMobileView, setIsMobileView] = useState(false);
+      const [showFloatingBtn, setShowFloatingBtn] = useState(true);
+      
+      const [alertModal, setAlertModal] = useState({ isOpen: false, title: '', content: '' });
+      const [confirmModal, setConfirmModal] = useState({ isOpen: false, title: '', content: '', action: null, confirmText: '확인' });
+      
+      const [unlockModalOpen, setUnlockModalOpen] = useState(false);
+      const [unlockPwd, setUnlockPwd] = useState('');
+      const [unlockError, setUnlockError] = useState(false);
+      const [titleClickCount, setTitleClickCount] = useState(0);
+      const clickTimeoutRef = useRef(null);
+      const unlockInputRef = useRef(null);
+
+      const [nickname, setNickname] = useState('');
+      const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+      const [opponent, setOpponent] = useState('');
+      const [keepNickname, setKeepNickname] = useState(false);
+      const [keepDate, setKeepDate] = useState(false);
+      const [keepOpponent, setKeepOpponent] = useState(false);
+
+      const [attackMatches, setAttackMatches] = useState(Array.from({ length: 5 }, () => ({ myTeam: ['', '', ''], result: '승리', enemyTeam: ['', '', ''] })));
+      const [defenseMyTeam, setDefenseMyTeam] = useState(['', '', '']);
+      const [defenseMatches, setDefenseMatches] = useState([{ enemyTeam: ['', '', ''], result: '방어 성공' }]);
+
+      const [counterEnemyFilter, setCounterEnemyFilter] = useState(['', '', '']);
+      const [guideModal, setGuideModal] = useState({ isOpen: false, defTeam: [], atkTeam: [], skill: '', turn: '', formation: '', equip1: '', equip2: '', equip3: '', tip: '' });
+      const [filterChar, setFilterChar] = useState('');
+      
+      // 누락 복구: showStats 상태 선언 추가
+      const [showStats, setShowStats] = useState(false);
+
+      const winRateChartRef = useRef(null);
+      const defMetaChartRef = useRef(null);
+      const chartInstance1 = useRef(null);
+      const chartInstance2 = useRef(null);
+      const [heatmapFilters, setHeatmapFilters] = useState({ high: true, mid: true, low: true });
+
+      const PREDEFINED_HERO_GROUPS = useMemo(() => [
+        { group: "세븐나이츠", heroes: ["루디", "아일린", "레이첼", "델론즈", "제이브", "스파이크", "크리스", "바네사"] },
+        { group: "다크나이츠", heroes: ["멜키르", "브란즈&브란셀", "플라튼", "콜트", "팔라누스", "실베스타"] },
+        { group: "사황/구사황", heroes: ["에이스", "여포", "손오공", "린", "태오", "카르마", "카일", "연희"] },
+        { group: "구세븐나이츠", heroes: ["겔리두스", "밀리아", "파이", "로지", "쥬리", "알프", "라디우스"] },
+        { group: "나이트크로우", heroes: ["칼 헤론", "오를리", "타카", "아킬라"] },
+        { group: "루미너스 혁명단", heroes: ["엘리시아", "키리엘", "라이언"] },
+        { group: "숨은 강자들", heroes: ["미호", "로로", "아멜리아", "잉그리드", "클레미스", "카구라", "바토리", "아비갈", "앤티", "뮬란", "미스트", "아탈란테", "항우"] },
+        { group: "천상의 수호자", heroes: ["트루드", "프레이야", "라드그리드", "스쿨드", "펜리르", "레긴레이프", "기르티"] },
+        { group: "심연/하이드", heroes: ["쥬다스", "디아나", "안티고네", "잭", "앙그라", "데스론"] },
+        { group: "마법학회 등", heroes: ["타라", "노아", "세자르", "오목", "바엘", "리나", "아리스", "스피나", "길라한", "엘리니아", "비아", "세인", "니아", "지크", "루리", "에스파다"] },
+        { group: "모험가/특수", heroes: ["에반", "카린", "스니퍼", "쥬피", "유리", "아리엘", "실비아", "벨리카", "챈슬러", "룩", "녹스", "아라곤", "앨리스", "클로에", "헤브니아", "헬레니아", "로아", "하영", "카론", "루시", "유이", "라니아", "사라", "베인", "레오", "클레오", "메이", "조커", "세라", "발리스타", "블랙로즈", "제인", "레이", "샤오", "노호", "리", "빅토리아", "진", "데이지", "백룡", "링링", "밍밍", "소이", "풍연", "비담", "유신", "백각", "이정", "권호", "기파랑", "나타", "아수라", "칭타오", "무송", "관우", "제갈량", "초선", "조운", "파스칼"] },
+        { group: "후속작 오리지널", heroes: ["렌", "코제트", "챙첸", "밍", "이안", "앙리", "케이드", "루키", "멜리사", "스캇", "피네", "엘카", "샬롯", "티티", "레일라", "스텔라", "세일럼", "렘", "루아", "세레나", "샤이", "트리스탄"] }
+      ], []);
+
+      const STATIC_GUIDE_DB = useMemo(() => [
+        {"defense":["라드그리드","손오공","아멜리아"],"counters":[{"attacker":["녹스","로지","크리스"],"skill":"크리스 아래 → 크리스 위 → 녹스 위","turn":"선공 or 후공","formation":"공격진형","equip1":"크리스: 주술사(효효받받), 부옵: 효저, 받받, 약공 / 반지: 즉사+CC(권능)","equip2":"녹스: 조율자(효효막막), 부옵: 약공 / 반지: 부활+CC","equip3":"로지: 조율자(효효받받), 부옵: 약공 / 반지: 부활+CC","tip":"녹스: 조율자로 효저, 막기 최대한 높게 설정\n크리스: 약공, 효적, 효저 최대한 높게 설정\n로지: 효저 최대한 높게 설정 (막기는 낮더라도)"}]},
+        {"defense":["라드그리드","손오공","앨리스"],"counters":[{"attacker":["델론즈","여포","파이"],"skill":"파이 위 → 델론즈 위 → 여포 아래","turn":"선공","formation":"기본진형","equip1":"파이: 추적자(약치모모) / 반지: 권능+불사","equip2":"여포: 암살자(약치모모) 부옵: 속공 / 반지: 권능+불사","equip3":"델론즈: 추적자(약치모모) / 반지: 불사","tip":"기본진형을 베이스로 3인 같은 후열에 배치하고,\n가급적 상대 약공 어디 박히는지, 손오공 탱 세팅인지 확인하고 사용할 것."}]},
+        {"defense":["밀리아","키리엘.프레이야"],"counters":[{"attacker":["루디","손오공","앨리스"],"skill":"루디(위)  → 손오공(위)  → 손오공 (아래)","turn":"후턴","formation":"보호진형 (손오공 후열)","equip1":"루디: 조율자 /방방받받 / 부옵: 막기,효저 (반지: 부활)","equip2":"손오공: 수문장 / 약약받받 / 부옵: 막기,약공 (반지: 부활)","equip3":"앨리스: 조율지 / 생생받받 / 부옵: 막기, 효저 (반지: 부활)","tip":"\"펫은 루디, 카람\" / 마덱 상대로 매우 높은 승률이며 프레이야 마덱과 상대 시 프레이야 스킬 버틸 시 거의 승리 확정"}]},
+        {"defense":["밀리아","연희","키리엘"],"counters":[{"attacker":["아라곤","팔라누스","플라튼"],"skill":"아라곤 → 팔라누스(아래) → 팔라누스(위)","turn":"-","formation":"밸런스진형 (팔라누스 후열)","equip1":"팔라누스: 암살자 / 치치받받 / 부옵: 막기 (반지: 불사or부활+기합)","equip2":"아라곤: 성기사 / 방방받받 / 부옵: 막기 (반지: 부활)","equip3":"플라튼: 수문장 / 방방받받 / 막기 위주 (반지: 부활)","tip":"CC가 없을 경우 방어력을 극대화하여 굳건하게 버틸 것."},{"attacker":["루디","팔라누스","플라튼"],"skill":"루디(위) / 팔라누스(아래) / 플라튼(위)","turn":"방어팀 선공","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"상세 세팅 정보 업데이트가 필요함","equip2":"상세 세팅 정보 업데이트가 필요함","equip3":"상세 세팅 정보 업데이트가 필요함","tip":"펫 루 사용 시 필승임."},{"attacker":["스파이크","아멜리아","트루드"],"skill":"트루드(위) / 아멜리아(아래) / 스파이크(위)","turn":"방어팀 선공","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"상세 세팅 정보 업데이트가 필요함","equip2":"상세 세팅 정보 업데이트가 필요함","equip3":"상세 세팅 정보 업데이트가 필요함","tip":"펫 파이크 사용 시 필승임."}]},
+        {"defense":["밀리아","바네사","키리엘"],"counters":[{"attacker":["루디","손오공","앨리스"],"skill":"루디(위)  → 손오공(위)  → 손오공 (아래)","turn":"후턴","formation":"보호진형 (손오공 후열)","equip1":"루디: 조율자 /방방받받 / 부옵: 막기,효저 (반지: 부활)","equip2":"손오공: 수문장 / 약약받받 / 부옵: 막기,약공 (반지: 부활)","equip3":"앨리스: 조율지 / 생생받받 / 부옵: 막기, 효저 (반지: 부활)","tip":"\"펫은 루디, 카람\" / 마덱 상대로 매우 높은 승률이며 프레이야 마덱과 상대 시 프레이야 스킬 버틸 시 거의 승리 확정"},{"attacker":["아라곤","팔라누스","플라튼"],"skill":"아라곤 → 팔라누스(아래) → 팔라누스(위)","turn":"-","formation":"밸런스진형 (팔라누스 후열)","equip1":"팔라누스: 암살자 / 치치받받 / 부옵: 막기 (반지: 불사or부활+기합)","equip2":"아라곤: 성기사 / 방방받받 / 부옵: 막기 (반지: 부활)","equip3":"플라튼: 수문장 / 방방받받 / 막기 위주 (반지: 부활)","tip":"CC가 없을 경우 방어력을 극대화하여 굳건하게 버틸 것."}]},
+        {"defense":["밀리아","키리엘","프레이야"],"counters":[{"attacker":["브브","여포","카구라"],"skill":"여포 아래 → 여포 위 → 브브 위","turn":"선공","formation":"밸런스진형","equip1":"카구라: 선봉장,주술사(효효모모), 부옵: 속공 / 반지: CC+CC","equip2":"여포: 암살자,추적자(약치모모), 부옵:속공 / 반지: 불사+기합, 권능+기합, 불사+권능","equip3":"브브 : 추적자(약치공공), 부옵: 속공 / 반지: 불사","tip":"카구라(전열), 여포,브브(후열)\n속공 지더라도 현재까지 승률이 100% 긴 함. 불사 싸움 될 확률이 높으므로 가급적 6불사 세팅\n(2026-03-03 기준)"},{"attacker":["아라곤","팔라누스","플라튼"],"skill":"아라곤 → 팔라누스(아래) → 팔라누스(위)","turn":"-","formation":"밸런스진형 (팔라누스 후열)","equip1":"팔라누스: 암살자 / 치치받받 / 부옵: 막기 (반지: 불사or부활+기합)","equip2":"아라곤: 성기사 / 방방받받 / 부옵: 막기 (반지: 부활)","equip3":"플라튼: 수문장 / 방방받받 / 막기 위주 (반지: 부활)","tip":"CC가 없을 경우 방어력을 극대화하여 굳건하게 버틸 것."}]},
+        {"defense":["밀리아","바네사","프레이야"],"counters":[{"attacker":["아라곤","팔라누스","플라튼"],"skill":"아라곤 → 팔라누스(아래) → 팔라누스(위)","turn":"-","formation":"밸런스진형 (팔라누스 후열)","equip1":"팔라누스: 암살자 / 치치받받 / 부옵: 막기 (반지: 불사or부활+기합)","equip2":"아라곤: 성기사 / 방방받받 / 부옵: 막기 (반지: 부활)","equip3":"플라튼: 수문장 / 방방받받 / 막기 위주 (반지: 부활)","tip":"CC가 없을 경우 방어력을 극대화하여 굳건하게 버틸 것."}]},
+        {"defense":["밀리아","연희","프레이야"],"counters":[{"attacker":["아라곤","팔라누스","플라튼"],"skill":"아라곤 → 팔라누스(아래) → 팔라누스(위)","turn":"-","formation":"밸런스진형 (팔라누스 후열)","equip1":"팔라누스: 암살자 / 치치받받 / 부옵: 막기 (반지: 불사or부활+기합)","equip2":"아라곤: 성기사 / 방방받받 / 부옵: 막기 (반지: 부활)","equip3":"플라튼: 수문장 / 방방받받 / 막기 위주 (반지: 부활)","tip":"CC가 없을 경우 방어력을 극대화하여 굳건하게 버틸 것."}]},
+        {"defense":["카구라","카일","파이"],"counters":[{"attacker":["겔리두스","스파이크","트루드"],"skill":"겔리두스(상) → 겔리두스(하) → 트루드(상)","turn":"속공 무관함","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"트루드: 추적자 (약약 or 약모 / 막막) / 약공 최대, 막기 40%","equip2":"겔리두스: 주술사 (방방 / 받받) / 막기 효율 최대","equip3":"스파이크: 성기사 (생생 / 받받) / 막기 효율 최대","tip":"상대의 내실이나 속공 여부에 관계없이 운용 가능함 (1번 덱 파훼법)."},{"attacker":["브브","카구라","카일"],"skill":"브브(위) / 카구라(위) / 카일(아래)","turn":"공격팀 선공","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"카일/브브: 추적자 (약치모모) / 약공·치확 내실 강화","equip2":"파이: 수문장 or 선봉자 / 속공 수치 극대화","equip3":"-","tip":"선속공 필수. 상대 속공 확인 후 선제 공격권 확보가 생명임 (미러전)."},{"attacker":["겔리두스","손오공","엘리시아"],"skill":"손오공(위) / 겔리두스(위) / 엘리시아(아래)","turn":"방어팀 선공","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"상세 세팅 정보 업데이트가 필요함","equip2":"상세 세팅 정보 업데이트가 필요함","equip3":"상세 세팅 정보 업데이트가 필요함","tip":"펫 카람 사용 시 필승임."},{"attacker":["로지","아라곤","팔라누스"],"skill":"팔라누스(아래) / 아라(위) / 로지(아래)","turn":"방어팀 선공","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"상세 세팅 정보 업데이트가 필요함","equip2":"상세 세팅 정보 업데이트가 필요함","equip3":"상세 세팅 정보 업데이트가 필요함","tip":"펫 멜페로 사용 시 필승임."}]},
+        {"defense":["초선","키리엘","프레이야"],"counters":[{"attacker":["녹스","로지","크리스"],"skill":"크(아)→로(아)→크(위)","turn":"상세 세팅 정보 업데이트가 필요함","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"로지: 주술사 / 방방+효효(반반) / 효적90+효저100","equip2":"녹스: 조율자 / 효효+반반 / 효적90+효저100 / 6성 즉사","equip3":"크리스: 주술사 / 효효+효효 / 효적100+효저100 / 6성 즉사","tip":"핵심 운영: 효과적중(효적)과 효과저항(효저) 세팅이 승패를 좌우함."}]},
+        {"defense":["겔리두스","에이스","트루드"],"counters":[{"attacker":["라니아","라드그리드","스파이크"],"skill":"라드그리드(아래) → 스파이크(위) → 스파이크(아래)","turn":"후공","formation":"공격진형 (라드 앞)","equip1":"라드그리드: 성기사(방방받받) / 막기 최대","equip2":"스파이크:성기사(생생받받) / 막기 최대","equip3":"라니아: 성기사(방방받받) / 막기최대","tip":"즉사반지 두개 착용, 대랄 하나 착용\n라니아가 빙결 면역, 구조적으로 에이스 피깎이 지속되어 피 차이로 승리 가능"},{"attacker":["녹스","로지","크리스"],"skill":"크(아)→로(아)→크(위)","turn":"상세 세팅 정보 업데이트가 필요함","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"로지: 주술사 / 방방+효효(반반) / 효적90+효저100 / 5성 불사","equip2":"녹스: 조율자 / 효효+반반 / 효적90+효저100 / 6성 즉사","equip3":"크리스: 주술사 / 효효+효효 / 효적100+효저100 / 6성 즉사","tip":"상태이상 적중/저항 싸움이 핵심임."},{"attacker":["브브","여포","풍연"],"skill":"여포(아래) → 브브(아래) or 풍연(아래) → 여포(위)","turn":"선공","formation":"보호진형","equip1":"여포: 추적자+내실 / 6성 불사(권능) / 속도 1위","equip2":"풍연: 수문장+내실 / 5성 불사","equip3":"브브: 내실+추적자 / 5성 불사","tip":"풍연 빙결 면역으로 여포, 브브를 사용해서 극딜하는 덱."}]},
+        {"defense":["여포"],"counters":[{"attacker":["겔리두스","엘리시아","트루드"],"skill":"엘리시아(위) → 겔리두스(위) → 트루드(위)","turn":"상세 세팅 정보 업데이트가 필요함","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"트루드: 약공(공공)/반반 + 추적자","equip2":"겔리두스: 방방/반반 + 조율자","equip3":"엘리시아: 효방(방방)/반반 + 조율자","tip":"엘리시아 선스킬로 상태이상 면역 확보 후 딜링함."}]},
+        {"defense":["카일"],"counters":[{"attacker":["바네사","쥬리","프레이야"],"skill":"바네사(아래) → 쥬리(위) → 프레이야(위)","turn":"공격팀 선공","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"프레이야(위): 추적자 / 속공+내실","equip2":"바네사(아래): 주술사 / 속공(내실)","equip3":"쥬리(위): 주술사 / 속공 MAX","tip":"속도 240~250 이상 필수임 (선타 필승)."}]},
+        {"defense":["겔리두스","손오공","에이스"],"counters":[{"attacker":["브브","여포","풍연"],"skill":"여포(아래) → 풍연(아래) → 여포(위)","turn":"공격팀 선공","formation":"보호진형 (여포 후열)","equip1":"여포: 추적자or암살자 / 약약or치약 / 모모","equip2":"브브: 추적지 / 약약or치약 / 모모","equip3":"풍연: 추적자 / 약약or치약 / 모모 (불사 5성 반지 이상)","tip":"\"풍연\" 불사 5성 반지 이상 ,펫은 \"유, 이린\" 추천"},{"attacker":["브브","아멜리아","카일"],"skill":"브(위)/아(위)/카(아)","turn":"공격 선공","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"카일: 추적자 / 극내실","equip2":"브브: 추적자 / 극내실","equip3":"아멜리아: 조율자 (속공 3순위)","tip":"방어팀 손오공 후열 1명일 때 기용함."},{"attacker":["에이스","키리엘","프레이야"],"skill":"프레이야(위) / 프레이야(아래) / 키리엘(아래)","turn":"공격팀 선공","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"키리엘: 추적자 / 속77 공격력","equip2":"에이스: 수문장 / 속공 짬통","equip3":"프레이야: 극내실 세팅","tip":"-"},{"attacker":["루디","카론","플라튼"],"skill":"플라튼(위) / 루디(위) / 카론(아래)","turn":"상세 세팅 정보 업데이트가 필요함","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"상세 세팅 정보 업데이트가 필요함","equip2":"상세 세팅 정보 업데이트가 필요함","equip3":"상세 세팅 정보 업데이트가 필요함","tip":"손오공 에이스 겔리두스 카운터 덱은 맞으나, 승률 50% 수준임 (비추천)."}]},
+        {"defense":["바네사","손오공","프레이야"],"counters":[{"attacker":["실베스타","아멜리아","플라튼"],"skill":"플라튼(위) / 실베(위) / 실베(아래)","turn":"방어팀 선공","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"상세 세팅 정보 업데이트가 필요함","equip2":"상세 세팅 정보 업데이트가 필요함","equip3":"상세 세팅 정보 업데이트가 필요함","tip":"-"},{"attacker":["브브","카구라","카일"],"skill":"브브(위) / 카구라(위) / 브브(아래)","turn":"공격팀 선공","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"상세 세팅 정보 업데이트가 필요함","equip2":"상세 세팅 정보 업데이트가 필요함","equip3":"상세 세팅 정보 업데이트가 필요함","tip":"상대 펫 유 또는 멜페로 일 때 사용 가능함."}]},
+        {"defense":["손오공","에이스","프레이야"],"counters":[{"attacker":["겔리두스","손오공","에이스"],"skill":"손오공(위) / 겔리두스(위) / 에이스(아래)","turn":"방어팀 선공","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"상세 세팅 정보 업데이트가 필요함","equip2":"상세 세팅 정보 업데이트가 필요함","equip3":"상세 세팅 정보 업데이트가 필요함","tip":"우리팀 펫이 유 또는 멜페로 일 때 사용함."},{"attacker":["초선","키리엘","프레이야"],"skill":"상세 세팅 정보 업데이트가 필요함","turn":"공격팀 선공","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"상세 세팅 정보 업데이트가 필요함","equip2":"상세 세팅 정보 업데이트가 필요함","equip3":"상세 세팅 정보 업데이트가 필요함","tip":"핵심: 선속공 세팅 필수임."}]},
+        {"defense":["겔리두스","손오공","트루드"],"counters":[{"attacker":["겔리두스","손오공","트루드"],"skill":"손오공(위) / 겔리두스(위) / 트루드(위)","turn":"방어팀 선공","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"상세 세팅 정보 업데이트가 필요함","equip2":"상세 세팅 정보 업데이트가 필요함","equip3":"상세 세팅 정보 업데이트가 필요함","tip":"우리팀 펫이 카람 일 때 사용함."}]},
+        {"defense":["바네사","연희","키리엘"],"counters":[{"attacker":["겔리두스","손오공","에이스"],"skill":"손오공(위) / 겔리두스(위) / 에이스(아래)","turn":"방어팀 선공","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"상세 세팅 정보 업데이트가 필요함","equip2":"상세 세팅 정보 업데이트가 필요함","equip3":"상세 세팅 정보 업데이트가 필요함","tip":"펫 유 사용 시 필승임."}]},
+        {"defense":["스파이크","아멜리아","트루드"],"counters":[{"attacker":["린","멜키르","밀리아"],"skill":"린 (위) → 멜키르 (위) → 밀리아 (위) 순서로 사용\n\n속공 순서: 멜키르 - 린 - 밀리아\n\n총 속공: 150","turn":"후턴 / 펫: 카람\n\n힐밴 대상: 밀리아, 멜키르","formation":"기본 진형 (전열: 밀리아, 멜키르 / 후열: 린) / 기본 진형\n\n전열: 밀리아, 멜키르\n\n후열: 린","equip1":"밀리아: 주술사 / 효효받받 / 효적 100↑, 막기 50↑ (반지: 즉사반지)","equip2":"멜키르: 복수자 / 효공효효 / 효적 100↑, 부옵: 공 (반지: 5성 불사반지 이상)","equip3":"린: 선봉장 / 효효받받 / 효적 60↑, 부옵: 약공 (반지: 즉사반지)","tip":"트스아 덱을 파훼하기 위한 세팅으로, 각 캐릭터의 효과 적중(효적) 수치를 기준치 이상으로 맞추는 것이 중요합니다.\n상황에 따라 즉사 반지와 불사 반지를 적절히 활용하여 변수를 차단하시기 바랍니다.\n\n*속공 순서: 멜키르 - 린 - 밀리아 (속공 180 이상 권장)\n*펫: 카람\n*힐밴 대상: 밀리아, 멜키르 / 트스아 덱을 파훼하기 위한 세팅으로, 각 캐릭터의 효과 적중(효적) 수치를 기준치 이상으로 맞추는 것이 중요합니다.\n\n상황에 따라 즉사 반지와 불사 반지를 적절히 활용하여 변수를 차단하시기 바랍니다."},{"attacker":["스파이크","첸슬러","카론"],"skill":"상세 세팅 정보 업데이트가 필요함","turn":"방어팀 선공","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"전원: 조율자 세트 + 효과 저항 100% (필수)","equip2":"스파이크: 방생받받 or 생생받받","equip3":"첸슬러/카론: 방생받받 or 방방받받","tip":"3번 덱 파훼법임."},{"attacker":["리","스파이크","카론"],"skill":"리(아래) / 스파이크(위) / 카론(아래)","turn":"방어팀 선공","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"상세 세팅 정보 업데이트가 필요함","equip2":"상세 세팅 정보 업데이트가 필요함","equip3":"상세 세팅 정보 업데이트가 필요함","tip":"-"},{"attacker":["바네사","키리엘","프레이야"],"skill":"프레이야(위) / 바네사(아래) / 프레이야(아래)","turn":"공격팀 선공","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"상세 세팅 정보 업데이트가 필요함","equip2":"상세 세팅 정보 업데이트가 필요함","equip3":"상세 세팅 정보 업데이트가 필요함","tip":"-"},{"attacker":["아멜리아","카일","파이"],"skill":"카일(아래) / 카일(위) / 아멜리아(위)","turn":"공격팀 선공","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"카일: 속공 팀내 1,2위","equip2":"아멜리아: 수문장","equip3":"-","tip":"-"}]},
+        {"defense":["아라곤","팔라누스","플라튼"],"counters":[{"attacker":["루디","팔라누스","플라튼"],"skill":"루디(위) / 팔라누스(아래) / 플라튼(위)","turn":"방어팀 선공","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"상세 세팅 정보 업데이트가 필요함","equip2":"상세 세팅 정보 업데이트가 필요함","equip3":"상세 세팅 정보 업데이트가 필요함","tip":"-"},{"attacker":["로지","아라곤","팔라누스"],"skill":"팔라누스(아래) / 아라(위) / 로지(아래)","turn":"방어팀 선공","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"상세 세팅 정보 업데이트가 필요함","equip2":"상세 세팅 정보 업데이트가 필요함","equip3":"상세 세팅 정보 업데이트가 필요함","tip":"-"},{"attacker":["콜트","트루드","플라튼"],"skill":"플라튼(위) / 트루드(위) / 콜트(아래)","turn":"방어팀 선공","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"상세 세팅 정보 업데이트가 필요함","equip2":"상세 세팅 정보 업데이트가 필요함","equip3":"상세 세팅 정보 업데이트가 필요함","tip":"-"},{"attacker":["루디","앨리스","플라튼"],"skill":"루디(위) / 팔라누스(아래) / 앨리스(위)","turn":"방어팀 선공","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"상세 세팅 정보 업데이트가 필요함","equip2":"상세 세팅 정보 업데이트가 필요함","equip3":"상세 세팅 정보 업데이트가 필요함","tip":"-"}]},
+        {"defense":["겔리두스","엘리시아","트루드"],"counters":[{"attacker":["루디","앨리스","플라튼"],"skill":"루디(위) → 앨리스(아래) → 플라튼(위)","turn":"버팀","formation":"진형: 밸런스/기본","equip1":"플라튼: 조율자 / 방방받받 / 효저100","equip2":"루디: 조율자 / 방방받받 / 효저100","equip3":"앨리스: 조율자 / 생생받받 / 효저100","tip":"펫: 스파이크/방어(효저100).<br>1. 부옵 막기 최대로 세팅할 것 (반지 무관).<br>2. 에이스 상대 시 연습을 권장함. 아멜리아 덱은 금지임."}]},
+        {"defense":["겔리두스","스파이크","트루드"],"counters":[{"attacker":["루디","앨리스","플라튼"],"skill":"루디(위) → 앨리스(아래) → 플라튼(위)","turn":"버팀","formation":"진형: 밸런스/기본","equip1":"플라튼: 조율자 / 방방받받 / 효저100","equip2":"루디: 조율자 / 방방받받 / 효저100","equip3":"앨리스: 조율자 / 생생받받 / 효저100","tip":"펫: 스파이크/방어(효저100).<br>1. 부옵 막기 최대로 세팅할 것 (반지 무관).<br>2. 에이스 상대 시 연습을 권장함. 아멜리아 덱은 금지임."}]},
+        {"defense":["브브","여포","카일"],"counters":[{"attacker":["루디","손오공","앨리스"],"skill":"루디(위)  → 손오공(위)  → 손오공 (아래)","turn":"후턴","formation":"보호진형 (손오공 후열)","equip1":"루디: 조율자 /방방받받 / 부옵: 막기,효저 (반지: 부활)","equip2":"손오공: 수문장 / 약약받받 / 부옵: 막기,약공 (반지: 부활)","equip3":"앨리스: 조율지 / 생생받받 / 부옵: 막기, 효저 (반지: 부활)","tip":"\"펫은 루디, 카람\" / 3인 공격덱에 파괴력이 매우 높으나 내실, 반지 위주로 신경쓰면 카운터로 사용 가능성 높음"},{"attacker":["겔리두스","엘리시아","트루드"],"skill":"엘리시아 (위) → 겔리두스 (위) → 트루드 (위) 순서로 사용\n\n아멜리아/여포 CC 방지를 위한 엘리시아 선스킬 기준","turn":"트루드: 추적자 운용\n\n겔리두스 & 엘리시아: 조율자 운용","formation":"여포 덱 상대 안정적 대응 지향 (단, 강한 여포 덱은 주의)","equip1":"트루드: 약공받받 또는 공공받받","equip2":"겔리두스: 방방받받 (중랄 세팅 권장)","equip3":"엘리시아: 효방받받 또는 방방받받 (중랄 세팅 권장)","tip":"세팅의 핵심은 안정성과 상태이상 대응입니다. 겔리두스와 엘리시아는 '중랄' 세팅을 통해 안정감을 높이시기 바랍니다."},{"attacker":["로지","아라곤","팔라누스"],"skill":"아라곤 → 팔라누스(아래) → 팔라누스(위)","turn":"-","formation":"보호진형 (팔라누스 후열)","equip1":"팔라누스: 암살자 / 치확치확(치피)받받 / 막기 최대 (준비물: 대랄)","equip2":"아라곤: 수문장 or 조율자 / 방방받받 / 막기 최대 (여포 아래스킬 의식 / 준비물: 중랄)","equip3":"로지: 수문장 or 조율자 / 방방(생방)받받 / 막기 최대 (여포 아래스킬 의식 / 준비물: 중랄)","tip":"펫: 루 또는 카람.<br>1. 철거덱 파훼용으로 구성된 덱임.<br>2. 반드시 세팅 후 테스트가 필요함.<br>3. 팔라누스 생존력이 낮으면 치피를 낮추고 막기를 올릴 것."}]},
+        {"defense":["연희","키리엘","플라튼"],"counters":[]},{"defense":["로지","아라곤","팔라누스"],"counters":[]},{"defense":["브브","카구라","카일"],"counters":[]},{"defense":["멜키르","밀리아","키리엘"],"counters":[]},{"defense":["아멜리아","엘리시아","트루드"],"counters":[]},{"defense":["브브","카일","파이"],"counters":[]},{"defense":["손오공","엘리시아","프레이야"],"counters":[]},
+        {"defense":["바네사","키리엘","프레이야"],"counters":[{"attacker":["루디","손오공","앨리스"],"skill":"루디(위)  → 손오공(위)  → 손오공 (아래)","turn":"후턴","formation":"보호진형 (손오공 후열)","equip1":"루디: 조율자 /방방받받 / 부옵: 막기,효저 (반지: 부활)","equip2":"손오공: 수문장 / 약약받받 / 부옵: 막기,약공 (반지: 부활)","equip3":"앨리스: 조율지 / 생생받받 / 부옵: 막기, 효저 (반지: 부활)","tip":"\"펫은 루디, 카람\" / 마덱 상대로 매우 높은 승률이며 프레이야 마덱과 상대 시 프레이야 스킬 버틸 시 거의 승리 확정"}]},
+        {"defense":["린","멜키르","밀리아"],"counters":[]},
+        {"defense":["브브","아멜리아","여포"],"counters":[{"attacker":["라드그리드","손오공","엘리시아"],"skill":"엘리시아 아래 → 손오공 위 → 라드그리드 아래","turn":"후공","formation":"공격진형","equip1":"손오공: 추적자[약약받받] / 부옵: 막기 / 반지: 부활","equip2":"라드그리드: 성기사[방방받받] / 부옵: 막기 / 반지: 부활","equip3":"엘시시아: 조율자[효효받받] / 부옵: 막기 / 반지: 부활","tip":"펫: 카람or루"},{"attacker":["브브","여포","카일"],"skill":"카일(위) → 브브(아래) → 카일(위)","turn":"공격팀 선공 (후턴 가능)","formation":"밸런스 진형, 보호 진형","equip1":"브브: 조율자 딜세팅 [ 후턴 ] , 조율자 딜세팅 [ 선턴 ]","equip2":"여포: 조율자 딜세팅 [ 후턴 ] , 조율자 딜세팅 [ 선턴 ]","equip3":"카일: 조율자 딜세팅 [ 후턴 ] , 추적자 딜세팅 [ 선턴 ]","tip":"속공에 자신 없다면 3명 조율자 딜 세팅\n속공에 자신 있다면 카일 제외 조율자 딜 세팅\n      [카일, 여포는 딜이 충분 , 브브한테 딜템 몰아주기 ]"},{"attacker":["겔리두스","엘리시아","트루드"],"skill":"엘리시아 (위) → 겔리두스 (위) → 트루드 (위) 순서로 사용\n\n아멜리아/여포 CC 방지를 위한 엘리시아 선스킬 기준","turn":"트루드: 추적자 운용\n\n겔리두스 & 엘리시아: 조율자 운용","formation":"여포 덱 상대 안정적 대응 지향 (단, 강한 여포 덱은 주의)","equip1":"트루드: 약공받받 또는 공공받받","equip2":"겔리두스: 방방받받 (중랄 세팅 권장)","equip3":"엘리시아: 효방받받 또는 방방받받 (중랄 세팅 권장)","tip":"세팅의 핵심은 안정성과 상태이상 대응입니다. 겔리두스와 엘리시아는 '중랄' 세팅을 통해 안정감을 높이시기 바랍니다."}]},
+        {"defense":["스파이크","에이스","트루드"],"counters":[]},{"defense":["여포","카구라","카일"],"counters":[]},{"defense":["여포","카구라","콜트"],"counters":[]},
+        {"defense":["밀리아","바네사","연희"],"counters":[{"attacker":["아라곤","팔라누스","플라튼"],"skill":"아라곤 → 팔라누스(아래) → 팔라누스(위)","turn":"-","formation":"밸런스진형 (팔라누스 후열)","equip1":"팔라누스: 암살자 / 치치받받 / 부옵: 막기 (반지: 불사or부활+기합)","equip2":"아라곤: 성기사 / 방방받받 / 부옵: 막기 (반지: 부활)","equip3":"플라튼: 수문장 / 방방받받 / 막기 위주 (반지: 부활)","tip":"CC가 없을 경우 방어력을 극대화하여 굳건하게 버틸 것."}]},
+        {"defense":["브브","아멜리아","카일"],"counters":[]},{"defense":["여포","콜트","파이"],"counters":[]},{"defense":["겔리두스","손오공","엘리시아"],"counters":[]},{"defense":["여포","카구라","파이"],"counters":[]},{"defense":["로지","아킬라","팔라누스"],"counters":[]},
+        {"defense":["브브","여포","카구라"],"counters":[{"attacker":["루디","손오공","앨리스"],"skill":"루디(위)  → 손오공(위)  → 손오공 (아래)","turn":"후턴","formation":"보호진형 (손오공 후열)","equip1":"루디: 조율자 /방방받받 / 부옵: 막기,효저 (반지: 부활)","equip2":"손오공: 수문장 / 약약받받 / 부옵: 막기,약공 (반지: 부활)","equip3":"앨리스: 조율지 / 생생받받 / 부옵: 막기, 효저 (반지: 부활)","tip":"\"펫은 루디, 카람\" / 여포,카일, 브브 상대보단 비교적 딜은 약하나 CC 변수 및 브브 2스킬 주의"}]},
+        {"defense":["겔리두스","손오공","프레이야"],"counters":[]},{"defense":["콜트","파이","플라튼"],"counters":[]},{"defense":["엘리시아","여포","프레이야"],"counters":[]},{"defense":["아멜리아","여포","카일"],"counters":[]},{"defense":["실베스타","콜트","플라튼"],"counters":[]},{"defense":["스파이크","엘리시아","트루드"],"counters":[]},{"defense":["스파이크","트루드","플라튼"],"counters":[]},{"defense":["아멜리아","트루드","플라튼"],"counters":[]},{"defense":["손오공","스파이크","엘리시아"],"counters":[]},{"defense":["브브","여포","콜트"],"counters":[]},
+        {"defense":["사라","아라곤","팔라누스"],"counters":[{"attacker":["브브","여포","초선"],"skill":"초선(위) → 여포(아래) → 브브(위)","turn":"후턴","formation":"밸런스진형 (앞열: 초선 / 후열: 여포, 브브)","equip1":"초선(수문장): 약약받받 / 막기 확률 최대치 세팅 (수면 안 깨지게 딜 낮추고 생존 우선)","equip2":"여포(추적자): 치치공공 / 치명타 및 약점 공격 최대치 세팅 (장신구: 권능/불사/부활 필수)","equip3":"브브(추적자): 치약공공 / 치명타 및 약점 공격 최대치 세팅 (장신구: 권능/불사/부활 필수)","tip":"초선을 팀 내 속공 1순위로 반드시 세팅할 것. 여포와 브브는 딜 내실을 최대로 끌어올려야 함. 초선은 무리하게 약점 공격을 챙길 필요 없이, 수면 상태가 깨지지 않도록 딜을 조정하고 생존 위주로 세팅할 것. (추천 펫: 이린 또는 유)"}]},
+        {"defense":["바네사","실베스타","초선"],"counters":[]},{"defense":["엘리시아","트루드","팔라누스"],"counters":[]},{"defense":["겔리두스","아멜리아","트루드"],"counters":[]},{"defense":["바네사","연희","프레이야"],"counters":[]},{"defense":["연희","키리엘","프레이야"],"counters":[]},{"defense":["아멜리아","카일","파이"],"counters":[]},{"defense":["연희","초선","키리엘"],"counters":[]},{"defense":["겔리두스","손오공","크리스"],"counters":[]},{"defense":["브브","손오공","아멜리아"],"counters":[]},{"defense":["스파이크","아멜리아","프레이야"],"counters":[]},{"defense":["손오공","아멜리아","프레이야"],"counters":[]},{"defense":["발리스타","아멜리아","여포"],"counters":[]},{"defense":["여포","카일","파이"],"counters":[]},{"defense":["라드그리드","스파이크","트루드"],"counters":[]},{"defense":["겔리두스","손오공","앨리스"],"counters":[]},{"defense":["바네사","연희","초선"],"counters":[]},{"defense":["엘리시아","초선","팔라누스"],"counters":[]},{"defense":["라드그리드","손오공","엘리시아"],"counters":[]},{"defense":["브브","여포","파이"],"counters":[]},{"defense":["발리스타","아멜리아","카일"],"counters":[]},{"defense":["연희","쥬리","트루드"],"counters":[]},{"defense":["라드그리드","스파이크","엘리시아"],"counters":[]},{"defense":["라드그리드","트루드","팔라누스"],"counters":[]},{"defense":["라드그리드","엘리시아","트루드"],"counters":[]},{"defense":["스파이크","트루드","프레이야"],"counters":[]},{"defense":["카일","콜트","파이"],"counters":[]},{"defense":["겔리두스","손오공","스파이크"],"counters":[]},{"defense":["브브","여포","태오"],"counters":[]},{"defense":["브브","에이스","프레이야"],"counters":[]},{"defense":["로지","키리엘","프레이야"],"counters":[]},{"defense":["라드그리드","손오공","에이스"],"counters":[]},{"defense":["손오공","초선","프레이야"],"counters":[]},{"defense":["멜키르","밀리아","프레이야"],"counters":[]},{"defense":["발리스타","카일","파이"],"counters":[]},{"defense":["발리스타","카구라","카일"],"counters":[]},{"defense":["멜키르","밀리아","바네사"],"counters":[]},{"defense":["라드그리드","엘리시아","팔라누스"],"counters":[]},{"defense":["라드그리드","팔라누스","플라튼"],"counters":[]},{"defense":["연희","초선","프레이야"],"counters":[]},{"defense":["라드그리드","손오공","스파이크"],"counters":[]},{"defense":["레긴레이프","밀리아","프레이야"],"counters":[]},{"defense":["손오공","에이스","엘리시아"],"counters":[]},{"defense":["레긴레이프","키리엘","프레이야"],"counters":[]},{"defense":["손오공","아멜리아","트루드"],"counters":[]},{"defense":["녹스","로지","팔라누스"],"counters":[]},{"defense":["레긴레이프","초선","프레이야"],"counters":[]},{"defense":["로지","룩","팔라누스"],"counters":[]},{"defense":["아라곤","플라튼","플라튼"],"counters":[]}
+      ], []);
+
+      const HERO_GROUPS = useMemo(() => {
+        if (customHeroes.length === 0) return PREDEFINED_HERO_GROUPS;
+        return [...PREDEFINED_HERO_GROUPS, { group: "기타 (자동추가)", heroes: customHeroes }];
+      }, [customHeroes, PREDEFINED_HERO_GROUPS]);
+
+      useEffect(() => {
+        const handleResize = () => setIsMobileView(window.innerWidth < 1024);
+        handleResize(); window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+      }, []);
+
+      useEffect(() => {
+        let lastScrollY = window.scrollY; let ticking = false;
+        const handleScroll = () => {
+          if (!ticking) {
+            window.requestAnimationFrame(() => {
+              const currentScrollY = window.scrollY;
+              if (currentScrollY < 10) setShowFloatingBtn(true);
+              else if (currentScrollY > lastScrollY + 10) setShowFloatingBtn(false);
+              else if (currentScrollY < lastScrollY - 10) setShowFloatingBtn(true);
+              lastScrollY = currentScrollY; ticking = false;
+            }); ticking = true;
+          }
+        };
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+      }, []);
+
+      useEffect(() => {
+        const handleKeyDown = (e) => {
+          if (e.ctrlKey && e.altKey && (e.code === 'KeyU' || e.key === 'u' || e.key === 'U' || e.key === 'ㅕ')) {
+            e.preventDefault();
+            if (!isAdminMode) { 
+              setUnlockModalOpen(true); setUnlockPwd(''); setUnlockError(false); 
+              setTimeout(() => { if (unlockInputRef.current) unlockInputRef.current.focus(); }, 100);
+            }
+          }
+        };
+        document.addEventListener('keydown', handleKeyDown);
+        return () => document.removeEventListener('keydown', handleKeyDown);
+      }, [isAdminMode]);
+
+      const handleTitleClick = () => {
+        setTitleClickCount(prev => {
+          const newCount = prev + 1;
+          if (newCount >= 5) {
+            if (!isAdminMode) { 
+              setUnlockModalOpen(true); setUnlockPwd(''); setUnlockError(false); 
+              setTimeout(() => { if (unlockInputRef.current) unlockInputRef.current.focus(); }, 100);
+            }
+            return 0;
+          }
+          return newCount;
+        });
+        if (clickTimeoutRef.current) clearTimeout(clickTimeoutRef.current);
+        clickTimeoutRef.current = setTimeout(() => { setTitleClickCount(0); }, 1500);
+      };
+
+      const handleAdminUnlock = (e) => {
+        e.preventDefault();
+        if (unlockPwd === "9457") { setIsAdminMode(true); setIsLoggedIn(true); setUnlockModalOpen(false); setMainTab('management'); } 
+        else { setUnlockError(true); setUnlockPwd(''); if (unlockInputRef.current) unlockInputRef.current.focus(); }
+      };
+
+      const showAlert = (title, content) => setAlertModal({ isOpen: true, title, content });
+      const showConfirm = (title, content, action, confirmText = "확인") => setConfirmModal({ isOpen: true, title, content, action, confirmText });
+
+      useEffect(() => {
+        if (!fb.isValid || !fb.auth) return;
+        const initAuth = async () => {
+          try {
+            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) await signInWithCustomToken(fb.auth, __initial_auth_token);
+            else await signInAnonymously(fb.auth);
+          } catch (error) { console.error("Auth Fail:", error); }
+        };
+        initAuth();
+        const unsubscribe = onAuthStateChanged(fb.auth, setUser);
+        return () => unsubscribe();
+      }, []);
+
+      useEffect(() => {
+        if (!fb.isValid || !user || !fb.db || !isLoggedIn) return;
+        const recordsRef = collection(fb.db, 'artifacts', APP_ID, 'public', 'data', COLLECTION_NAME);
+        const unsubRecords = onSnapshot(recordsRef, (snapshot) => {
+            const fetchedRecords = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            fetchedRecords.sort((a, b) => new Date(b.date) - new Date(a.date));
+            setRecords(fetchedRecords);
+        });
+
+        const guidesRef = collection(fb.db, 'artifacts', APP_ID, 'public', 'data', GUIDE_COLLECTION);
+        const unsubGuides = onSnapshot(guidesRef, (snapshot) => {
+            const fetchedGuides = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            setCustomGuides(fetchedGuides);
+        });
+
+        return () => { unsubRecords(); unsubGuides(); };
+      }, [user, isLoggedIn]);
+
+      const handleLogin = () => {
+        if (loginId === '관리자' && loginPw === '9457') {
+          setIsAdminMode(true);
+          setIsLoggedIn(true);
+          setLoginError(false);
+        } else if (loginId === '리더' && loginPw === '9277') {
+          setIsAdminMode(false);
+          setIsLoggedIn(true);
+          setLoginError(false);
+        } else {
+          setLoginError(true);
+        }
+      };
+
+      const handleTabChange = (main, sub) => {
+        setMainTab(main);
+        if (sub) setSubTab(sub);
+        if (main === 'records') resetForm();
+      };
+
+      const currentRecords = useMemo(() => {
+        return records.filter(r => {
+          const type = r.recordType || 'attack';
+          return type === subTab;
+        });
+      }, [records, subTab]);
+
+      const rawMatches = useMemo(() => {
+        const matches = [];
+        records.filter(r => (r.recordType || 'attack') === 'attack').forEach(r => {
+          r.matches?.forEach(m => {
+            const myTeam = getSafeArray(m.myTeam).map(h => h.trim()).filter(Boolean).sort();
+            const enemyTeam = getSafeArray(m.enemyTeam).map(h => h.trim()).filter(Boolean).sort();
+            if (myTeam.length > 0 && enemyTeam.length > 0) {
+              matches.push({
+                a: myTeam.join(' '),
+                d: enemyTeam.join(' '),
+                w: m.result === '승리' ? 1 : 0,
+                l: m.result === '패배' ? 1 : 0,
+                date: r.date
+              });
+            }
+          });
+        });
+        return matches.sort((a, b) => new Date(a.date) - new Date(b.date));
+      }, [records]);
+
+      const basicDeckData = useMemo(() => {
+        if (mainTab !== 'strategy' || subTab !== 'basic') return [];
+        const recentMatches = rawMatches.slice(-1000);
+        const defStats = {};
+        
+        recentMatches.forEach(m => {
+          if (!defStats[m.d]) defStats[m.d] = { count: 0, atk: {}, normDef: m.d };
+          defStats[m.d].count++;
+          if (!defStats[m.d].atk[m.a]) defStats[m.d].atk[m.a] = { w: 0, l: 0, normAtk: m.a };
+          defStats[m.d].atk[m.a].w += m.w;
+          defStats[m.d].atk[m.a].l += m.l;
+        });
+
+        let sortedDefs = Object.values(defStats).sort((a, b) => b.count - a.count).slice(0, 21);
+        
+        return sortedDefs.map(def => {
+          const topAtks = Object.values(def.atk).map(a => {
+            const total = a.w + a.l;
+            return { normAtk: a.normAtk, w: a.w, l: a.l, total, rate: total > 0 ? (a.w/total)*100 : 0 };
+          }).filter(a => a.total >= 5) 
+          .sort((a, b) => b.total - a.total || b.w - a.w)
+          .slice(0, 3);
+          
+          return { ...def, counters: topAtks };
+        });
+      }, [rawMatches, mainTab, subTab]);
+
+      const dashboardStats = useMemo(() => {
+        if (mainTab !== 'strategy' || subTab !== 'dashboard') return null;
+        let totalWin = 0, totalLose = 0;
+        const deckMap = new Map();
+        
+        rawMatches.forEach(m => {
+          totalWin += m.w; totalLose += m.l;
+          if (!deckMap.has(m.d)) deckMap.set(m.d, 0);
+          deckMap.set(m.d, deckMap.get(m.d) + 1);
+        });
+
+        const topDefs = Array.from(deckMap.entries()).sort((a, b) => b[1] - a[1]).slice(0, 5);
+        return { totalWin, totalLose, topDefs };
+      }, [rawMatches, mainTab, subTab]);
+
+      useEffect(() => {
+        if (mainTab === 'strategy' && subTab === 'dashboard' && dashboardStats) {
+          if (winRateChartRef.current) {
+            if (chartInstance1.current) chartInstance1.current.destroy();
+            chartInstance1.current = new Chart(winRateChartRef.current, {
+              type: 'doughnut',
+              data: { labels: ['승리', '패배'], datasets: [{ data: [dashboardStats.totalWin, dashboardStats.totalLose], backgroundColor: ['#2ed573', '#ff4757'], borderWidth: 0 }] },
+              options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { color: '#fcf6ba' } } } }
+            });
+          }
+          if (defMetaChartRef.current) {
+            if (chartInstance2.current) chartInstance2.current.destroy();
+            chartInstance2.current = new Chart(defMetaChartRef.current, {
+              type: 'bar',
+              data: { 
+                labels: dashboardStats.topDefs.map(d => d[0].split(' ').join(', ').substring(0,15)), 
+                datasets: [{ label: '만난 횟수', data: dashboardStats.topDefs.map(d => d[1]), backgroundColor: '#bf953f', borderRadius: 4 }] 
+              },
+              options: { responsive: true, maintainAspectRatio: false, scales: { y: { grid: { color: 'rgba(255,255,255,0.05)' } }, x: { grid: { display: false } } }, plugins: { legend: { display: false } } }
+            });
+          }
+        }
+        return () => {
+          if (chartInstance1.current) chartInstance1.current.destroy();
+          if (chartInstance2.current) chartInstance2.current.destroy();
+        };
+      }, [mainTab, subTab, dashboardStats]);
+
+      const heatmapData = useMemo(() => {
+        if (mainTab !== 'strategy' || subTab !== 'heatmap') return null;
+        let defCounts = {}; let atkCounts = {};
+        rawMatches.forEach(m => {
+          defCounts[m.d] = (defCounts[m.d]||0) + 1;
+          atkCounts[m.a] = (atkCounts[m.a]||0) + 1;
+        });
+
+        let topDefKeys = Object.entries(defCounts).sort((a,b)=>b[1]-a[1]).slice(0, 15).map(x=>x[0]);
+        let topAtkKeys = Object.entries(atkCounts).sort((a,b)=>b[1]-a[1]).slice(0, 15).map(x=>x[0]);
+
+        const matrix = topAtkKeys.map(atk => {
+          return {
+            atk,
+            defs: topDefKeys.map(def => {
+              let w = 0, l = 0;
+              rawMatches.forEach(m => {
+                if(m.d === def && m.a === atk) { w += m.w; l += m.l; }
+              });
+              return { def, w, l, t: w+l };
+            })
+          };
+        });
+
+        return { cols: topDefKeys, rows: matrix };
+      }, [rawMatches, mainTab, subTab]);
+
+      const counterAnalysisData = useMemo(() => {
+        const activeEnemies = counterEnemyFilter.filter(h => h.trim() !== '');
+        if (activeEnemies.length === 0) return null;
+
+        const resultsMap = new Map();
+        let totalMatchedMatches = 0;
+
+        STATIC_GUIDE_DB.forEach(guide => {
+          const isMatch = activeEnemies.every(filterHero => guide.defense.includes(filterHero));
+          if (isMatch) {
+            const defKey = [...guide.defense].sort().join(',');
+            guide.counters?.forEach(counter => {
+              const atkKey = [...counter.attacker].sort().join(',');
+              const key = `${defKey}|${atkKey}`;
+              resultsMap.set(key, {
+                defenseTeam: guide.defense, attackerTeam: counter.attacker,
+                skill: counter.skill, turn: counter.turn, formation: counter.formation,
+                equips: [counter.equip1, counter.equip2, counter.equip3].filter(Boolean),
+                tip: counter.tip, dynamicCount: 0, dynamicWins: 0, hasGuide: true, isCustom: false
+              });
+            });
+          }
+        });
+
+        customGuides.filter(g => g.status === 'approved').forEach(guide => {
+          const isMatch = activeEnemies.every(filterHero => getSafeArray(guide.defenseTeam).includes(filterHero));
+          if (isMatch) {
+            const defKey = getSafeArray(guide.defenseTeam).sort().join(',');
+            const atkKey = getSafeArray(guide.attackerTeam).sort().join(',');
+            const key = `${defKey}|${atkKey}`;
+            resultsMap.set(key, {
+              defenseTeam: guide.defenseTeam, attackerTeam: guide.attackerTeam,
+              skill: guide.skill, turn: guide.turn, formation: guide.formation,
+              equips: [guide.equip1, guide.equip2, guide.equip3].filter(Boolean),
+              tip: guide.tip, dynamicCount: 0, dynamicWins: 0, hasGuide: true, isCustom: true
+            });
+          }
+        });
+
+        records.filter(r => (r.recordType || 'attack') === 'attack').forEach(record => {
+          record.matches?.forEach(match => {
+            const enemyTeam = getSafeArray(match.enemyTeam).map(h => h.trim()).filter(Boolean);
+            const myTeam = getSafeArray(match.myTeam).map(h => h.trim()).filter(Boolean);
+
+            if (enemyTeam.length > 0 && myTeam.length > 0) {
+              const isMatch = activeEnemies.every(filterHero => enemyTeam.includes(filterHero));
+              if (isMatch) {
+                totalMatchedMatches++;
+                const defKey = [...enemyTeam].sort().join(',');
+                const atkKey = [...myTeam].sort().join(',');
+                const key = `${defKey}|${atkKey}`;
+
+                if (!resultsMap.has(key)) {
+                  resultsMap.set(key, {
+                    defenseTeam: enemyTeam, attackerTeam: myTeam,
+                    skill: null, turn: null, formation: null, equips: [], tip: null,
+                    dynamicCount: 0, dynamicWins: 0, hasGuide: false, isCustom: false
+                  });
+                }
+
+                const entry = resultsMap.get(key);
+                entry.dynamicCount++;
+                if (match.result === '승리') entry.dynamicWins++;
+              }
+            }
+          });
+        });
+
+        const results = Array.from(resultsMap.values())
+          .filter(d => d.dynamicCount >= 5) 
+          .map(d => ({ ...d, winRate: d.dynamicCount > 0 ? ((d.dynamicWins / d.dynamicCount) * 100).toFixed(1) : 0 }))
+          .sort((a, b) => {
+            if (b.winRate !== a.winRate) return parseFloat(b.winRate) - parseFloat(a.winRate);
+            if (b.dynamicCount !== a.dynamicCount) return b.dynamicCount - a.dynamicCount;
+            return (b.hasGuide === a.hasGuide) ? 0 : b.hasGuide ? 1 : -1;
+          });
+
+        return { results, totalMatchedMatches };
+      }, [records, customGuides, counterEnemyFilter, STATIC_GUIDE_DB]);
+
+      const recommendDefenseData = useMemo(() => {
+        const defCounts = {};
+        records.filter(r => r.recordType === 'defense').forEach(record => {
+          const defTeamArr = getSafeArray(record.myTeam);
+          const validDefHeroes = defTeamArr.map(h => h && typeof h === 'string' ? h.trim() : '').filter(Boolean).sort();
+          if (validDefHeroes.length === 3) {
+            const defDeckKey = validDefHeroes.join(', ');
+            if (!defCounts[defDeckKey]) defCounts[defDeckKey] = { deck: defDeckKey, count: 0, wins: 0, heroes: validDefHeroes };
+            record.defenseMatches?.forEach(match => {
+              defCounts[defDeckKey].count++;
+              if (match.result === '방어 성공') defCounts[defDeckKey].wins++;
+            });
+          }
+        });
+
+        return Object.values(defCounts)
+          .map(d => ({ ...d, winRate: d.count > 0 ? ((d.wins / d.count) * 100).toFixed(1) : 0 }))
+          .filter(d => d.count >= 3)
+          .sort((a, b) => {
+            if (b.winRate !== a.winRate) return parseFloat(b.winRate) - parseFloat(a.winRate);
+            return b.count - a.count;
+          }).slice(0, 10);
+      }, [records]);
+
+      const handleGuideSubmit = async () => {
+        if (!user) return showAlert("인증 오류", "인증 정보가 없습니다.");
+        if (!guideModal.skill || !guideModal.turn || !guideModal.formation) {
+          return showAlert("입력 오류", "스킬운영, 턴, 진형은 필수 입력 항목입니다.");
+        }
+        try {
+          await addDoc(collection(fb.db, 'artifacts', APP_ID, 'public', 'data', GUIDE_COLLECTION), {
+            defenseTeam: guideModal.defTeam,
+            attackerTeam: guideModal.atkTeam,
+            skill: guideModal.skill,
+            turn: guideModal.turn,
+            formation: guideModal.formation,
+            equip1: guideModal.equip1,
+            equip2: guideModal.equip2,
+            equip3: guideModal.equip3,
+            tip: guideModal.tip,
+            status: 'pending',
+            createdAt: Date.now(),
+            authorId: user.uid
+          });
+          setGuideModal({ isOpen: false, defTeam: [], atkTeam: [], skill: '', turn: '', formation: '', equip1: '', equip2: '', equip3: '', tip: '' });
+          showAlert("제출 완료", "공략 제안이 성공적으로 전송되었습니다.\n관리자의 검토 후 반영됩니다.");
+        } catch (error) {
+          console.error(error);
+          showAlert("시스템 오류", "공략 제출 중 오류가 발생했습니다.");
+        }
+      };
+
+      const handleApproveGuide = async (id) => {
+        try {
+          await updateDoc(doc(fb.db, 'artifacts', APP_ID, 'public', 'data', GUIDE_COLLECTION, id), { status: 'approved', updatedAt: Date.now() });
+        } catch (error) { showAlert("오류", "승인 중 오류 발생"); }
+      };
+      
+      const handleRejectGuide = async (id) => {
+        if(confirm("이 제안을 삭제하시겠습니까?")) {
+          try { await deleteDoc(doc(fb.db, 'artifacts', APP_ID, 'public', 'data', GUIDE_COLLECTION, id)); } 
+          catch (error) { showAlert("오류", "삭제 중 오류 발생"); }
+        }
+      };
+
+      const handleAttackTeamChange = (index, teamType, heroIndex, value) => {
+        const newMatches = [...attackMatches]; newMatches[index][teamType][heroIndex] = value; setAttackMatches(newMatches);
+      };
+      const handleAttackResultChange = (index, value) => {
+        const newMatches = [...attackMatches]; newMatches[index].result = value; setAttackMatches(newMatches);
+      };
+
+      const handleAttackQuickPaste = (index, text) => {
+        if (!text || text.trim() === '') return;
+        let result = '승리';
+        if (text.includes('패배') || text.includes('(패)') || text.includes('[패]') || text.includes(' 패 ')) result = '패배';
+        
+        let cleanText = text.replace(/공격|방어|승리|패배|\(승\)|\(패\)|\[승\]|\[패\]|:/gi, ' ').replace(/vs/gi, '/').replace(/[\[\]\(\),]/g, ' ').replace(/or/gi, ' ').trim();
+        let myTeamStr = '', enemyTeamStr = '';
+
+        if (cleanText.includes('/')) {
+            let parts = cleanText.split('/');
+            myTeamStr = parts[0]; enemyTeamStr = parts.slice(1).join(' ');
+        } else {
+            let tokens = cleanText.split(/[\s]+/).filter(Boolean);
+            myTeamStr = tokens.slice(0, 3).join(' '); enemyTeamStr = tokens.slice(3, 6).join(' ');
+        }
+
+        const parseTeam = (str) => {
+            let arr = str.split(/[\s]+/).filter(Boolean);
+            return [arr[0] || '', arr[1] || '', arr[2] || ''];
+        };
+        const parsedMyTeam = parseTeam(myTeamStr); const parsedEnemyTeam = parseTeam(enemyTeamStr);
+        const allPredefined = PREDEFINED_HERO_GROUPS.flatMap(g => g.heroes);
+        const newDetectedHeroes = [...parsedMyTeam, ...parsedEnemyTeam].filter(h => h !== '' && !allPredefined.includes(h) && !customHeroes.includes(h));
+        if (newDetectedHeroes.length > 0) setCustomHeroes(prev => [...prev, ...newDetectedHeroes]);
+
+        const newMatches = [...attackMatches];
+        newMatches[index] = { myTeam: parsedMyTeam, result, enemyTeam: parsedEnemyTeam };
+        setAttackMatches(newMatches);
+      };
+
+      const handleDefenseMyTeamChange = (heroIndex, value) => {
+        const newTeam = [...defenseMyTeam]; newTeam[heroIndex] = value; setDefenseMyTeam(newTeam);
+      };
+      const handleDefenseEnemyChange = (index, heroIndex, value) => {
+        const newMatches = [...defenseMatches]; newMatches[index].enemyTeam[heroIndex] = value; setDefenseMatches(newMatches);
+      };
+      const handleDefenseResultChange = (index, value) => {
+        const newMatches = [...defenseMatches]; newMatches[index].result = value; setDefenseMatches(newMatches);
+      };
+      const addDefenseMatch = () => {
+        if (defenseMatches.length < 15) setDefenseMatches([...defenseMatches, { enemyTeam: ['', '', ''], result: '방어 성공' }]);
+        else showAlert("추가 불가", "방어 기록은 한 번에 최대 15개까지만 입력 가능합니다.");
+      };
+
+      const handleDefenseGlobalPaste = (text) => {
+        if (!text || text.trim() === '') return;
+        
+        const lines = text.split(/\n|\||\//).map(l => l.trim()).filter(Boolean);
+        const allPredefined = PREDEFINED_HERO_GROUPS.flatMap(g => g.heroes);
+        
+        let newMyTeam = [...defenseMyTeam];
+        let newDefMatches = [];
+        let foundNewHeroes = [];
+
+        lines.forEach((line, lineIdx) => {
+            let result = '방어 성공';
+            if (line.includes('실패') || line.includes('패배') || line.includes('방실') || line.includes('(패)') || line.includes(' 패 ')) result = '방어 실패';
+
+            let cleanLine = line.replace(/성공|실패|승리|패배|방어|공격|방성|방실|\(승\)|\(패\)|\[.*?\]|:/g, ' ').replace(/[^\w\s가-힣ㄱ-ㅎㅏ-ㅣ]/g, ' ').trim();
+            let tokens = cleanLine.split(/[\s]+/).filter(Boolean);
+            let extractedHeroes = tokens.slice(0, 3);
+
+            extractedHeroes.forEach(h => {
+                if (h && !allPredefined.includes(h) && !customHeroes.includes(h)) foundNewHeroes.push(h);
+            });
+
+            if (extractedHeroes.length > 0) {
+                if (lineIdx === 0 && !newMyTeam.some(h => h.trim())) {
+                    newMyTeam = [extractedHeroes[0]||'', extractedHeroes[1]||'', extractedHeroes[2]||''];
+                } else {
+                    newDefMatches.push({
+                        enemyTeam: [extractedHeroes[0]||'', extractedHeroes[1]||'', extractedHeroes[2]||''],
+                        result: result
+                    });
+                }
+            }
+        });
+
+        if (foundNewHeroes.length > 0) setCustomHeroes(prev => [...new Set([...prev, ...foundNewHeroes])]);
+        if (newMyTeam.some(h => h.trim())) setDefenseMyTeam(newMyTeam);
+        
+        if (newDefMatches.length > 0) {
+            if (defenseMatches.length === 1 && !defenseMatches[0].enemyTeam.some(h => h.trim())) {
+                setDefenseMatches(newDefMatches.slice(0, 15));
+            } else {
+                setDefenseMatches([...defenseMatches, ...newDefMatches].slice(0, 15));
+            }
+        }
+      };
+
+      const resetForm = () => {
+        if (editingId) {
+          setNickname(''); setDate(new Date().toISOString().split('T')[0]); setOpponent('');
+        } else {
+          if (!keepNickname) setNickname('');
+          if (!keepDate) setDate(new Date().toISOString().split('T')[0]);
+          if (!keepOpponent) setOpponent('');
+        }
+        setEditingId(null); setEditingAuthorId(null);
+        setAttackMatches(Array.from({ length: 5 }, () => ({ myTeam: ['', '', ''], result: '승리', enemyTeam: ['', '', ''] })));
+        setDefenseMyTeam(['', '', '']);
+        setDefenseMatches([{ enemyTeam: ['', '', ''], result: '방어 성공' }]);
+      };
+
+      const handleSave = async () => {
+        if (!fb.isValid) return showAlert("설정 오류", "데이터베이스에 연결되지 않았습니다.");
+        if (!user) return showAlert("인증 오류", "인증 정보가 없습니다.");
+        if (!nickname || !date || !opponent) return showAlert("입력 오류", "상단 기본 정보(닉네임, 날짜, 상대)를 모두 입력해주세요.");
+
+        let dataToSave = { 
+          nickname, date, opponent, recordType: subTab, 
+          authorId: editingId ? (editingAuthorId || user.uid) : user.uid 
+        };
+        
+        let allInputHeroes = [];
+
+        if (subTab === 'attack') {
+          const valid = attackMatches.filter(m => m.myTeam.some(h => h.trim()) || m.enemyTeam.some(h => h.trim()));
+          if (valid.length === 0) return showAlert("입력 오류", "최소 1개의 공격 기록을 입력하세요.");
+          dataToSave.matches = valid;
+          valid.forEach(m => { allInputHeroes.push(...m.myTeam, ...m.enemyTeam); });
+        } else {
+          if (!defenseMyTeam.some(h => h.trim())) return showAlert("입력 오류", "아군 방어 영웅을 입력하세요.");
+          const valid = defenseMatches.filter(m => m.enemyTeam.some(h => h.trim()));
+          if (valid.length === 0) return showAlert("입력 오류", "최소 1개의 적군 공격 기록을 입력하세요.");
+          dataToSave.myTeam = defenseMyTeam;
+          dataToSave.defenseMatches = valid;
+          allInputHeroes.push(...defenseMyTeam);
+          valid.forEach(m => allInputHeroes.push(...m.enemyTeam));
+        }
+
+        const allValidHeroes = PREDEFINED_HERO_GROUPS.flatMap(g => g.heroes);
+        const usedHeroes = new Set(allInputHeroes.map(h => h && typeof h === 'string' ? h.trim() : '').filter(Boolean));
+        const unknownHeroes = [...usedHeroes].filter(h => !allValidHeroes.includes(h));
+
+        if (unknownHeroes.length > 0) {
+          showConfirm("오타 확인", `목록에 없는 이름이 있습니다.\n[${unknownHeroes.join(', ')}]\n\n오타라면 '취소', 신규 영웅이라면 '강제 저장'을 누르세요.`, () => { executeSave(dataToSave, unknownHeroes); setConfirmModal({ isOpen: false }); }, "강제 저장");
+        } else { executeSave(dataToSave, []); }
+      };
+
+      const executeSave = async (data, newHeroes) => {
+        try {
+          if (editingId) {
+            data.updatedAt = Date.now();
+            await updateDoc(doc(fb.db, 'artifacts', APP_ID, 'public', 'data', COLLECTION_NAME, editingId), data);
+          } else {
+            data.createdAt = Date.now();
+            await addDoc(collection(fb.db, 'artifacts', APP_ID, 'public', 'data', COLLECTION_NAME), data);
+          }
+          if (newHeroes.length > 0) {
+            const added = newHeroes.filter(h => !customHeroes.includes(h));
+            if (added.length > 0) setCustomHeroes(prev => [...prev, ...added]);
+          }
+          resetForm(); showAlert("저장 완료", "성공적으로 저장되었습니다.");
+        } catch (error) { console.error("Save Error:", error); showAlert("시스템 오류", "저장 중 오류가 발생했습니다."); }
+      };
+
+      const handleEditClick = (record) => {
+        setEditingId(record.id); 
+        setEditingAuthorId(record.authorId || null); 
+        setNickname(record.nickname || ''); setDate(record.date || new Date().toISOString().split('T')[0]); setOpponent(record.opponent || '');
+        
+        if (subTab === 'attack') {
+          const loaded = record.matches?.map(m => ({
+            myTeam: getSafeArray(m.myTeam).length > 0 ? getSafeArray(m.myTeam) : ['', '', ''],
+            result: m.result || '승리',
+            enemyTeam: getSafeArray(m.enemyTeam).length > 0 ? getSafeArray(m.enemyTeam) : ['', '', '']
+          })) || [];
+          while(loaded.length < 5) loaded.push({ myTeam: ['', '', ''], result: '승리', enemyTeam: ['', '', ''] });
+          setAttackMatches(loaded.slice(0,5));
+        } else {
+          setDefenseMyTeam(getSafeArray(record.myTeam).length > 0 ? getSafeArray(record.myTeam) : ['', '', '']);
+          const loadedDef = record.defenseMatches?.map(m => ({
+            enemyTeam: getSafeArray(m.enemyTeam).length > 0 ? getSafeArray(m.enemyTeam) : ['', '', ''],
+            result: m.result || '방어 성공'
+          })) || [{ enemyTeam: ['', '', ''], result: '방어 성공' }];
+          setDefenseMatches(loadedDef);
+        }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      };
+
+      const handleDelete = (id) => {
+        if (!fb.isValid) return;
+        showConfirm("기록 삭제", "기록을 영구히 삭제합니다.", async () => {
+          try { await deleteDoc(doc(fb.db, 'artifacts', APP_ID, 'public', 'data', COLLECTION_NAME, id)); if (editingId === id) resetForm(); setConfirmModal({ isOpen: false }); } 
+          catch (error) { showAlert("오류", "삭제 권한이 부족합니다."); }
+        }, "삭제 진행");
+      };
+
+      const handleDeleteAllByType = (type) => {
+        if (!isAdminMode) return;
+        const typeRecords = records.filter(r => (r.recordType || 'attack') === type);
+        if (typeRecords.length === 0) return showAlert("알림", "삭제할 데이터가 없습니다.");
+        const typeName = type === 'attack' ? '공격 기록' : '방어 기록';
+        showConfirm(`${typeName} 전체 삭제`, `총 ${typeRecords.length}개의 ${typeName}을 모두 삭제합니다. 진행할까요?`, async () => {
+          try {
+            let sCount = 0; setConfirmModal({ isOpen: false });
+            for (const r of typeRecords) { await deleteDoc(doc(fb.db, 'artifacts', APP_ID, 'public', 'data', COLLECTION_NAME, r.id)); sCount++; }
+            showAlert("결과", `성공: ${sCount}건 삭제됨`);
+          } catch (error) { showAlert("에러", "일괄 삭제 중 권한 에러 발생"); }
+        }, "일괄 삭제 진행");
+      };
+
+      const handleExportAllCSV = () => {
+        if (records.length === 0) return showAlert("알림", "데이터가 없습니다.");
+        let csv = "\uFEFF=== [길드전 승리(공격) 기록] ===\n날짜,닉네임,상대길드,매치,아군1,아군2,아군3,결과,적군1,적군2,적군3\n";
+        records.filter(r => (r.recordType || 'attack') === 'attack').forEach(r => {
+          r.matches?.forEach((m, i) => {
+            const my = getSafeArray(m.myTeam); const en = getSafeArray(m.enemyTeam);
+            csv += `${r.date},${r.nickname},${r.opponent},${i+1},${(my[0]||'').trim()},${(my[1]||'').trim()},${(my[2]||'').trim()},${m.result},${(en[0]||'').trim()},${(en[1]||'').trim()},${(en[2]||'').trim()}\n`;
+          });
+        });
+        csv += "\n=== [길드전 방어 기록] ===\n날짜,닉네임,상대길드,내방어덱1,내방어덱2,내방어덱3,매치,적군공격1,적군공격2,적군공격3,결과(방어)\n";
+        records.filter(r => r.recordType === 'defense').forEach(r => {
+          const my = getSafeArray(r.myTeam);
+          r.defenseMatches?.forEach((m, i) => {
+            const en = getSafeArray(m.enemyTeam);
+            csv += `${r.date},${r.nickname},${r.opponent},${(my[0]||'').trim()},${(my[1]||'').trim()},${(my[2]||'').trim()},${i+1},${(en[0]||'').trim()},${(en[1]||'').trim()},${(en[2]||'').trim()},${m.result}\n`;
+          });
+        });
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = `길드전_전체기록_${new Date().toISOString().split('T')[0]}.csv`;
+        document.body.appendChild(link); link.click(); document.body.removeChild(link);
+      };
+
+      const handleExportStatsCSV = () => {
+        handleExportAllCSV(); 
+      };
+
+      const groupedRecords = useMemo(() => {
+        const groups = {};
+        let search = filterChar.toLowerCase().trim();
+        let choSearch = getChosung(search);
+        
+        currentRecords.forEach(r => {
+          let isMatch = false;
+          if (search === '') isMatch = true;
+          else if (r.nickname?.toLowerCase().includes(search) || getChosung(r.nickname||'').includes(choSearch)) isMatch = true;
+          else {
+            if (subTab === 'attack') {
+              r.matches?.forEach(m => {
+                const str = getSafeArray(m.myTeam).join(',') + getSafeArray(m.enemyTeam).join(',');
+                if (str.toLowerCase().includes(search) || getChosung(str).includes(choSearch)) isMatch = true;
+              });
+            } else {
+              const myStr = getSafeArray(r.myTeam).join(',');
+              if (myStr.toLowerCase().includes(search) || getChosung(myStr).includes(choSearch)) isMatch = true;
+              r.defenseMatches?.forEach(m => {
+                const enStr = getSafeArray(m.enemyTeam).join(',');
+                if (enStr.toLowerCase().includes(search) || getChosung(enStr).includes(choSearch)) isMatch = true;
+              });
+            }
+          }
+          if (!isMatch) return;
+
+          const groupKey = `${r.date} / vs ${r.opponent || '알 수 없음'}`;
+          if (!groups[groupKey]) groups[groupKey] = []; groups[groupKey].push(r);
+        });
+        return Object.entries(groups).sort((a, b) => b[0].localeCompare(a[0]));
+      }, [currentRecords, filterChar, subTab]);
+
+      const toggleRecord = (id) => setExpandedRecords(prev => ({ ...prev, [id]: !prev[id] }));
+      const toggleGroup = (key) => setExpandedGroups(prev => ({ ...prev, [key]: !prev[key] }));
+
+      if (!isLoggedIn) {
+        return (
+          <div style={{position: 'fixed', inset: 0, zIndex: 9000, display: 'flex', justifyContent: 'center', alignItems: 'center', overflow: 'hidden'}}>
+            <div className="login-bg-anim"></div>
+            <div className="login-card">
+              <h2 className="login-title-text">[ 리더 길드 ]</h2>
+              <input type="text" value={loginId} onChange={e=>setLoginId(e.target.value)} className="login-input" placeholder="ID" />
+              <input type="password" value={loginPw} onChange={e=>setLoginPw(e.target.value)} className="login-input" placeholder="PASSWORD" onKeyDown={e=>{if(e.key==='Enter') handleLogin()}} />
+              <button onClick={handleLogin} className="gold-button w-full mt-4 py-4 rounded-xl font-black text-lg">LOGIN</button>
+              {loginError && <p style={{color:'var(--danger)', fontSize:'12px', marginTop:'20px', fontWeight:'bold'}}>ACCESS DENIED (정보 불일치)</p>}
+            </div>
+          </div>
+        );
+      }
+
+      return (
+        <div className="min-h-screen p-4 md:p-8 text-[15px] pb-32 relative">
+          <CustomModal isOpen={alertModal.isOpen} onClose={() => setAlertModal({...alertModal, isOpen: false})} title={alertModal.title} content={alertModal.content} onConfirm={() => setAlertModal({...alertModal, isOpen: false})} hideCancel={true} />
+          <CustomModal isOpen={confirmModal.isOpen} onClose={() => setConfirmModal({...confirmModal, isOpen: false})} title={confirmModal.title} content={confirmModal.content} onConfirm={confirmModal.action} confirmText={confirmModal.confirmText} />
+
+          {guideModal.isOpen && (
+             <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 p-4 animate-in fade-in duration-200">
+               <div className="gold-panel p-6 md:p-8 rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto custom-scrollbar">
+                 <h3 className="text-xl font-black gold-gradient-text mb-2 flex items-center gap-2"><IconEdit/> 새로운 공략 제안하기</h3>
+                 <p className="text-xs text-zinc-400 mb-6">작성해주신 공략은 관리자 검토 후 보관소에 공식 등록됩니다.</p>
+                 
+                 <div className="space-y-4">
+                   <div className="flex gap-2 text-xs font-bold text-zinc-300">
+                     <span className="w-16 shrink-0 text-zinc-500">방어 덱:</span>
+                     <span>{getSafeArray(guideModal.defTeam).join(', ')}</span>
+                   </div>
+                   <div className="flex gap-2 text-xs font-bold text-zinc-300">
+                     <span className="w-16 shrink-0 text-zinc-500">카운터 덱:</span>
+                     <span>{getSafeArray(guideModal.atkTeam).join(', ')}</span>
+                   </div>
+                   
+                   <div className="pt-4 border-t border-zinc-800 space-y-3">
+                     <div>
+                       <label className="block text-xs font-bold text-zinc-400 mb-1">스킬 운영 (필수)</label>
+                       <input type="text" value={guideModal.skill} onChange={e => setGuideModal({...guideModal, skill: e.target.value})} placeholder="예: 크리스 아래 → 크리스 위" className="w-full px-3 py-2 bg-zinc-900 border border-zinc-700 rounded-lg text-sm text-zinc-100 outline-none focus:ring-1 focus:ring-yellow-600"/>
+                     </div>
+                     <div className="flex gap-3">
+                       <div className="flex-1">
+                         <label className="block text-xs font-bold text-zinc-400 mb-1">턴 (필수)</label>
+                         <input type="text" value={guideModal.turn} onChange={e => setGuideModal({...guideModal, turn: e.target.value})} placeholder="예: 선공 or 후공" className="w-full px-3 py-2 bg-zinc-900 border border-zinc-700 rounded-lg text-sm text-zinc-100 outline-none focus:ring-1 focus:ring-yellow-600"/>
+                       </div>
+                       <div className="flex-1">
+                         <label className="block text-xs font-bold text-zinc-400 mb-1">진형 (필수)</label>
+                         <input type="text" value={guideModal.formation} onChange={e => setGuideModal({...guideModal, formation: e.target.value})} placeholder="예: 공격진형" className="w-full px-3 py-2 bg-zinc-900 border border-zinc-700 rounded-lg text-sm text-zinc-100 outline-none focus:ring-1 focus:ring-yellow-600"/>
+                       </div>
+                     </div>
+                     <div>
+                       <label className="block text-xs font-bold text-zinc-400 mb-1">장비 세팅 1</label>
+                       <input type="text" value={guideModal.equip1} onChange={e => setGuideModal({...guideModal, equip1: e.target.value})} placeholder="예: 크리스: 주술사 / 반지: 즉사" className="w-full px-3 py-2 bg-zinc-900 border border-zinc-700 rounded-lg text-sm text-zinc-100 outline-none focus:ring-1 focus:ring-yellow-600"/>
+                     </div>
+                     <div>
+                       <label className="block text-xs font-bold text-zinc-400 mb-1">장비 세팅 2</label>
+                       <input type="text" value={guideModal.equip2} onChange={e => setGuideModal({...guideModal, equip2: e.target.value})} className="w-full px-3 py-2 bg-zinc-900 border border-zinc-700 rounded-lg text-sm text-zinc-100 outline-none focus:ring-1 focus:ring-yellow-600"/>
+                     </div>
+                     <div>
+                       <label className="block text-xs font-bold text-zinc-400 mb-1">장비 세팅 3</label>
+                       <input type="text" value={guideModal.equip3} onChange={e => setGuideModal({...guideModal, equip3: e.target.value})} className="w-full px-3 py-2 bg-zinc-900 border border-zinc-700 rounded-lg text-sm text-zinc-100 outline-none focus:ring-1 focus:ring-yellow-600"/>
+                     </div>
+                     <div>
+                       <label className="block text-xs font-bold text-zinc-400 mb-1">추가 팁 (Tip)</label>
+                       <textarea value={guideModal.tip} onChange={e => setGuideModal({...guideModal, tip: e.target.value})} rows="3" placeholder="추가적인 펫 정보나 운영법을 적어주세요." className="w-full px-3 py-2 bg-zinc-900 border border-zinc-700 rounded-lg text-sm text-zinc-100 outline-none focus:ring-1 focus:ring-yellow-600 custom-scrollbar"></textarea>
+                     </div>
+                   </div>
+                 </div>
+
+                 <div className="flex gap-3 mt-6">
+                   <button onClick={() => setGuideModal({...guideModal, isOpen: false})} className="flex-1 py-3 rounded-xl bg-zinc-800 border border-zinc-700 text-zinc-300 font-bold text-sm hover:bg-zinc-700 transition-colors">취소</button>
+                   <button onClick={handleGuideSubmit} className="flex-1 py-3 rounded-xl gold-button font-bold text-sm">제출하기</button>
+                 </div>
+               </div>
+             </div>
+          )}
+
+          {unlockModalOpen && (
+            <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4 animate-in fade-in duration-200">
+              <div className="gold-panel p-8 md:p-12 rounded-3xl shadow-2xl max-w-sm w-full relative">
+                <button onClick={() => setUnlockModalOpen(false)} className="absolute top-4 right-4 p-2 text-zinc-500 hover:text-zinc-300 transition-colors"><IconX /></button>
+                <div className="w-14 h-14 bg-yellow-900/30 text-yellow-500 rounded-full flex items-center justify-center mx-auto mb-5 shadow-sm border border-yellow-700/50"><IconLock /></div>
+                <h2 className="text-xl font-bold gold-gradient-text mb-2 text-center">숨겨진 기능 해제</h2>
+                <p className="text-zinc-400 mb-8 text-sm text-center">관리자 암호를 입력하세요.</p>
+                <form onSubmit={handleAdminUnlock} className="space-y-4">
+                  <input ref={unlockInputRef} type="password" value={unlockPwd} onChange={(e) => setUnlockPwd(e.target.value)} placeholder="비밀번호" className={`w-full px-5 py-4 border ${unlockError ? 'border-red-500 bg-red-950/20' : 'border-yellow-700/50 bg-zinc-900'} rounded-2xl focus:ring-2 focus:ring-yellow-600 outline-none text-center text-zinc-100 tracking-[0.5em] text-lg font-bold transition-colors shadow-inner`} />
+                  {unlockError && <p className="text-red-400 text-xs text-center font-medium">비밀번호가 일치하지 않습니다.</p>}
+                  <button type="submit" className="w-full gold-button font-black py-4 rounded-2xl shadow-md transition-all mt-2">해제하기</button>
+                </form>
+              </div>
+            </div>
+          )}
+
+          <button onClick={() => setIsMobileView(!isMobileView)} className={`fixed top-4 right-4 z-50 flex items-center gap-2 px-4 py-2.5 gold-button rounded-full font-bold text-xs md:text-sm transform ${showFloatingBtn?'translate-y-0 opacity-100':'-translate-y-20 opacity-0'} transition-all duration-300 border border-zinc-600`}>
+            {isMobileView ? '🖥️ PC 모드' : '📱 모바일 모드'}
+          </button>
+
+          <div className="max-w-6xl mx-auto space-y-6 md:space-y-8 mt-10 md:mt-0">
+            <div className="bg-zinc-900 border border-zinc-700 rounded-2xl shadow-2xl overflow-hidden">
+              <div className="p-6 md:p-8 flex flex-col md:flex-row items-center justify-between bg-gradient-to-b from-zinc-800 to-zinc-900">
+                <div>
+                  <h1 className="text-3xl md:text-4xl font-black gold-gradient-text cursor-pointer select-none drop-shadow-md" onClick={handleTitleClick} title="타이틀 5번 연속 클릭 시 관리자 모드 열림">
+                    리더 길드전 전략실
+                  </h1>
+                </div>
+              </div>
+              <div className="flex border-t border-zinc-700 bg-zinc-900 flex-wrap">
+                <button onClick={() => handleTabChange('records', 'attack')} className={`flex-1 py-4 font-black text-sm md:text-base transition-all flex items-center justify-center gap-2 ${mainTab === 'records' ? 'gold-bg-active' : 'text-zinc-500 hover:bg-zinc-800/50 hover:text-zinc-300'}`}>
+                  <span className={mainTab === 'records' ? 'gold-gradient-text drop-shadow-sm' : ''}>길드전 기록</span>
+                </button>
+                <button onClick={() => handleTabChange('strategy', 'counter')} className={`flex-1 py-4 font-black text-sm md:text-base transition-all flex items-center justify-center gap-2 ${mainTab === 'strategy' ? 'gold-bg-active' : 'text-zinc-500 hover:bg-zinc-800/50 hover:text-zinc-300'}`}>
+                  <span className={mainTab === 'strategy' ? 'gold-gradient-text drop-shadow-sm' : ''}>길드전 공략실</span>
+                </button>
+                {isAdminMode && (
+                  <button onClick={() => handleTabChange('management', null)} className={`flex-1 py-4 font-black text-sm md:text-base transition-all flex items-center justify-center gap-2 ${mainTab === 'management' ? 'gold-bg-active' : 'text-zinc-500 hover:bg-zinc-800/50 hover:text-zinc-300'}`}>
+                    <span className={mainTab === 'management' ? 'gold-gradient-text drop-shadow-sm' : ''}>데이터 관리</span>
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {mainTab === 'records' && (
+               <div className="flex gap-2 flex-wrap">
+                 <button onClick={() => {setSubTab('attack'); resetForm();}} className={`px-6 py-2.5 rounded-full font-bold text-sm transition-colors border ${subTab === 'attack' ? 'bg-zinc-800 text-zinc-100 border-zinc-500' : 'bg-transparent text-zinc-500 border-transparent hover:text-zinc-300'}`}>승리 기록지</button>
+                 <button onClick={() => {setSubTab('defense'); resetForm();}} className={`px-6 py-2.5 rounded-full font-bold text-sm transition-colors border ${subTab === 'defense' ? 'bg-zinc-800 text-zinc-100 border-zinc-500' : 'bg-transparent text-zinc-500 border-transparent hover:text-zinc-300'}`}>방어 기록지</button>
+               </div>
+            )}
+
+            {mainTab === 'strategy' && (
+               <div className="flex gap-2 flex-wrap">
+                 <button onClick={() => setSubTab('basic')} className={`px-5 py-2.5 rounded-full font-bold text-sm transition-colors border ${subTab === 'basic' ? 'bg-zinc-800 text-zinc-100 border-zinc-500' : 'bg-transparent text-zinc-500 border-transparent hover:text-zinc-300'}`}>기본덱조합</button>
+                 <button onClick={() => setSubTab('dashboard')} className={`px-5 py-2.5 rounded-full font-bold text-sm transition-colors border ${subTab === 'dashboard' ? 'bg-zinc-800 text-zinc-100 border-zinc-500' : 'bg-transparent text-zinc-500 border-transparent hover:text-zinc-300'}`}>전체전적</button>
+                 <button onClick={() => setSubTab('heatmap')} className={`px-5 py-2.5 rounded-full font-bold text-sm transition-colors border ${subTab === 'heatmap' ? 'bg-zinc-800 text-zinc-100 border-zinc-500' : 'bg-transparent text-zinc-500 border-transparent hover:text-zinc-300'}`}>상성히트맵</button>
+                 <button onClick={() => setSubTab('counter')} className={`px-5 py-2.5 rounded-full font-bold text-sm transition-colors border ${subTab === 'counter' ? 'bg-zinc-800 text-zinc-100 border-zinc-500' : 'bg-transparent text-zinc-500 border-transparent hover:text-zinc-300'}`}>카운터 보관소</button>
+                 <button onClick={() => setSubTab('recommend')} className={`px-5 py-2.5 rounded-full font-bold text-sm transition-colors border ${subTab === 'recommend' ? 'bg-zinc-800 text-zinc-100 border-zinc-500' : 'bg-transparent text-zinc-500 border-transparent hover:text-zinc-300'}`}>방어팀 추천 덱</button>
+               </div>
+            )}
+
+            {mainTab === 'records' && (
+              <div className="space-y-6 animate-in fade-in duration-300">
+                <section className={`bg-zinc-900 border border-zinc-700 p-5 md:p-8 rounded-2xl shadow-lg ${editingId ? 'border-yellow-600 bg-yellow-950/10' : ''}`}>
+                  <h2 className="text-lg md:text-xl font-black text-zinc-100 mb-6 flex items-center gap-2">
+                    {editingId ? <><span className="gold-gradient-text"><IconEdit /></span> 기록 수정 중 ({subTab==='attack'?'공격':'방어'})</> : (subTab==='attack'?'⚔️ 길드전 공격(승리) 기록 추가':'🛡️ 길드전 방어 기록 추가')}
+                  </h2>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <div>
+                      <div className="flex justify-between items-center mb-1.5">
+                        <label className="block text-sm font-bold text-zinc-400">길드원 닉네임</label>
+                        <label className="flex items-center gap-1.5 text-xs text-yellow-600/80 cursor-pointer hover:text-yellow-500 font-bold">
+                          <input type="checkbox" checked={keepNickname} onChange={(e) => setKeepNickname(e.target.checked)} className="keep-checkbox" />
+                          입력 유지
+                        </label>
+                      </div>
+                      <input type="text" value={nickname} onChange={(e) => setNickname(e.target.value)} className="w-full px-4 py-3 bg-zinc-800 border border-zinc-600 rounded-xl text-zinc-100 font-bold outline-none focus:ring-2 focus:ring-yellow-600"/>
+                    </div>
+                    <div>
+                      <div className="flex justify-between items-center mb-1.5">
+                        <label className="block text-sm font-bold text-zinc-400">날짜</label>
+                        <label className="flex items-center gap-1.5 text-xs text-yellow-600/80 cursor-pointer hover:text-yellow-500 font-bold">
+                          <input type="checkbox" checked={keepDate} onChange={(e) => setKeepDate(e.target.checked)} className="keep-checkbox" />
+                          입력 유지
+                        </label>
+                      </div>
+                      <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="w-full px-4 py-3 bg-zinc-800 border border-zinc-600 rounded-xl text-zinc-100 font-bold outline-none focus:ring-2 focus:ring-yellow-600"/>
+                    </div>
+                    <div>
+                      <div className="flex justify-between items-center mb-1.5">
+                        <label className="block text-sm font-bold text-zinc-400">상대 길드</label>
+                        <label className="flex items-center gap-1.5 text-xs text-yellow-600/80 cursor-pointer hover:text-yellow-500 font-bold">
+                          <input type="checkbox" checked={keepOpponent} onChange={(e) => setKeepOpponent(e.target.checked)} className="keep-checkbox" />
+                          입력 유지
+                        </label>
+                      </div>
+                      <input type="text" value={opponent} onChange={(e) => setOpponent(e.target.value)} className="w-full px-4 py-3 bg-zinc-800 border border-zinc-600 rounded-xl text-zinc-100 font-bold outline-none focus:ring-2 focus:ring-yellow-600"/>
+                    </div>
+                  </div>
+
+                  {subTab === 'attack' ? (
+                    <div className="space-y-4">
+                      {attackMatches.map((match, index) => (
+                        <div key={index} className="flex flex-col gap-3 bg-zinc-800 p-4 rounded-xl border border-zinc-600">
+                          
+                          <div className="flex items-center gap-2 w-full border-b border-zinc-700 pb-3">
+                            <span className="font-black text-zinc-500 w-6 text-center">{index+1}.</span>
+                            <div className="relative flex-1 flex items-center">
+                              <div className="absolute left-3 text-zinc-500"><IconClipboard /></div>
+                              <input id={`atk-paste-${index}`} type="text" placeholder="한 줄 빠른 붙여넣기 (예: 루디 크리스 델론즈 승리 밀리아 카일 로지)" 
+                                className="w-full pl-10 pr-3 py-2.5 bg-zinc-900 border border-zinc-600 rounded-lg text-sm text-zinc-200 outline-none focus:ring-2 focus:ring-yellow-600"
+                                onKeyDown={(e)=>{if(e.key==='Enter'){e.preventDefault();handleAttackQuickPaste(index, e.target.value);e.target.value='';}}}
+                              />
+                            </div>
+                            <button onClick={()=>{const el=document.getElementById(`atk-paste-${index}`); if(el&&el.value){handleAttackQuickPaste(index, el.value);el.value='';}}} className="px-4 py-2.5 gold-button font-bold rounded-lg text-sm">확인</button>
+                          </div>
+
+                          <div className={`flex w-full ${isMobileView ? 'flex-col gap-3' : 'flex-row items-center gap-4'}`}>
+                            <div className={`flex flex-1 gap-2 p-2 bg-blue-950/40 border border-blue-800 rounded-lg ${isMobileView?'flex-col':'flex-row'}`}>
+                              <div className="px-2 py-1.5 bg-blue-900 text-blue-200 text-xs font-black rounded flex items-center justify-center shrink-0">아군 공격</div>
+                              <div className="grid grid-cols-3 gap-1 flex-1">
+                                {[0,1,2].map(i => <SearchableSelect key={i} value={match.myTeam[i]} onChange={(v)=>handleAttackTeamChange(index, 'myTeam', i, v)} placeholder="영웅" groups={HERO_GROUPS} className="h-10" />)}
+                              </div>
+                            </div>
+                            <select value={match.result} onChange={(e) => handleAttackResultChange(index, e.target.value)} className={`h-10 px-2 bg-zinc-900 border border-zinc-600 rounded-lg font-black text-sm shrink-0 ${match.result==='승리'?'text-blue-400':'text-red-400'}`}>
+                              <option value="승리">승리</option><option value="패배">패배</option>
+                            </select>
+                            <div className={`flex flex-1 gap-2 p-2 bg-red-950/40 border border-red-800 rounded-lg ${isMobileView?'flex-col':'flex-row'}`}>
+                              <div className="px-2 py-1.5 bg-red-900 text-red-200 text-xs font-black rounded flex items-center justify-center shrink-0">적군 방어</div>
+                              <div className="grid grid-cols-3 gap-1 flex-1">
+                                {[0,1,2].map(i => <SearchableSelect key={i} value={match.enemyTeam[i]} onChange={(v)=>handleAttackTeamChange(index, 'enemyTeam', i, v)} placeholder="영웅" groups={HERO_GROUPS} className="h-10" />)}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="space-y-6">
+                      <div className="bg-zinc-800 p-4 rounded-xl border border-zinc-600 mb-2">
+                        <label className="block text-sm font-bold text-zinc-400 mb-2 flex items-center gap-2"><IconClipboard/> 텍스트로 한 번에 입력 (다중 파싱 지원)</label>
+                        <div className="flex flex-col sm:flex-row gap-2">
+                          <textarea id="def-global-paste" rows="3" placeholder="예시: [내 방어덱] 루디 크리스 델론즈 / [1타] 밀리아 카일 로지 (방어 성공) / [2타] 프레이야 트루드 연희 (방어 실패) 등 여러 줄을 붙여넣으세요." 
+                            className="flex-1 p-3 bg-zinc-900 border border-zinc-600 rounded-lg text-sm text-zinc-200 outline-none focus:ring-2 focus:ring-yellow-600 custom-scrollbar"></textarea>
+                          <button onClick={()=>{const el=document.getElementById('def-global-paste'); if(el&&el.value){handleDefenseGlobalPaste(el.value);el.value='';}}} className="px-4 py-3 gold-button font-black rounded-lg shrink-0">자동 완성</button>
+                        </div>
+                      </div>
+
+                      <div className="bg-blue-950/30 p-4 border border-blue-800 rounded-xl">
+                        <label className="block text-sm font-black text-blue-300 mb-3 flex items-center gap-2"><IconShield/> [고정] 아군 방어 영웅</label>
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                          {[0,1,2].map(i => <SearchableSelect key={i} value={defenseMyTeam[i]} onChange={(v)=>handleDefenseMyTeamChange(i, v)} placeholder="아군 방어 영웅" groups={HERO_GROUPS} className="h-12" />)}
+                        </div>
+                      </div>
+                      <div className="space-y-3">
+                        <label className="block text-sm font-black text-rose-300 mb-1 flex justify-between items-center">
+                          <span>적군 공격 기록 (최대 15회 추가 가능)</span>
+                          <span className="text-xs text-zinc-500 bg-zinc-800 px-2 py-1 rounded">현재 {defenseMatches.length} / 15</span>
+                        </label>
+                        <div className="max-h-[300px] md:max-h-[500px] overflow-y-auto custom-scrollbar space-y-3 pr-2">
+                          {defenseMatches.map((match, index) => (
+                            <div key={index} className="flex flex-col sm:flex-row items-center gap-3 bg-rose-950/20 p-3 rounded-xl border border-rose-900/50">
+                              <span className="font-bold text-rose-500 w-6 text-center shrink-0">{index + 1}.</span>
+                              <div className="grid grid-cols-3 gap-2 flex-1 w-full">
+                                {[0,1,2].map(i => <SearchableSelect key={i} value={match.enemyTeam[i]} onChange={(v)=>handleDefenseEnemyChange(index, i, v)} placeholder="적군 공격 영웅" groups={HERO_GROUPS} className="h-10" />)}
+                              </div>
+                              <div className="flex w-full sm:w-auto gap-2">
+                                <select value={match.result} onChange={(e) => handleDefenseResultChange(index, e.target.value)} className={`h-10 px-3 bg-zinc-900 border border-zinc-600 rounded-lg font-black text-sm flex-1 sm:w-28 ${match.result==='방어 성공'?'text-blue-400':'text-red-400'}`}>
+                                  <option value="방어 성공">방어 성공</option><option value="방어 실패">방어 실패</option>
+                                </select>
+                                {index === defenseMatches.length - 1 && index < 14 && (
+                                  <button onClick={addDefenseMatch} className="h-10 px-4 gold-button rounded-lg font-bold flex items-center gap-1 shrink-0"><IconPlus/> 추가</button>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="flex gap-3 mt-6">
+                    <button onClick={handleSave} className="flex-1 gold-button font-black py-4 rounded-xl transition-all flex items-center justify-center gap-2"><IconSave /> 저장하기</button>
+                    {editingId && <button onClick={resetForm} className="bg-zinc-800 text-zinc-400 font-bold py-4 px-6 rounded-xl hover:bg-zinc-700 hover:text-zinc-200 border border-zinc-700 transition-colors"><IconX /> 취소</button>}
+                  </div>
+                </section>
+
+                <section className="flex flex-col sm:flex-row gap-3 mt-8">
+                  <input type="text" placeholder="영웅/닉네임 검색..." value={filterChar} onChange={(e) => setFilterChar(e.target.value)} className="flex-1 px-4 py-4 bg-zinc-900 border border-zinc-700 rounded-xl text-zinc-100 font-bold outline-none focus:ring-2 focus:ring-yellow-600" />
+                </section>
+
+                <section className="space-y-5">
+                  {groupedRecords.length === 0 ? <div className="bg-zinc-900 border border-zinc-700 p-10 text-center rounded-2xl text-zinc-500 font-bold">기록이 없습니다.</div> : 
+                    groupedRecords.map(([groupKey, groupRecords]) => {
+                      const isGroupExpanded = expandedGroups[groupKey] || filterChar.trim() !== '';
+                      return (
+                        <div key={groupKey} className="bg-zinc-900 border border-zinc-700 rounded-2xl overflow-hidden shadow-sm">
+                          <div className="flex justify-between items-center p-4 cursor-pointer hover:bg-zinc-800 select-none" onClick={() => toggleGroup(groupKey)}>
+                            <h2 className="font-black text-zinc-100 text-base md:text-lg">{groupKey} <span className="text-xs text-zinc-400 ml-2">({groupRecords.length}명 제출)</span></h2>
+                            <div className="text-zinc-500">{isGroupExpanded ? <IconChevronUp /> : <IconChevronDown />}</div>
+                          </div>
+                          
+                          {isGroupExpanded && (
+                            <div className="p-4 space-y-4 border-t border-zinc-700 bg-zinc-950/50 animate-in slide-in-from-top-2">
+                              {groupRecords.map((record) => {
+                                const isExpanded = expandedRecords[record.id] || filterChar.trim() !== '';
+                                return (
+                                  <div key={record.id} className="bg-zinc-800 p-4 rounded-xl border border-zinc-600 relative">
+                                    {(record.authorId === user?.uid || isAdminMode) && (
+                                      <div className="absolute top-3 right-3 flex gap-2">
+                                        <button onClick={(e) => { e.stopPropagation(); handleEditClick(record); }} className="text-zinc-400 hover:text-yellow-500 p-1"><IconEdit /></button>
+                                        <button onClick={(e) => { e.stopPropagation(); handleDelete(record.id); }} className="text-zinc-400 hover:text-red-500 p-1"><IconTrash /></button>
+                                      </div>
+                                    )}
+                                    <div className="cursor-pointer flex items-center justify-between" onClick={() => toggleRecord(record.id)}>
+                                      <h3 className="font-bold text-zinc-200 flex items-center"><span className="gold-gradient-text border border-yellow-700/50 px-2 py-0.5 rounded mr-2">{record.nickname||'익명'}</span> 님의 {subTab==='attack'?'공격':'방어'} 기록</h3>
+                                      <div className={`text-zinc-500 ${(record.authorId === user?.uid || isAdminMode) ? 'mr-14' : ''}`}>{isExpanded ? <IconChevronUp /> : <IconChevronDown />}</div>
+                                    </div>
+                                    
+                                    {isExpanded && (
+                                      <div className="mt-4 space-y-3 border-t border-zinc-700 pt-3">
+                                        {subTab === 'attack' ? (
+                                          record.matches?.map((match, idx) => (
+                                            <div key={idx} className={`flex bg-zinc-900 p-3 rounded-lg border border-zinc-700 items-center ${isMobileView ? 'flex-col gap-2' : 'flex-row gap-3'}`}>
+                                              <span className={`text-[10px] font-bold px-2 py-1 rounded ${match.result==='승리'?'bg-blue-900/40 text-blue-400':'bg-red-900/40 text-red-400'} shrink-0 hidden sm:block`}>M {idx+1}</span>
+                                              <div className={`flex w-full ${isMobileView?'flex-col gap-2':'flex-row items-center gap-3'}`}>
+                                                <div className="flex-1 flex flex-col sm:flex-row items-center gap-2">
+                                                  <span className="text-xs text-zinc-500 hidden sm:block">아군</span>
+                                                  {renderHeroTags(match.myTeam)}
+                                                </div>
+                                                <span className={`font-black text-sm w-10 text-center ${match.result==='승리'?'text-blue-400':'text-red-500'}`}>{match.result}</span>
+                                                <div className="flex-1 flex flex-col sm:flex-row items-center gap-2">
+                                                  <span className="text-xs text-zinc-500 hidden sm:block">적군</span>
+                                                  {renderHeroTags(match.enemyTeam)}
+                                                </div>
+                                              </div>
+                                            </div>
+                                          ))
+                                        ) : (
+                                          <div>
+                                            <div className="mb-3 p-3 bg-blue-950/20 border border-blue-900 rounded-lg flex items-center gap-3 shadow-inner">
+                                              <span className="text-blue-400 font-black text-xs shrink-0 px-2 flex items-center gap-1"><IconShield/> 내 방어덱</span>
+                                              {renderHeroTags(record.myTeam)}
+                                            </div>
+                                            {record.defenseMatches?.map((match, idx) => (
+                                              <div key={idx} className="flex flex-col sm:flex-row gap-3 bg-rose-950/20 p-2.5 rounded-lg border border-rose-900/50 items-center sm:ml-4 mb-2">
+                                                <span className="text-rose-500 text-xs font-bold shrink-0 bg-rose-900/20 px-2 py-1 rounded">적군 {idx+1}타</span>
+                                                <div className="flex-1 flex justify-center sm:justify-start">{renderHeroTags(match.enemyTeam)}</div>
+                                                <span className={`font-black text-xs shrink-0 ${match.result==='방어 성공'?'text-blue-400':'text-red-500'}`}>{match.result}</span>
+                                              </div>
+                                            ))}
+                                          </div>
+                                        )}
+                                      </div>
+                                    )}
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })
+                  }
+                </section>
+              </div>
+            )}
+
+            {mainTab === 'strategy' && subTab === 'basic' && (
+              <div className="gold-panel p-6 md:p-8 rounded-2xl animate-in fade-in duration-300">
+                <h2 className="text-xl font-black gold-gradient-text mb-2">🛡️ 최근 1000판 기반 기본덱 매핑</h2>
+                <p className="text-sm text-zinc-400 mb-8">가장 많이 등장한 방어덱 상위 21개와 그에 대응하는 카운터덱(최소 5전 이상 데이터)을 자동 분석합니다.</p>
+                
+                {basicDeckData.length === 0 ? (
+                  <div className="text-center py-10 text-zinc-500 font-bold">분석할 데이터가 부족합니다.</div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {basicDeckData.map((data, idx) => (
+                      <div key={idx} className="basic-deck-item">
+                        <div className="basic-def">
+                          <span>{data.normDef}</span>
+                          <span className="text-[11px] text-zinc-400 font-medium ml-2">출현 {data.count}회</span>
+                        </div>
+                        <ul className="basic-atk-list">
+                          {data.counters.length > 0 ? data.counters.map((c, cIdx) => (
+                            <li key={cIdx}>
+                              <span>{c.normAtk}</span>
+                              <span className={c.rate >= 70 ? 'text-blue-400' : (c.rate >= 50 ? 'text-green-400' : 'text-red-400')}>
+                                {c.rate.toFixed(0)}% ({c.w}W {c.l}L)
+                              </span>
+                            </li>
+                          )) : <li className="text-zinc-600 justify-center">유효 카운터 데이터 없음</li>}
+                        </ul>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {mainTab === 'strategy' && subTab === 'dashboard' && (
+              <div className="space-y-6 animate-in fade-in duration-300">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="stat-box">
+                    <div className="stat-val">{dashboardStats?.totalWin + dashboardStats?.totalLose || 0}</div>
+                    <div className="stat-lbl">TOTAL MATCHES</div>
+                  </div>
+                  <div className="stat-box">
+                    <div className="stat-val" style={{color: '#00d2d3'}}>
+                      {dashboardStats?.totalWin + dashboardStats?.totalLose > 0 
+                        ? ((dashboardStats.totalWin / (dashboardStats.totalWin + dashboardStats.totalLose)) * 100).toFixed(1) + '%' 
+                        : '0.0%'}
+                    </div>
+                    <div className="stat-lbl">GLOBAL WIN RATE</div>
+                  </div>
+                  <div className="stat-box">
+                    <div className="stat-val" style={{color: '#2ed573'}}>{dashboardStats?.totalWin || 0}</div>
+                    <div className="stat-lbl">WINS</div>
+                  </div>
+                  <div className="stat-box">
+                    <div className="stat-val" style={{color: '#ff4757'}}>{dashboardStats?.totalLose || 0}</div>
+                    <div className="stat-lbl">LOSES</div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="chart-card col-span-1" style={{height: '300px'}}>
+                    <div className="chart-title"><IconBarChart /> 전체 승률 (Win Rate)</div>
+                    <canvas ref={winRateChartRef}></canvas>
+                  </div>
+                  <div className="chart-card col-span-1 md:col-span-2" style={{height: '300px'}}>
+                    <div className="chart-title"><IconUsers /> 가장 많이 만난 방어덱 TOP 5</div>
+                    <canvas ref={defMetaChartRef}></canvas>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {mainTab === 'strategy' && subTab === 'heatmap' && (
+              <div className="gold-panel p-6 md:p-8 rounded-2xl animate-in fade-in duration-300">
+                <h2 className="text-xl font-black gold-gradient-text mb-2">💡 상성 히트맵 (Heatmap)</h2>
+                <p className="text-sm text-zinc-400 mb-6">전체 전적을 기반으로 공격 덱과 방어 덱 간의 상성을 시각화합니다.</p>
+                
+                <div className="flex gap-4 mb-4">
+                  <label className="keep-checkbox-wrapper flex items-center gap-2 text-sm text-zinc-300 font-bold cursor-pointer">
+                    <input type="checkbox" checked={heatmapFilters.high} onChange={e=>setHeatmapFilters({...heatmapFilters, high: e.target.checked})} className="keep-checkbox"/>
+                    <span className="text-blue-400">우위 (70%↑)</span>
+                  </label>
+                  <label className="keep-checkbox-wrapper flex items-center gap-2 text-sm text-zinc-300 font-bold cursor-pointer">
+                    <input type="checkbox" checked={heatmapFilters.mid} onChange={e=>setHeatmapFilters({...heatmapFilters, mid: e.target.checked})} className="keep-checkbox"/>
+                    <span className="text-green-400">경합 (50~69%)</span>
+                  </label>
+                  <label className="keep-checkbox-wrapper flex items-center gap-2 text-sm text-zinc-300 font-bold cursor-pointer">
+                    <input type="checkbox" checked={heatmapFilters.low} onChange={e=>setHeatmapFilters({...heatmapFilters, low: e.target.checked})} className="keep-checkbox"/>
+                    <span className="text-red-400">열세 (50%↓)</span>
+                  </label>
+                </div>
+
+                {!heatmapData || heatmapData.cols.length === 0 ? (
+                  <div className="text-center py-10 text-zinc-500 font-bold border border-zinc-800 rounded-xl">데이터가 부족합니다.</div>
+                ) : (
+                  <div className="heatmap-wrapper custom-scrollbar">
+                    <table className="heatmap-table">
+                      <thead>
+                        <tr>
+                          <th>공격 덱 \ 방어 덱</th>
+                          {heatmapData.cols.map((col, i) => (
+                            <th key={i}>
+                              <div className="flex flex-col items-center">
+                                {col.split(' ').map((h, hi) => <span key={hi} className="text-[11px] leading-tight">{h}</span>)}
+                              </div>
+                            </th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {heatmapData.rows.map((row, i) => (
+                          <tr key={i}>
+                            <th>
+                              <div className="flex flex-col items-start">
+                                {row.atk.split(' ').map((h, hi) => <span key={hi} className="text-[11px] leading-tight">{h}</span>)}
+                              </div>
+                            </th>
+                            {row.defs.map((d, j) => {
+                              if (d.t === 0) return <td key={j} style={{background:'#09090b', color:'#3f3f46'}}>-</td>;
+                              const rate = Math.round((d.w/d.t)*100);
+                              let bg = '', color = '', show = false;
+                              if (rate >= 70 && heatmapFilters.high) { bg = 'rgba(96, 165, 250, 0.15)'; color = '#60a5fa'; show = true; }
+                              else if (rate >= 50 && rate < 70 && heatmapFilters.mid) { bg = 'rgba(74, 222, 128, 0.15)'; color = '#4ade80'; show = true; }
+                              else if (rate < 50 && heatmapFilters.low) { bg = 'rgba(248, 113, 113, 0.15)'; color = '#f87171'; show = true; }
+
+                              if (show) {
+                                return (
+                                  <td key={j} style={{background:bg, color:color}}>
+                                    <div className="cell-count">{d.w}W {d.l}L</div>
+                                  </td>
+                                );
+                              } else {
+                                return <td key={j} className="cell-hidden" style={{background:'#09090b', color:'#3f3f46'}}>-</td>;
+                              }
+                            })}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {mainTab === 'strategy' && subTab === 'counter' && (
+              <div className="flex flex-col lg:flex-row gap-6 items-start animate-in fade-in duration-300">
+                <div className="w-full lg:w-[320px] bg-zinc-900 border border-zinc-700 rounded-2xl shadow-lg p-6 shrink-0 sticky top-6">
+                  <div className="mb-5 pb-4 border-b border-zinc-800">
+                    <h2 className="text-lg font-black gold-gradient-text flex items-center gap-2 mb-1"><IconSearch/> 적군 조합 분석</h2>
+                    <p className="text-xs text-zinc-400 font-medium">상대 팀의 구성을 선택하여 파훼법을 확인하세요.</p>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    {[0, 1, 2].map((idx) => (
+                      <div key={`filter-${idx}`}>
+                        <label className="block text-xs font-bold text-zinc-500 mb-1.5 ml-1">상대 영웅 {idx + 1}</label>
+                        <SearchableSelect 
+                          value={counterEnemyFilter[idx]} 
+                          onChange={(v) => {
+                            const newFilter = [...counterEnemyFilter];
+                            newFilter[idx] = v;
+                            setCounterEnemyFilter(newFilter);
+                          }} 
+                          placeholder={`상대 ${idx + 1} 선택`} 
+                          groups={HERO_GROUPS} 
+                          className="h-11"
+                        />
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="mt-6 p-4 bg-yellow-900/10 border border-yellow-700/30 rounded-xl">
+                    <div className="flex items-start gap-2">
+                      <span className="text-yellow-600 mt-0.5"><IconInfo /></span>
+                      <p className="text-xs text-yellow-600/80 font-bold leading-relaxed">
+                        검색한 방어덱을 상단으로 띄워줍니다.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex-1 w-full space-y-4">
+                  <h2 className="text-sm font-black text-zinc-400 pl-2">분석된 전술 (최소 5전 이상) <span className="bg-yellow-600/20 text-yellow-500 px-2 py-0.5 rounded-full ml-1">{counterAnalysisData ? counterAnalysisData.results.length : 0}</span></h2>
+                  
+                  {!counterAnalysisData ? (
+                    <div className="border border-zinc-700 rounded-2xl p-12 flex flex-col items-center justify-center text-center min-h-[400px] bg-zinc-900/50">
+                      <IconSearch className="text-zinc-600 w-16 h-16 mb-4 opacity-50" />
+                      <h3 className="text-lg font-bold text-zinc-400 mb-2">선택된 영웅이 없습니다.</h3>
+                      <p className="text-sm text-zinc-500">좌측 패널에서 상대방의 방어 덱 영웅을 선택해주세요.</p>
+                    </div>
+                  ) : counterAnalysisData.results.length === 0 ? (
+                    <div className="border border-zinc-700 rounded-2xl p-12 flex flex-col items-center justify-center text-center min-h-[400px] bg-zinc-900/50">
+                      <IconSword className="text-zinc-600 w-16 h-16 mb-4 opacity-50" />
+                      <h3 className="text-lg font-bold text-zinc-400 mb-2">조건에 맞는 전술이 없습니다.</h3>
+                      <p className="text-sm text-zinc-500">이 조합을 상대로 5회 이상 사용된 덱이 아직 없습니다.</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {counterAnalysisData.results.map((data, idx) => (
+                        <div key={idx} className="bg-zinc-900 border border-zinc-700 rounded-2xl overflow-hidden shadow-md flex flex-col">
+                          <div className="p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-zinc-800 bg-zinc-800/30">
+                            
+                            {/* 상단 (메인): 방어 덱 렌더링으로 변경 */}
+                            <div className="flex items-center gap-4">
+                              <div className={`w-8 h-8 rounded-full flex items-center justify-center font-black text-sm shrink-0 ${idx < 3 ? 'bg-yellow-600/20 text-yellow-500 border border-yellow-600/30' : 'bg-zinc-800 text-zinc-500'}`}>
+                                {idx + 1}
+                              </div>
+                              <div>
+                                <div className="mb-2 flex items-center gap-2 flex-wrap">
+                                  <span className="text-xs font-bold text-zinc-500 mr-1">대상 방어덱:</span>
+                                  {renderHeroTags(data.defenseTeam)}
+                                  {data.hasGuide && <span className="bg-yellow-600 text-black text-[10px] font-black px-2 py-0.5 rounded ml-1">공식 공략</span>}
+                                </div>
+                                <div className="text-xs font-bold text-zinc-500 flex items-center flex-wrap gap-2 mt-2">
+                                  <span>카운터 덱: <span className="text-zinc-300 ml-1">{getSafeArray(data.attackerTeam).join(', ')}</span></span>
+                                  
+                                  {/* 하단 (서브): 카운터 덱 옆 공략 제안 버튼 이동 */}
+                                  {!data.hasGuide && (
+                                    <button onClick={() => setGuideModal({
+                                        isOpen: true, defTeam: data.defenseTeam, atkTeam: data.attackerTeam,
+                                        skill: '', turn: '', formation: '', equip1: '', equip2: '', equip3: '', tip: ''
+                                      })} 
+                                      className="text-[10px] font-bold bg-zinc-800 text-yellow-500 border border-yellow-700/50 px-2 py-0.5 rounded ml-1 hover:bg-zinc-700 transition"
+                                    >
+                                      📝 공략 제안
+                                    </button>
+                                  )}
+                                  
+                                  <span className="ml-2 border-l border-zinc-700 pl-2">데이터 기반 신뢰도: 총 <span className="text-zinc-300">{data.dynamicCount}</span>회 사용됨</span>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between w-full sm:w-auto bg-zinc-950 sm:bg-transparent p-3 sm:p-0 rounded-xl border border-zinc-800 sm:border-transparent">
+                              <span className="text-xs text-zinc-500 font-bold mb-1">카운터 승률</span>
+                              <span className={`text-xl md:text-2xl font-black ${parseFloat(data.winRate) >= 50 ? 'text-blue-400' : 'text-red-400'}`}>
+                                {data.winRate}%
+                              </span>
+                            </div>
+                          </div>
+                          
+                          {data.hasGuide && (
+                            <div className="p-5 bg-zinc-900/80 relative group">
+                              <button onClick={() => setGuideModal({
+                                  isOpen: true, defTeam: data.defenseTeam, atkTeam: data.attackerTeam,
+                                  skill: data.skill||'', turn: data.turn||'', formation: data.formation||'', equip1: data.equips[0]||'', equip2: data.equips[1]||'', equip3: data.equips[2]||'', tip: data.tip||''
+                                })} 
+                                className="absolute top-4 right-4 text-[10px] font-bold bg-zinc-800 text-zinc-400 border border-zinc-700 px-2 py-1 rounded hover:text-yellow-500 hover:border-yellow-700/50 transition opacity-0 group-hover:opacity-100"
+                              >
+                                공략 수정 제안
+                              </button>
+                              
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="space-y-3">
+                                  <div className="flex flex-col gap-1">
+                                    <span className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider">스킬 운영</span>
+                                    <span className="text-sm font-medium text-zinc-200 bg-zinc-800/50 p-2.5 rounded-lg border border-zinc-700/50">{data.skill || '-'}</span>
+                                  </div>
+                                  <div className="flex gap-3">
+                                    <div className="flex-1 flex flex-col gap-1">
+                                      <span className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider">턴 우선순위</span>
+                                      <span className="text-sm font-medium text-zinc-200 bg-zinc-800/50 p-2.5 rounded-lg border border-zinc-700/50">{data.turn || '-'}</span>
+                                    </div>
+                                    <div className="flex-1 flex flex-col gap-1">
+                                      <span className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider">추천 진형</span>
+                                      <span className="text-sm font-medium text-zinc-200 bg-zinc-800/50 p-2.5 rounded-lg border border-zinc-700/50">{data.formation || '-'}</span>
+                                    </div>
+                                  </div>
+                                </div>
+                                
+                                <div className="space-y-3">
+                                  <div className="flex flex-col gap-1">
+                                    <span className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider">영웅별 장비 세팅</span>
+                                    <ul className="text-[13px] font-medium text-zinc-300 bg-zinc-800/50 p-3 rounded-lg border border-zinc-700/50 space-y-1.5">
+                                      {data.equips.length > 0 ? data.equips.map((eq, i) => <li key={i} className="leading-snug flex items-start"><span className="text-yellow-600 mr-1.5 mt-0.5">•</span><span>{eq}</span></li>) : <li>세팅 정보 없음</li>}
+                                    </ul>
+                                  </div>
+                                </div>
+                              </div>
+                              
+                              {data.tip && (
+                                <div className="mt-4 flex items-start gap-2.5 bg-blue-950/20 p-3.5 rounded-lg border border-blue-900/30">
+                                  <span className="text-blue-400 mt-0.5"><IconInfo /></span>
+                                  <p className="text-sm text-blue-200 font-medium leading-relaxed whitespace-pre-line">{data.tip}</p>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {mainTab === 'strategy' && subTab === 'recommend' && (
+              <div className="bg-zinc-900 border border-zinc-700 rounded-2xl shadow-lg p-6 md:p-10 min-h-[500px] animate-in fade-in duration-300">
+                <div className="mb-8 text-center max-w-2xl mx-auto">
+                  <h2 className="text-2xl md:text-3xl font-black gold-gradient-text mb-3">🛡️ 방어팀 추천 메타 덱</h2>
+                  <p className="text-sm text-zinc-400 font-medium">실제 길드전 방어 기록을 바탕으로 가장 승률이 높은 방어 조합을 추천합니다. (최소 3회 이상 피격된 덱만 집계)</p>
+                </div>
+
+                {recommendDefenseData.length === 0 ? (
+                   <div className="py-20 flex flex-col items-center justify-center text-center">
+                     <IconShield className="text-zinc-700 w-16 h-16 mb-4 opacity-50" />
+                     <h3 className="text-lg font-bold text-zinc-400 mb-2">추천할 방어 덱 데이터가 부족합니다.</h3>
+                     <p className="text-sm text-zinc-600">방어 기록지에 최소 3번 이상 공격받은 기록이 쌓여야 통계가 표시됩니다.</p>
+                   </div>
+                ) : (
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    {recommendDefenseData.map((data, idx) => (
+                      <div key={idx} className="bg-zinc-800 border border-zinc-600 p-5 rounded-xl flex items-center justify-between relative overflow-hidden group">
+                        {idx === 0 && <div className="absolute top-0 right-0 bg-yellow-600 text-black text-[10px] font-black px-3 py-1 rounded-bl-lg z-10">BEST 메타</div>}
+                        <div className="flex items-center gap-4 relative z-10">
+                          <span className={`text-2xl font-black ${idx === 0 ? 'gold-gradient-text' : 'text-zinc-600'}`}>{idx + 1}</span>
+                          <div>
+                            <div className="mb-2">{renderHeroTags(data.heroes)}</div>
+                            <span className="text-xs text-zinc-400 font-medium">총 {data.count}회 피격 중 {data.wins}회 방어 성공</span>
+                          </div>
+                        </div>
+                        <div className="text-right relative z-10 pl-4 border-l border-zinc-700">
+                          <span className="block text-[10px] font-bold text-zinc-500 mb-0.5">방어율</span>
+                          <span className={`text-lg font-black ${parseFloat(data.winRate) >= 50 ? 'text-blue-400' : 'text-red-400'}`}>{data.winRate}%</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {mainTab === 'management' && isAdminMode && (
+              <div className="gold-panel p-8 rounded-2xl space-y-10 animate-in fade-in">
+                
+                <div>
+                  <h2 className="text-2xl font-black gold-gradient-text mb-4 flex items-center gap-2">📝 공략 제안 검토 대기열 <span className="bg-red-600 text-white text-xs px-2 py-1 rounded-full">{customGuides.filter(g=>g.status==='pending').length}</span></h2>
+                  <p className="text-zinc-400 mb-6 text-sm font-medium">유저들이 제안한 공략입니다. 승인 시 카운터 보관소에 즉시 반영됩니다.</p>
+                  
+                  {customGuides.filter(g=>g.status==='pending').length === 0 ? (
+                    <div className="bg-zinc-900 border border-zinc-700 p-8 text-center rounded-xl text-zinc-500 font-bold text-sm">대기 중인 제안이 없습니다.</div>
+                  ) : (
+                    <div className="space-y-4">
+                      {customGuides.filter(g=>g.status==='pending').map(guide => (
+                        <div key={guide.id} className="bg-zinc-800 border border-yellow-700/50 p-5 rounded-xl shadow-lg relative">
+                          <div className="flex gap-4 mb-4 items-center">
+                            <span className="text-xs font-bold text-zinc-500 w-16">방어 덱:</span>
+                            {renderHeroTags(guide.defenseTeam)}
+                          </div>
+                          <div className="flex gap-4 mb-4 items-center">
+                            <span className="text-xs font-bold text-zinc-500 w-16">카운터:</span>
+                            {renderHeroTags(guide.attackerTeam)}
+                          </div>
+                          
+                          <div className="bg-zinc-900 p-4 rounded-lg border border-zinc-700 text-sm text-zinc-300 space-y-2 mb-4">
+                            <p><span className="text-zinc-500 font-bold mr-2">스킬:</span> {guide.skill}</p>
+                            <p><span className="text-zinc-500 font-bold mr-2">턴/진형:</span> {guide.turn} / {guide.formation}</p>
+                            <p><span className="text-zinc-500 font-bold mr-2">장비:</span> {guide.equip1} | {guide.equip2} | {guide.equip3}</p>
+                            <p><span className="text-zinc-500 font-bold mr-2">팁:</span> {guide.tip}</p>
+                          </div>
+                          
+                          <div className="flex gap-3">
+                            <button onClick={() => handleApproveGuide(guide.id)} className="flex-1 py-3 gold-button rounded-xl font-bold text-sm">✅ 제안 승인 및 반영</button>
+                            <button onClick={() => handleRejectGuide(guide.id)} className="flex-1 py-3 bg-red-950/40 text-red-400 border border-red-900 rounded-xl font-bold text-sm hover:bg-red-800 hover:text-white transition">❌ 제안 거절 (삭제)</button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <div className="border-t border-yellow-900/30 pt-8">
+                  <h2 className="text-2xl font-black gold-gradient-text mb-4">데이터 통합 다운로드 센터</h2>
+                  <div className="flex flex-col sm:flex-row gap-4">
+                    <button onClick={handleExportStatsCSV} className="flex-1 px-6 py-5 gold-button font-black rounded-xl flex items-center justify-center gap-2 text-base shadow-lg"><IconBarChart /> 통계 데이터 다운로드</button>
+                    <button onClick={handleExportAllCSV} className="flex-1 px-6 py-5 gold-button font-black rounded-xl flex items-center justify-center gap-2 text-base shadow-lg"><IconDownload /> 원본 로그 다운로드</button>
+                  </div>
+                </div>
+                
+                <div className="border-t border-yellow-900/30 pt-8">
+                  <h2 className="text-2xl font-black text-red-500 mb-4 drop-shadow-md">위험 구역 (데이터 영구 삭제)</h2>
+                  <p className="text-zinc-400 mb-6 text-sm font-medium">삭제된 데이터는 서버에서 영구히 지워지며 복구할 수 없습니다.</p>
+                  <div className="flex flex-col sm:flex-row gap-4">
+                    <button onClick={() => handleDeleteAllByType('attack')} className="flex-1 py-5 bg-red-950/40 text-red-400 border border-red-900 font-black rounded-xl hover:bg-red-800 hover:text-white transition-colors shadow-inner">공격 기록지 전체 삭제</button>
+                    <button onClick={() => handleDeleteAllByType('defense')} className="flex-1 py-5 bg-rose-950/40 text-rose-400 border border-rose-900 font-black rounded-xl hover:bg-rose-800 hover:text-white transition-colors shadow-inner">방어 기록지 전체 삭제</button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    };
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
