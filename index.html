@@ -1375,11 +1375,11 @@
                             
                             <div className="flex items-center gap-2 shrink-0">
                                <select onChange={(e) => fillAttackTeamQuick(index, 'myTeam', e.target.value)} className="bg-zinc-900 border border-yellow-600/50 text-yellow-500 font-black rounded-lg px-3 py-2 outline-none hover:border-yellow-500 focus:ring-2 focus:ring-yellow-600 transition-all shadow-md">
-                                 <option value="" className="bg-zinc-900 text-zinc-400">⚡ 아군 TOP 10 빠른 입력</option>
+                                 <option value="" className="bg-zinc-900 text-zinc-400">⚡ 아군 TOP 10</option>
                                  {topDecks.topAtk.map((d, i) => <option key={i} value={d} className="bg-zinc-900 text-yellow-500">{d}</option>)}
                                </select>
                                <select onChange={(e) => fillAttackTeamQuick(index, 'enemyTeam', e.target.value)} className="bg-zinc-900 border border-yellow-600/50 text-yellow-500 font-black rounded-lg px-3 py-2 outline-none hover:border-yellow-500 focus:ring-2 focus:ring-yellow-600 transition-all shadow-md">
-                                 <option value="" className="bg-zinc-900 text-zinc-400">⚡ 적군 TOP 10 빠른 입력</option>
+                                 <option value="" className="bg-zinc-900 text-zinc-400">⚡ 적군 TOP 10</option>
                                  {topDecks.topDef.map((d, i) => <option key={i} value={d} className="bg-zinc-900 text-yellow-500">{d}</option>)}
                                </select>
                             </div>
@@ -1419,7 +1419,7 @@
                       <div className="bg-blue-950/30 p-4 border border-blue-800 rounded-xl relative">
                         <div className="absolute top-4 right-4">
                            <select onChange={(e) => fillDefenseTeamQuick(e.target.value)} className="bg-zinc-900 border border-yellow-600/50 text-yellow-500 font-black rounded-lg px-3 py-1.5 outline-none hover:border-yellow-500 focus:ring-2 focus:ring-yellow-600 transition-all shadow-md">
-                             <option value="" className="bg-zinc-900 text-zinc-400">⚡ 아군 방어덱 TOP 10 빠른 입력</option>
+                             <option value="" className="bg-zinc-900 text-zinc-400">⚡ 아군 방어덱 TOP 10</option>
                              {topDecks.topDef.map((d, i) => <option key={i} value={d} className="bg-zinc-900 text-yellow-500">{d}</option>)}
                            </select>
                         </div>
