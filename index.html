@@ -73,7 +73,6 @@
     .chart-card { background: rgba(24, 24, 27, 0.8); border: 1px solid rgba(191, 149, 63, 0.3); border-radius: 16px; padding: 20px; position: relative; box-shadow: inset 0 0 20px rgba(191, 149, 63, 0.05); }
     .chart-title { font-size: 15px; font-weight: 800; color: #fcf6ba; margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 
-    /* 히트맵 가독성 및 UI 최적화 */
     .heatmap-wrapper { max-height: 65vh; overflow: auto; border-radius: 12px; border: 1px solid rgba(191, 149, 63, 0.3); background: #09090b; position: relative; }
     .heatmap-table { border-collapse: separate; border-spacing: 0; width: 100%; text-align: center; font-size: 11px; min-width: 800px; }
     .heatmap-table th, .heatmap-table td { padding: 8px 6px; border-right: 1px solid rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.05); min-width: 50px; }
@@ -91,7 +90,7 @@
     .basic-atk-list li:last-child { border-bottom: none; }
     .basic-atk-list li::before { content: '└'; position: absolute; left: 5px; color: #666; pointer-events: none; }
 
-    /* 수정된 로그인 배경화면 (경복궁 벚꽃 이미지) */
+    /* 로그인 화면 배경 */
     .login-bg-anim { position: absolute; inset: -5%; background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.7)), url('https://img.freepik.com/free-photo/gyeongbokgung-palace-with-cherry-blossom-spring-seoul-korea_335224-387.jpg'); background-size: cover; background-position: center; background-repeat: no-repeat; animation: slowZoom 20s ease-in-out infinite alternate; z-index: -1; }
     @keyframes slowZoom { from { transform: scale(1); } to { transform: scale(1.1); } }
     .login-card { background: rgba(20, 20, 23, 0.6); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border: 1px solid rgba(191, 149, 63, 0.4); padding: 50px 40px; width: 340px; text-align: center; border-radius: 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.8); position: relative; }
@@ -163,7 +162,7 @@
     function CustomModal({ isOpen, onClose, title, content, onConfirm, confirmText = "확인", hideCancel = false }) {
       if (!isOpen) return null;
       return (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 p-4 animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-[400] flex items-center justify-center bg-black/80 p-4 animate-in fade-in duration-200">
           <div className="gold-panel p-6 md:p-8 rounded-2xl shadow-2xl max-w-sm w-full">
             <h3 className="text-lg font-black gold-gradient-text mb-3">{title}</h3>
             <div className="text-sm text-zinc-300 font-medium mb-6 whitespace-pre-line">{content}</div>
@@ -176,7 +175,7 @@
       );
     }
 
-    function SearchableSelect({ value, onChange, placeholder, groups, className = "" }) {
+    function SearchableSelect({ value, onChange, placeholder, groups, className = "", zIndex = 60 }) {
       const [isOpen, setIsOpen] = useState(false);
       const [searchTerm, setSearchTerm] = useState(value || '');
       const wrapperRef = useRef(null);
@@ -195,12 +194,18 @@
       return (
         <div ref={wrapperRef} className={`relative w-full ${className}`}>
           <input type="text" value={searchTerm}
-            onChange={(e) => { setSearchTerm(e.target.value); onChange(e.target.value); setIsOpen(true); }}
-            onFocus={() => setIsOpen(true)} placeholder={placeholder}
+            onChange={(e) => { 
+              setSearchTerm(e.target.value); 
+              onChange(e.target.value); 
+              setIsOpen(true); 
+            }}
+            onFocus={() => setIsOpen(true)} 
+            onBlur={() => setTimeout(() => setIsOpen(false), 200)}
+            placeholder={placeholder}
             className="w-full h-full px-3 py-2 bg-zinc-900 border border-zinc-700 rounded-xl text-zinc-100 font-bold focus:ring-2 focus:ring-yellow-600 outline-none transition-all placeholder-zinc-600 text-xs md:text-sm shadow-sm"
           />
           {isOpen && (
-            <div className="absolute z-50 top-full left-0 right-0 mt-1 max-h-56 overflow-y-auto bg-zinc-800 border border-zinc-700 rounded-xl shadow-xl custom-scrollbar py-1 z-[60]">
+            <div className={`absolute top-full left-0 right-0 mt-1 max-h-56 overflow-y-auto bg-zinc-800 border border-zinc-700 rounded-xl shadow-xl custom-scrollbar py-1`} style={{zIndex}}>
               {filteredGroups.length === 0 ? <div className="p-3 text-xs text-zinc-500 font-bold text-center">결과 없음</div> : 
                 filteredGroups.map(g => (
                   <div key={g.group}>
@@ -251,6 +256,59 @@
     const COLLECTION_NAME = 'guild_war_records';
     const GUIDE_COLLECTION = 'custom_guides';
 
+    const PREDEFINED_HERO_GROUPS = [
+      { group: "세븐나이츠", heroes: ["루디", "아일린", "레이첼", "델론즈", "제이브", "스파이크", "크리스", "바네사"] },
+      { group: "다크나이츠", heroes: ["멜키르", "브란즈&브란셀", "브브", "플라튼", "콜트", "팔라누스", "실베스타"] },
+      { group: "사황/구사황", heroes: ["에이스", "여포", "손오공", "린", "태오", "카르마", "카일", "연희"] },
+      { group: "구세븐나이츠", heroes: ["겔리두스", "밀리아", "파이", "로지", "쥬리", "알프", "라디우스"] },
+      { group: "나이트크로우", heroes: ["칼 헤론", "오를리", "타카", "아킬라"] },
+      { group: "루미너스 혁명단", heroes: ["엘리시아", "키리엘", "라이언"] },
+      { group: "숨은 강자들", heroes: ["미호", "로로", "아멜리아", "잉그리드", "클레미스", "카구라", "바토리", "아비갈", "앤티", "뮬란", "미스트", "아탈란테", "항우", "클라한"] },
+      { group: "천상의 수호자", heroes: ["트루드", "프레이야", "라드그리드", "스쿨드", "펜리르", "레긴레이프", "기르티"] },
+      { group: "심연/하이드", heroes: ["쥬다스", "디아나", "안티고네", "잭", "앙그라", "데스론"] },
+      { group: "콜라보/신규", heroes: ["성진우", "차해인", "이주희", "유진호"] },
+      { group: "마법학회 등", heroes: ["타라", "노아", "세자르", "오목", "바엘", "리나", "아리스", "스피나", "길라한", "엘리니아", "비아", "세인", "니아", "지크", "루리", "에스파다"] },
+      { group: "모험가/특수", heroes: ["에반", "카린", "스니퍼", "쥬피", "유리", "아리엘", "실비아", "벨리카", "챈슬러", "룩", "녹스", "아라곤", "앨리스", "클로에", "헤브니아", "헬레니아", "로아", "하영", "카론", "루시", "유이", "라니아", "사라", "베인", "레오", "클레오", "메이", "조커", "세라", "발리스타", "블랙로즈", "제인", "레이", "샤오", "노호", "리", "빅토리아", "진", "데이지", "백룡", "링링", "밍밍", "소이", "풍연", "비담", "유신", "백각", "이정", "권호", "기파랑", "나타", "아수라", "칭타오", "무송", "관우", "제갈량", "초선", "조운", "파스칼"] },
+      { group: "후속작 오리지널", heroes: ["렌", "코제트", "챙첸", "밍", "이안", "앙리", "케이드", "루키", "멜리사", "스캇", "피네", "엘카", "샬롯", "티티", "레일라", "스텔라", "세일럼", "렘", "루아", "세레나", "샤이", "트리스탄"] }
+    ];
+
+    const STATIC_GUIDE_DB = [
+      {"defense":["라드그리드","손오공","아멜리아"],"counters":[{"attacker":["녹스","로지","크리스"],"skill":"크리스 아래 → 크리스 위 → 녹스 위","turn":"선공 or 후공","formation":"공격진형","equip1":"크리스: 주술사(효효받받), 부옵: 효저, 받받, 약공 / 반지: 즉사+CC(권능)","equip2":"녹스: 조율자(효효막막), 부옵: 약공 / 반지: 부활+CC","equip3":"로지: 조율자(효효받받), 부옵: 약공 / 반지: 부활+CC","tip":"녹스: 조율자로 효저, 막기 최대한 높게 설정\n크리스: 약공, 효적, 효저 최대한 높게 설정\n로지: 효저 최대한 높게 설정 (막기는 낮더라도)"}]},
+      {"defense":["라드그리드","손오공","앨리스"],"counters":[{"attacker":["델론즈","여포","파이"],"skill":"파이 위 → 델론즈 위 → 여포 아래","turn":"선공","formation":"기본진형","equip1":"파이: 추적자(약치모모) / 반지: 권능+불사","equip2":"여포: 암살자(약치모모) 부옵: 속공 / 반지: 권능+불사","equip3":"델론즈: 추적자(약치모모) / 반지: 불사","tip":"기본진형을 베이스로 3인 같은 후열에 배치하고,\n가급적 상대 약공 어디 박히는지, 손오공 탱 세팅인지 확인하고 사용할 것."}]},
+      {"defense":["밀리아","키리엘.프레이야"],"counters":[{"attacker":["루디","손오공","앨리스"],"skill":"루디(위)  → 손오공(위)  → 손오공 (아래)","turn":"후턴","formation":"보호진형 (손오공 후열)","equip1":"루디: 조율자 /방방받받 / 부옵: 막기,효저 (반지: 부활)","equip2":"손오공: 수문장 / 약약받받 / 부옵: 막기,약공 (반지: 부활)","equip3":"앨리스: 조율지 / 생생받받 / 부옵: 막기, 효저 (반지: 부활)","tip":"\"펫은 루디, 카람\" / 마덱 상대로 매우 높은 승률이며 프레이야 마덱과 상대 시 프레이야 스킬 버틸 시 거의 승리 확정"}]},
+      {"defense":["밀리아","연희","키리엘"],"counters":[{"attacker":["아라곤","팔라누스","플라튼"],"skill":"아라곤 → 팔라누스(아래) → 팔라누스(위)","turn":"-","formation":"밸런스진형 (팔라누스 후열)","equip1":"팔라누스: 암살자 / 치치받받 / 부옵: 막기 (반지: 불사or부활+기합)","equip2":"아라곤: 성기사 / 방방받받 / 부옵: 막기 (반지: 부활)","equip3":"플라튼: 수문장 / 방방받받 / 막기 위주 (반지: 부활)","tip":"CC가 없을 경우 방어력을 극대화하여 굳건하게 버틸 것."},{"attacker":["루디","팔라누스","플라튼"],"skill":"루디(위) / 팔라누스(아래) / 플라튼(위)","turn":"방어팀 선공","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"상세 세팅 정보 업데이트가 필요함","equip2":"상세 세팅 정보 업데이트가 필요함","equip3":"상세 세팅 정보 업데이트가 필요함","tip":"펫 루 사용 시 필승임."},{"attacker":["스파이크","아멜리아","트루드"],"skill":"트루드(위) / 아멜리아(아래) / 스파이크(위)","turn":"방어팀 선공","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"상세 세팅 정보 업데이트가 필요함","equip2":"상세 세팅 정보 업데이트가 필요함","equip3":"상세 세팅 정보 업데이트가 필요함","tip":"펫 파이크 사용 시 필승임."}]},
+      {"defense":["밀리아","바네사","키리엘"],"counters":[{"attacker":["루디","손오공","앨리스"],"skill":"루디(위)  → 손오공(위)  → 손오공 (아래)","turn":"후턴","formation":"보호진형 (손오공 후열)","equip1":"루디: 조율자 /방방받받 / 부옵: 막기,효저 (반지: 부활)","equip2":"손오공: 수문장 / 약약받받 / 부옵: 막기,약공 (반지: 부활)","equip3":"앨리스: 조율지 / 생생받받 / 부옵: 막기, 효저 (반지: 부활)","tip":"\"펫은 루디, 카람\" / 마덱 상대로 매우 높은 승률이며 프레이야 마덱과 상대 시 프레이야 스킬 버틸 시 거의 승리 확정"},{"attacker":["아라곤","팔라누스","플라튼"],"skill":"아라곤 → 팔라누스(아래) → 팔라누스(위)","turn":"-","formation":"밸런스진형 (팔라누스 후열)","equip1":"팔라누스: 암살자 / 치치받받 / 부옵: 막기 (반지: 불사or부활+기합)","equip2":"아라곤: 성기사 / 방방받받 / 부옵: 막기 (반지: 부활)","equip3":"플라튼: 수문장 / 방방받받 / 막기 위주 (반지: 부활)","tip":"CC가 없을 경우 방어력을 극대화하여 굳건하게 버틸 것."}]},
+      {"defense":["밀리아","키리엘","프레이야"],"counters":[{"attacker":["브브","여포","카구라"],"skill":"여포 아래 → 여포 위 → 브브 위","turn":"선공","formation":"밸런스진형","equip1":"카구라: 선봉장,주술사(효효모모), 부옵: 속공 / 반지: CC+CC","equip2":"여포: 암살자,추적자(약치모모), 부옵:속공 / 반지: 불사+기합, 권능+기합, 불사+권능","equip3":"브브 : 추적자(약치공공), 부옵: 속공 / 반지: 불사","tip":"카구라(전열), 여포,브브(후열)\n속공 지더라도 현재까지 승률이 100% 긴 함. 불사 싸움 될 확률이 높으므로 가급적 6불사 세팅\n(2026-03-03 기준)"},{"attacker":["아라곤","팔라누스","플라튼"],"skill":"아라곤 → 팔라누스(아래) → 팔라누스(위)","turn":"-","formation":"밸런스진형 (팔라누스 후열)","equip1":"팔라누스: 암살자 / 치치받받 / 부옵: 막기 (반지: 불사or부활+기합)","equip2":"아라곤: 성기사 / 방방받받 / 부옵: 막기 (반지: 부활)","equip3":"플라튼: 수문장 / 방방받받 / 막기 위주 (반지: 부활)","tip":"CC가 없을 경우 방어력을 극대화하여 굳건하게 버틸 것."}]},
+      {"defense":["밀리아","바네사","프레이야"],"counters":[{"attacker":["아라곤","팔라누스","플라튼"],"skill":"아라곤 → 팔라누스(아래) → 팔라누스(위)","turn":"-","formation":"밸런스진형 (팔라누스 후열)","equip1":"팔라누스: 암살자 / 치치받받 / 부옵: 막기 (반지: 불사or부활+기합)","equip2":"아라곤: 성기사 / 방방받받 / 부옵: 막기 (반지: 부활)","equip3":"플라튼: 수문장 / 방방받받 / 막기 위주 (반지: 부활)","tip":"CC가 없을 경우 방어력을 극대화하여 굳건하게 버틸 것."}]},
+      {"defense":["밀리아","연희","프레이야"],"counters":[{"attacker":["아라곤","팔라누스","플라튼"],"skill":"아라곤 → 팔라누스(아래) → 팔라누스(위)","turn":"-","formation":"밸런스진형 (팔라누스 후열)","equip1":"팔라누스: 암살자 / 치치받받 / 부옵: 막기 (반지: 불사or부활+기합)","equip2":"아라곤: 성기사 / 방방받받 / 부옵: 막기 (반지: 부활)","equip3":"플라튼: 수문장 / 방방받받 / 막기 위주 (반지: 부활)","tip":"CC가 없을 경우 방어력을 극대화하여 굳건하게 버틸 것."}]},
+      {"defense":["카구라","카일","파이"],"counters":[{"attacker":["겔리두스","스파이크","트루드"],"skill":"겔리두스(상) → 겔리두스(하) → 트루드(상)","turn":"속공 무관함","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"트루드: 추적자 (약약 or 약모 / 막막) / 약공 최대, 막기 40%","equip2":"겔리두스: 주술사 (방방 / 받받) / 막기 효율 최대","equip3":"스파이크: 성기사 (생생 / 받받) / 막기 효율 최대","tip":"상대의 내실이나 속공 여부에 관계없이 운용 가능함 (1번 덱 파훼법)."},{"attacker":["브브","카구라","카일"],"skill":"브브(위) / 카구라(위) / 카일(아래)","turn":"공격팀 선공","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"카일/브브: 추적자 (약치모모) / 약공·치확 내실 강화","equip2":"파이: 수문장 or 선봉자 / 속공 수치 극대화","equip3":"-","tip":"선속공 필수. 상대 속공 확인 후 선제 공격권 확보가 생명임 (미러전)."},{"attacker":["겔리두스","손오공","엘리시아"],"skill":"손오공(위) / 겔리두스(위) / 엘리시아(아래)","turn":"방어팀 선공","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"상세 세팅 정보 업데이트가 필요함","equip2":"상세 세팅 정보 업데이트가 필요함","equip3":"상세 세팅 정보 업데이트가 필요함","tip":"펫 카람 사용 시 필승임."},{"attacker":["로지","아라곤","팔라누스"],"skill":"팔라누스(아래) / 아라(위) / 로지(아래)","turn":"방어팀 선공","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"상세 세팅 정보 업데이트가 필요함","equip2":"상세 세팅 정보 업데이트가 필요함","equip3":"상세 세팅 정보 업데이트가 필요함","tip":"펫 멜페로 사용 시 필승임."}]},
+      {"defense":["초선","키리엘","프레이야"],"counters":[{"attacker":["녹스","로지","크리스"],"skill":"크(아)→로(아)→크(위)","turn":"상세 세팅 정보 업데이트가 필요함","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"로지: 주술사 / 방방+효효(반반) / 효적90+효저100","equip2":"녹스: 조율자 / 효효+반반 / 효적90+효저100 / 6성 즉사","equip3":"크리스: 주술사 / 효효+효효 / 효적100+효저100 / 6성 즉사","tip":"핵심 운영: 효과적중(효적)과 효과저항(효저) 세팅이 승패를 좌우함."}]},
+      {"defense":["겔리두스","에이스","트루드"],"counters":[{"attacker":["라니아","라드그리드","스파이크"],"skill":"라드그리드(아래) → 스파이크(위) → 스파이크(아래)","turn":"후공","formation":"공격진형 (라드 앞)","equip1":"라드그리드: 성기사(방방받받) / 막기 최대","equip2":"스파이크:성기사(생생받받) / 막기 최대","equip3":"라니아: 성기사(방방받받) / 막기최대","tip":"즉사반지 두개 착용, 대랄 하나 착용\n라니아가 빙결 면역, 구조적으로 에이스 피깎이 지속되어 피 차이로 승리 가능"},{"attacker":["녹스","로지","크리스"],"skill":"크(아)→로(아)→크(위)","turn":"상세 세팅 정보 업데이트가 필요함","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"로지: 주술사 / 방방+효효(반반) / 효적90+효저100 / 5성 불사","equip2":"녹스: 조율자 / 효효+반반 / 효적90+효저100 / 6성 즉사","equip3":"크리스: 주술사 / 효효+효효 / 효적100+효저100 / 6성 즉사","tip":"상태이상 적중/저항 싸움이 핵심임."},{"attacker":["브브","여포","풍연"],"skill":"여포(아래) → 브브(아래) or 풍연(아래) → 여포(위)","turn":"선공","formation":"보호진형","equip1":"여포: 추적자+내실 / 6성 불사(권능) / 속도 1위","equip2":"풍연: 수문장+내실 / 5성 불사","equip3":"브브: 내실+추적자 / 5성 불사","tip":"풍연 빙결 면역으로 여포, 브브를 사용해서 극딜하는 덱."}]},
+      {"defense":["여포"],"counters":[{"attacker":["겔리두스","엘리시아","트루드"],"skill":"엘리시아(위) → 겔리두스(위) → 트루드(위)","turn":"상세 세팅 정보 업데이트가 필요함","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"트루드: 약공(공공)/반반 + 추적자","equip2":"겔리두스: 방방/반반 + 조율자","equip3":"엘리시아: 효방(방방)/반반 + 조율자","tip":"엘리시아 선스킬로 상태이상 면역 확보 후 딜링함."}]},
+      {"defense":["카일"],"counters":[{"attacker":["바네사","쥬리","프레이야"],"skill":"바네사(아래) → 쥬리(위) → 프레이야(위)","turn":"공격팀 선공","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"프레이야(위): 추적자 / 속공+내실","equip2":"바네사(아래): 주술사 / 속공(내실)","equip3":"쥬리(위): 주술사 / 속공 MAX","tip":"속도 240~250 이상 필수임 (선타 필승)."}]},
+      {"defense":["겔리두스","손오공","에이스"],"counters":[{"attacker":["브브","여포","풍연"],"skill":"여포(아래) → 풍연(아래) → 여포(위)","turn":"공격팀 선공","formation":"보호진형 (여포 후열)","equip1":"여포: 추적자or암살자 / 약약or치약 / 모모","equip2":"브브: 추적지 / 약약or치약 / 모모","equip3":"풍연: 추적자 / 약약or치약 / 모모 (불사 5성 반지 이상)","tip":"\"풍연\" 불사 5성 반지 이상 ,펫은 \"유, 이린\" 추천"},{"attacker":["브브","아멜리아","카일"],"skill":"브(위)/아(위)/카(아)","turn":"공격 선공","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"카일: 추적자 / 극내실","equip2":"브브: 추적자 / 극내실","equip3":"아멜리아: 조율자 (속공 3순위)","tip":"방어팀 손오공 후열 1명일 때 기용함."},{"attacker":["에이스","키리엘","프레이야"],"skill":"프레이야(위) / 프레이야(아래) / 키리엘(아래)","turn":"공격팀 선공","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"키리엘: 추적자 / 속77 공격력","equip2":"에이스: 수문장 / 속공 짬통","equip3":"프레이야: 극내실 세팅","tip":"-"},{"attacker":["루디","카론","플라튼"],"skill":"플라튼(위) / 루디(위) / 카론(아래)","turn":"상세 세팅 정보 업데이트가 필요함","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"상세 세팅 정보 업데이트가 필요함","equip2":"상세 세팅 정보 업데이트가 필요함","equip3":"상세 세팅 정보 업데이트가 필요함","tip":"손오공 에이스 겔리두스 카운터 덱은 맞으나, 승률 50% 수준임 (비추천)."}]},
+      {"defense":["바네사","손오공","프레이야"],"counters":[{"attacker":["실베스타","아멜리아","플라튼"],"skill":"플라튼(위) / 실베(위) / 실베(아래)","turn":"방어팀 선공","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"상세 세팅 정보 업데이트가 필요함","equip2":"상세 세팅 정보 업데이트가 필요함","equip3":"상세 세팅 정보 업데이트가 필요함","tip":"-"},{"attacker":["브브","카구라","카일"],"skill":"브브(위) / 카구라(위) / 브브(아래)","turn":"공격팀 선공","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"상세 세팅 정보 업데이트가 필요함","equip2":"상세 세팅 정보 업데이트가 필요함","equip3":"상세 세팅 정보 업데이트가 필요함","tip":"상대 펫 유 또는 멜페로 일 때 사용 가능함."}]},
+      {"defense":["손오공","에이스","프레이야"],"counters":[{"attacker":["겔리두스","손오공","에이스"],"skill":"손오공(위) / 겔리두스(위) / 에이스(아래)","turn":"방어팀 선공","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"상세 세팅 정보 업데이트가 필요함","equip2":"상세 세팅 정보 업데이트가 필요함","equip3":"상세 세팅 정보 업데이트가 필요함","tip":"우리팀 펫이 유 또는 멜페로 일 때 사용함."},{"attacker":["초선","키리엘","프레이야"],"skill":"상세 세팅 정보 업데이트가 필요함","turn":"공격팀 선공","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"상세 세팅 정보 업데이트가 필요함","equip2":"상세 세팅 정보 업데이트가 필요함","equip3":"상세 세팅 정보 업데이트가 필요함","tip":"핵심: 선속공 세팅 필수임."}]},
+      {"defense":["겔리두스","손오공","트루드"],"counters":[{"attacker":["겔리두스","손오공","트루드"],"skill":"손오공(위) / 겔리두스(위) / 트루드(위)","turn":"방어팀 선공","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"상세 세팅 정보 업데이트가 필요함","equip2":"상세 세팅 정보 업데이트가 필요함","equip3":"상세 세팅 정보 업데이트가 필요함","tip":"우리팀 펫이 카람 일 때 사용함."}]},
+      {"defense":["바네사","연희","키리엘"],"counters":[{"attacker":["겔리두스","손오공","에이스"],"skill":"손오공(위) / 겔리두스(위) / 에이스(아래)","turn":"방어팀 선공","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"상세 세팅 정보 업데이트가 필요함","equip2":"상세 세팅 정보 업데이트가 필요함","equip3":"상세 세팅 정보 업데이트가 필요함","tip":"펫 유 사용 시 필승임."}]},
+      {"defense":["스파이크","아멜리아","트루드"],"counters":[{"attacker":["린","멜키르","밀리아"],"skill":"린 (위) → 멜키르 (위) → 밀리아 (위) 순서로 사용\n\n속공 순서: 멜키르 - 린 - 밀리아\n\n총 속공: 150","turn":"후턴 / 펫: 카람\n\n힐밴 대상: 밀리아, 멜키르","formation":"기본 진형 (전열: 밀리아, 멜키르 / 후열: 린) / 기본 진형\n\n전열: 밀리아, 멜키르\n\n후열: 린","equip1":"밀리아: 주술사 / 효효받받 / 효적 100↑, 막기 50↑ (반지: 즉사반지)","equip2":"멜키르: 복수자 / 효공효효 / 효적 100↑, 부옵: 공 (반지: 5성 불사반지 이상)","equip3":"린: 선봉장 / 효효받받 / 효적 60↑, 부옵: 약공 (반지: 즉사반지)","tip":"트스아 덱을 파훼하기 위한 세팅으로, 각 캐릭터의 효과 적중(효적) 수치를 기준치 이상으로 맞추는 것이 중요합니다.\n상황에 따라 즉사 반지와 불사 반지를 적절히 활용하여 변수를 차단하시기 바랍니다.\n\n*속공 순서: 멜키르 - 린 - 밀리아 (속공 180 이상 권장)\n*펫: 카람\n*힐밴 대상: 밀리아, 멜키르 / 트스아 덱을 파훼하기 위한 세팅으로, 각 캐릭터의 효과 적중(효적) 수치를 기준치 이상으로 맞추는 것이 중요합니다.\n\n상황에 따라 즉사 반지와 불사 반지를 적절히 활용하여 변수를 차단하시기 바랍니다."},{"attacker":["스파이크","첸슬러","카론"],"skill":"상세 세팅 정보 업데이트가 필요함","turn":"방어팀 선공","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"전원: 조율자 세트 + 효과 저항 100% (필수)","equip2":"스파이크: 방생받받 or 생생받받","equip3":"첸슬러/카론: 방생받받 or 방방받받","tip":"3번 덱 파훼법임."},{"attacker":["리","스파이크","카론"],"skill":"리(아래) / 스파이크(위) / 카론(아래)","turn":"방어팀 선공","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"상세 세팅 정보 업데이트가 필요함","equip2":"상세 세팅 정보 업데이트가 필요함","equip3":"상세 세팅 정보 업데이트가 필요함","tip":"-"},{"attacker":["바네사","키리엘","프레이야"],"skill":"프레이야(위) / 바네사(아래) / 프레이야(아래)","turn":"공격팀 선공","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"상세 세팅 정보 업데이트가 필요함","equip2":"상세 세팅 정보 업데이트가 필요함","equip3":"상세 세팅 정보 업데이트가 필요함","tip":"-"},{"attacker":["아멜리아","카일","파이"],"skill":"카일(아래) / 카일(위) / 아멜리아(위)","turn":"공격팀 선공","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"카일: 속공 팀내 1,2위","equip2":"아멜리아: 수문장","equip3":"-","tip":"-"}]},
+      {"defense":["아라곤","팔라누스","플라튼"],"counters":[{"attacker":["루디","팔라누스","플라튼"],"skill":"루디(위) / 팔라누스(아래) / 플라튼(위)","turn":"방어팀 선공","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"상세 세팅 정보 업데이트가 필요함","equip2":"상세 세팅 정보 업데이트가 필요함","equip3":"상세 세팅 정보 업데이트가 필요함","tip":"-"},{"attacker":["로지","아라곤","팔라누스"],"skill":"팔라누스(아래) / 아라(위) / 로지(아래)","turn":"방어팀 선공","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"상세 세팅 정보 업데이트가 필요함","equip2":"상세 세팅 정보 업데이트가 필요함","equip3":"상세 세팅 정보 업데이트가 필요함","tip":"-"},{"attacker":["콜트","트루드","플라튼"],"skill":"플라튼(위) / 트루드(위) / 콜트(아래)","turn":"방어팀 선공","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"상세 세팅 정보 업데이트가 필요함","equip2":"상세 세팅 정보 업데이트가 필요함","equip3":"상세 세팅 정보 업데이트가 필요함","tip":"-"},{"attacker":["루디","앨리스","플라튼"],"skill":"루디(위) / 팔라누스(아래) / 앨리스(위)","turn":"방어팀 선공","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"상세 세팅 정보 업데이트가 필요함","equip2":"상세 세팅 정보 업데이트가 필요함","equip3":"상세 세팅 정보 업데이트가 필요함","tip":"-"}]},
+      {"defense":["겔리두스","엘리시아","트루드"],"counters":[{"attacker":["루디","앨리스","플라튼"],"skill":"루디(위) → 앨리스(아래) → 플라튼(위)","turn":"버팀","formation":"진형: 밸런스/기본","equip1":"플라튼: 조율자 / 방방받받 / 효저100","equip2":"루디: 조율자 / 방방받받 / 효저100","equip3":"앨리스: 조율자 / 생생받받 / 효저100","tip":"펫: 스파이크/방어(효저100).<br>1. 부옵 막기 최대로 세팅할 것 (반지 무관).<br>2. 에이스 상대 시 연습을 권장함. 아멜리아 덱은 금지임."}]},
+      {"defense":["겔리두스","스파이크","트루드"],"counters":[{"attacker":["루디","앨리스","플라튼"],"skill":"루디(위) → 앨리스(아래) → 플라튼(위)","turn":"버팀","formation":"진형: 밸런스/기본","equip1":"플라튼: 조율자 / 방방받받 / 효저100","equip2":"루디: 조율자 / 방방받받 / 효저100","equip3":"앨리스: 조율자 / 생생받받 / 효저100","tip":"펫: 스파이크/방어(효저100).<br>1. 부옵 막기 최대로 세팅할 것 (반지 무관).<br>2. 에이스 상대 시 연습을 권장함. 아멜리아 덱은 금지임."}]},
+      {"defense":["브브","여포","카일"],"counters":[{"attacker":["루디","손오공","앨리스"],"skill":"루디(위)  → 손오공(위)  → 손오공 (아래)","turn":"후턴","formation":"보호진형 (손오공 후열)","equip1":"루디: 조율자 /방방받받 / 부옵: 막기,효저 (반지: 부활)","equip2":"손오공: 수문장 / 약약받받 / 부옵: 막기,약공 (반지: 부활)","equip3":"앨리스: 조율지 / 생생받받 / 부옵: 막기, 효저 (반지: 부활)","tip":"\"펫은 루디, 카람\" / 3인 공격덱에 파괴력이 매우 높으나 내실, 반지 위주로 신경쓰면 카운터로 사용 가능성 높음"},{"attacker":["겔리두스","엘리시아","트루드"],"skill":"엘리시아 (위) → 겔리두스 (위) → 트루드 (위) 순서로 사용\n\n아멜리아/여포 CC 방지를 위한 엘리시아 선스킬 기준","turn":"트루드: 추적자 운용\n\n겔리두스 & 엘리시아: 조율자 운용","formation":"여포 덱 상대 안정적 대응 지향 (단, 강한 여포 덱은 주의)","equip1":"트루드: 약공받받 또는 공공받받","equip2":"겔리두스: 방방받받 (중랄 세팅 권장)","equip3":"엘리시아: 효방받받 또는 방방받받 (중랄 세팅 권장)","tip":"세팅의 핵심은 안정성과 상태이상 대응입니다. 겔리두스와 엘리시아는 '중랄' 세팅을 통해 안정감을 높이시기 바랍니다."},{"attacker":["로지","아라곤","팔라누스"],"skill":"아라곤 → 팔라누스(아래) → 팔라누스(위)","turn":"-","formation":"보호진형 (팔라누스 후열)","equip1":"팔라누스: 암살자 / 치확치확(치피)받받 / 막기 최대 (준비물: 대랄)","equip2":"아라곤: 수문장 or 조율자 / 방방받받 / 막기 최대 (여포 아래스킬 의식 / 준비물: 중랄)","equip3":"로지: 수문장 or 조율자 / 방방(생방)받받 / 막기 최대 (여포 아래스킬 의식 / 준비물: 중랄)","tip":"펫: 루 또는 카람.<br>1. 철거덱 파훼용으로 구성된 덱임.<br>2. 반드시 세팅 후 테스트가 필요함.<br>3. 팔라누스 생존력이 낮으면 치피를 낮추고 막기를 올릴 것."}]},
+      {"defense":["연희","키리엘","플라튼"],"counters":[]},{"defense":["로지","아라곤","팔라누스"],"counters":[]},{"defense":["브브","카구라","카일"],"counters":[]},{"defense":["멜키르","밀리아","키리엘"],"counters":[]},{"defense":["아멜리아","엘리시아","트루드"],"counters":[]},{"defense":["브브","카일","파이"],"counters":[]},{"defense":["손오공","엘리시아","프레이야"],"counters":[]},
+      {"defense":["바네사","키리엘","프레이야"],"counters":[{"attacker":["루디","손오공","앨리스"],"skill":"루디(위)  → 손오공(위)  → 손오공 (아래)","turn":"후턴","formation":"보호진형 (손오공 후열)","equip1":"루디: 조율자 /방방받받 / 부옵: 막기,효저 (반지: 부활)","equip2":"손오공: 수문장 / 약약받받 / 부옵: 막기,약공 (반지: 부활)","equip3":"앨리스: 조율지 / 생생받받 / 부옵: 막기, 효저 (반지: 부활)","tip":"\"펫은 루디, 카람\" / 마덱 상대로 매우 높은 승률이며 프레이야 마덱과 상대 시 프레이야 스킬 버틸 시 거의 승리 확정"}]},
+      {"defense":["린","멜키르","밀리아"],"counters":[]},
+      {"defense":["브브","아멜리아","여포"],"counters":[{"attacker":["라드그리드","손오공","엘리시아"],"skill":"엘리시아 아래 → 손오공 위 → 라드그리드 아래","turn":"후공","formation":"공격진형","equip1":"손오공: 추적자[약약받받] / 부옵: 막기 / 반지: 부활","equip2":"라드그리드: 성기사[방방받받] / 부옵: 막기 / 반지: 부활","equip3":"엘시시아: 조율자[효효받받] / 부옵: 막기 / 반지: 부활","tip":"펫: 카람or루"},{"attacker":["브브","여포","카일"],"skill":"카일(위) → 브브(아래) → 카일(위)","turn":"공격팀 선공 (후턴 가능)","formation":"밸런스 진형, 보호 진형","equip1":"브브: 조율자 딜세팅 [ 후턴 ] , 조율자 딜세팅 [ 선턴 ]","equip2":"여포: 조율자 딜세팅 [ 후턴 ] , 조율자 딜세팅 [ 선턴 ]","equip3":"카일: 조율자 딜세팅 [ 후턴 ] , 추적자 딜세팅 [ 선턴 ]","tip":"속공에 자신 없다면 3명 조율자 딜 세팅\n속공에 자신 있다면 카일 제외 조율자 딜 세팅\n      [카일, 여포는 딜이 충분 , 브브한테 딜템 몰아주기 ]"},{"attacker":["겔리두스","엘리시아","트루드"],"skill":"엘리시아 (위) → 겔리두스 (위) → 트루드 (위) 순서로 사용\n\n아멜리아/여포 CC 방지를 위한 엘리시아 선스킬 기준","turn":"트루드: 추적자 운용\n\n겔리두스 & 엘리시아: 조율자 운용","formation":"여포 덱 상대 안정적 대응 지향 (단, 강한 여포 덱은 주의)","equip1":"트루드: 약공받받 또는 공공받받","equip2":"겔리두스: 방방받받 (중랄 세팅 권장)","equip3":"엘리시아: 효방받받 또는 방방받받 (중랄 세팅 권장)","tip":"세팅의 핵심은 안정성과 상태이상 대응입니다. 겔리두스와 엘리시아는 '중랄' 세팅을 통해 안정감을 높이시기 바랍니다."}]},
+      {"defense":["스파이크","에이스","트루드"],"counters":[]},{"defense":["여포","카구라","카일"],"counters":[]},{"defense":["여포","카구라","콜트"],"counters":[]},
+      {"defense":["밀리아","바네사","연희"],"counters":[{"attacker":["아라곤","팔라누스","플라튼"],"skill":"아라곤 → 팔라누스(아래) → 팔라누스(위)","turn":"-","formation":"밸런스진형 (팔라누스 후열)","equip1":"팔라누스: 암살자 / 치치받받 / 부옵: 막기 (반지: 불사or부활+기합)","equip2":"아라곤: 성기사 / 방방받받 / 부옵: 막기 (반지: 부활)","equip3":"플라튼: 수문장 / 방방받받 / 막기 위주 (반지: 부활)","tip":"CC가 없을 경우 방어력을 극대화하여 굳건하게 버틸 것."}]},
+      {"defense":["브브","아멜리아","카일"],"counters":[]},{"defense":["여포","콜트","파이"],"counters":[]},{"defense":["겔리두스","손오공","엘리시아"],"counters":[]},{"defense":["여포","카구라","파이"],"counters":[]},{"defense":["로지","아킬라","팔라누스"],"counters":[]},
+      {"defense":["브브","여포","카구라"],"counters":[{"attacker":["루디","손오공","앨리스"],"skill":"루디(위)  → 손오공(위)  → 손오공 (아래)","turn":"후턴","formation":"보호진형 (손오공 후열)","equip1":"루디: 조율자 /방방받받 / 부옵: 막기,효저 (반지: 부활)","equip2":"손오공: 수문장 / 약약받받 / 부옵: 막기,약공 (반지: 부활)","equip3":"앨리스: 조율지 / 생생받받 / 부옵: 막기, 효저 (반지: 부활)","tip":"\"펫은 루디, 카람\" / 여포,카일, 브브 상대보단 비교적 딜은 약하나 CC 변수 및 브브 2스킬 주의"}]},
+      {"defense":["겔리두스","손오공","프레이야"],"counters":[]},{"defense":["콜트","파이","플라튼"],"counters":[]},{"defense":["엘리시아","여포","프레이야"],"counters":[]},{"defense":["아멜리아","여포","카일"],"counters":[]},{"defense":["실베스타","콜트","플라튼"],"counters":[]},{"defense":["스파이크","엘리시아","트루드"],"counters":[]},{"defense":["스파이크","트루드","플라튼"],"counters":[]},{"defense":["아멜리아","트루드","플라튼"],"counters":[]},{"defense":["손오공","스파이크","엘리시아"],"counters":[]},{"defense":["브브","여포","콜트"],"counters":[]},
+      {"defense":["사라","아라곤","팔라누스"],"counters":[{"attacker":["브브","여포","초선"],"skill":"초선(위) → 여포(아래) → 브브(위)","turn":"후턴","formation":"밸런스진형 (앞열: 초선 / 후열: 여포, 브브)","equip1":"초선(수문장): 약약받받 / 막기 확률 최대치 세팅 (수면 안 깨지게 딜 낮추고 생존 우선)","equip2":"여포(추적자): 치치공공 / 치명타 및 약점 공격 최대치 세팅 (장신구: 권능/불사/부활 필수)","equip3":"브브(추적자): 치약공공 / 치명타 및 약점 공격 최대치 세팅 (장신구: 권능/불사/부활 필수)","tip":"초선을 팀 내 속공 1순위로 반드시 세팅할 것. 여포와 브브는 딜 내실을 최대로 끌어올려야 함. 초선은 무리하게 약점 공격을 챙길 필요 없이, 수면 상태가 깨지지 않도록 딜을 조정하고 생존 위주로 세팅할 것. (추천 펫: 이린 또는 유)"}]},
+      {"defense":["바네사","실베스타","초선"],"counters":[]},{"defense":["엘리시아","트루드","팔라누스"],"counters":[]},{"defense":["겔리두스","아멜리아","트루드"],"counters":[]},{"defense":["바네사","연희","프레이야"],"counters":[]},{"defense":["연희","키리엘","프레이야"],"counters":[]},{"defense":["아멜리아","카일","파이"],"counters":[]},{"defense":["연희","초선","키리엘"],"counters":[]},{"defense":["겔리두스","손오공","크리스"],"counters":[]},{"defense":["브브","손오공","아멜리아"],"counters":[]},{"defense":["스파이크","아멜리아","프레이야"],"counters":[]},{"defense":["손오공","아멜리아","프레이야"],"counters":[]},{"defense":["발리스타","아멜리아","여포"],"counters":[]},{"defense":["여포","카일","파이"],"counters":[]},{"defense":["라드그리드","스파이크","트루드"],"counters":[]},{"defense":["겔리두스","손오공","앨리스"],"counters":[]},{"defense":["바네사","연희","초선"],"counters":[]},{"defense":["엘리시아","초선","팔라누스"],"counters":[]},{"defense":["라드그리드","손오공","엘리시아"],"counters":[]},{"defense":["브브","여포","파이"],"counters":[]},{"defense":["발리스타","아멜리아","카일"],"counters":[]},{"defense":["연희","쥬리","트루드"],"counters":[]},{"defense":["라드그리드","스파이크","엘리시아"],"counters":[]},{"defense":["라드그리드","트루드","팔라누스"],"counters":[]},{"defense":["라드그리드","엘리시아","트루드"],"counters":[]},{"defense":["스파이크","트루드","프레이야"],"counters":[]},{"defense":["카일","콜트","파이"],"counters":[]},{"defense":["겔리두스","손오공","스파이크"],"counters":[]},{"defense":["브브","여포","태오"],"counters":[]},{"defense":["브브","에이스","프레이야"],"counters":[]},{"defense":["로지","키리엘","프레이야"],"counters":[]},{"defense":["라드그리드","손오공","에이스"],"counters":[]},{"defense":["손오공","초선","프레이야"],"counters":[]},{"defense":["멜키르","밀리아","프레이야"],"counters":[]},{"defense":["발리스타","카일","파이"],"counters":[]},{"defense":["발리스타","카구라","카일"],"counters":[]},{"defense":["멜키르","밀리아","바네사"],"counters":[]},{"defense":["라드그리드","엘리시아","팔라누스"],"counters":[]},{"defense":["라드그리드","팔라누스","플라튼"],"counters":[]},{"defense":["연희","초선","프레이야"],"counters":[]},{"defense":["라드그리드","손오공","스파이크"],"counters":[]},{"defense":["레긴레이프","밀리아","프레이야"],"counters":[]},{"defense":["손오공","에이스","엘리시아"],"counters":[]},{"defense":["레긴레이프","키리엘","프레이야"],"counters":[]},{"defense":["손오공","아멜리아","트루드"],"counters":[]},{"defense":["녹스","로지","팔라누스"],"counters":[]},{"defense":["레긴레이프","초선","프레이야"],"counters":[]},{"defense":["로지","룩","팔라누스"],"counters":[]},{"defense":["아라곤","플라튼","플라튼"],"counters":[]}
+    ];
+
     function App() {
       const [isLoggedIn, setIsLoggedIn] = useState(false);
       const [loginId, setLoginId] = useState('');
@@ -297,72 +355,88 @@
       const [defenseMatches, setDefenseMatches] = useState([{ enemyTeam: ['', '', ''], result: '방어 성공' }]);
 
       const [counterEnemyFilter, setCounterEnemyFilter] = useState(['', '', '']);
-      const [guideModal, setGuideModal] = useState({ isOpen: false, defTeam: [], atkTeam: [], skill: '', turn: '', formation: '', equip1: '', equip2: '', equip3: '', tip: '' });
+      const [guideModal, setGuideModal] = useState({ isOpen: false, type: 'counter', defTeam: [], atkTeam: ['', '', ''], skill: '', turn: '', formation: '', equip1: '', equip2: '', equip3: '', tip: '' });
       const [filterChar, setFilterChar] = useState('');
       const [showStats, setShowStats] = useState(false);
+      
+      const [expandedCounters, setExpandedCounters] = useState({});
+      const [expandedDefGuides, setExpandedDefGuides] = useState({});
+      const [rawRecordInputState, setRawRecordInputState] = useState('');
+
+      const currentRecords = useMemo(() => {
+        return records.filter(r => {
+          const type = r.recordType || 'attack';
+          return type === subTab;
+        });
+      }, [records, subTab]);
+
+      const statsData = useMemo(() => {
+        if (mainTab !== 'records') return { deckStats: [], memberStats: [] };
+
+        const deckCounts = {};
+        const memberData = {};
+
+        currentRecords.forEach(record => {
+          const name = record.nickname || '익명';
+          if (!memberData[name]) memberData[name] = { name, recordsCount: 0, totalMatches: 0, wins: 0 };
+          memberData[name].recordsCount += 1;
+
+          if (subTab === 'attack') {
+            record.matches?.forEach(match => {
+              memberData[name].totalMatches += 1;
+              if (match.result === '승리') memberData[name].wins += 1;
+
+              const myArr = getSafeArray(match.myTeam);
+              const validHeroes = myArr.map(h => h && typeof h === 'string' ? h.trim() : '').filter(Boolean).sort();
+              if (validHeroes.length === 3) {
+                const deckKey = validHeroes.join(', ');
+                if (!deckCounts[deckKey]) deckCounts[deckKey] = { deck: deckKey, count: 0, wins: 0 };
+                deckCounts[deckKey].count += 1;
+                if (match.result === '승리') deckCounts[deckKey].wins += 1;
+              }
+            });
+          } else if (subTab === 'defense') {
+            const defTeamArr = getSafeArray(record.myTeam);
+            const validDefHeroes = defTeamArr.map(h => h && typeof h === 'string' ? h.trim() : '').filter(Boolean).sort();
+            const defDeckKey = validDefHeroes.length === 3 ? validDefHeroes.join(', ') : null;
+
+            record.defenseMatches?.forEach(match => {
+              memberData[name].totalMatches += 1; 
+              if (match.result === '방어 성공') memberData[name].wins += 1;
+
+              if (defDeckKey) {
+                if (!deckCounts[defDeckKey]) deckCounts[defDeckKey] = { deck: defDeckKey, count: 0, wins: 0 };
+                deckCounts[defDeckKey].count += 1; 
+                if (match.result === '방어 성공') deckCounts[defDeckKey].wins += 1;
+              }
+            });
+          }
+        });
+
+        const deckStats = Object.values(deckCounts)
+          .map(s => ({ ...s, winRate: s.count > 0 ? ((s.wins / s.count) * 100).toFixed(1) : 0 }))
+          .sort((a, b) => b.count - a.count).slice(0, 5);
+
+        const memberStats = Object.values(memberData)
+          .map(s => ({ ...s, winRate: s.totalMatches > 0 ? ((s.wins / s.totalMatches) * 100).toFixed(1) : 0 }))
+          .sort((a, b) => b.recordsCount - a.recordsCount);
+
+        return { deckStats, memberStats };
+      }, [currentRecords, mainTab, subTab]);
+      
+      const HERO_GROUPS = useMemo(() => {
+        if (customHeroes.length === 0) return PREDEFINED_HERO_GROUPS;
+        return [...PREDEFINED_HERO_GROUPS, { group: "기타 (자동추가)", heroes: customHeroes }];
+      }, [customHeroes]);
+
+      useEffect(() => { setExpandedCounters({}); }, [counterEnemyFilter]);
+      const toggleCounter = (idx) => { setExpandedCounters(prev => ({ ...prev, [idx]: !prev[idx] })); };
+      const toggleDefGuide = (idx) => { setExpandedDefGuides(prev => ({ ...prev, [idx]: !prev[idx] })); };
       
       const winRateChartRef = useRef(null);
       const defMetaChartRef = useRef(null);
       const chartInstance1 = useRef(null);
       const chartInstance2 = useRef(null);
-      const [heatmapFilters, setHeatmapFilters] = useState({ high: true, mid: true, low: true });
-
-      const PREDEFINED_HERO_GROUPS = useMemo(() => [
-        { group: "세븐나이츠", heroes: ["루디", "아일린", "레이첼", "델론즈", "제이브", "스파이크", "크리스", "바네사"] },
-        { group: "다크나이츠", heroes: ["멜키르", "브란즈&브란셀", "플라튼", "콜트", "팔라누스", "실베스타"] },
-        { group: "사황/구사황", heroes: ["에이스", "여포", "손오공", "린", "태오", "카르마", "카일", "연희"] },
-        { group: "구세븐나이츠", heroes: ["겔리두스", "밀리아", "파이", "로지", "쥬리", "알프", "라디우스"] },
-        { group: "나이트크로우", heroes: ["칼 헤론", "오를리", "타카", "아킬라"] },
-        { group: "루미너스 혁명단", heroes: ["엘리시아", "키리엘", "라이언"] },
-        { group: "숨은 강자들", heroes: ["미호", "로로", "아멜리아", "잉그리드", "클레미스", "카구라", "바토리", "아비갈", "앤티", "뮬란", "미스트", "아탈란테", "항우"] },
-        { group: "천상의 수호자", heroes: ["트루드", "프레이야", "라드그리드", "스쿨드", "펜리르", "레긴레이프", "기르티"] },
-        { group: "심연/하이드", heroes: ["쥬다스", "디아나", "안티고네", "잭", "앙그라", "데스론"] },
-        { group: "마법학회 등", heroes: ["타라", "노아", "세자르", "오목", "바엘", "리나", "아리스", "스피나", "길라한", "엘리니아", "비아", "세인", "니아", "지크", "루리", "에스파다"] },
-        { group: "모험가/특수", heroes: ["에반", "카린", "스니퍼", "쥬피", "유리", "아리엘", "실비아", "벨리카", "챈슬러", "룩", "녹스", "아라곤", "앨리스", "클로에", "헤브니아", "헬레니아", "로아", "하영", "카론", "루시", "유이", "라니아", "사라", "베인", "레오", "클레오", "메이", "조커", "세라", "발리스타", "블랙로즈", "제인", "레이", "샤오", "노호", "리", "빅토리아", "진", "데이지", "백룡", "링링", "밍밍", "소이", "풍연", "비담", "유신", "백각", "이정", "권호", "기파랑", "나타", "아수라", "칭타오", "무송", "관우", "제갈량", "초선", "조운", "파스칼"] },
-        { group: "후속작 오리지널", heroes: ["렌", "코제트", "챙첸", "밍", "이안", "앙리", "케이드", "루키", "멜리사", "스캇", "피네", "엘카", "샬롯", "티티", "레일라", "스텔라", "세일럼", "렘", "루아", "세레나", "샤이", "트리스탄"] }
-      ], []);
-
-      const STATIC_GUIDE_DB = useMemo(() => [
-        {"defense":["라드그리드","손오공","아멜리아"],"counters":[{"attacker":["녹스","로지","크리스"],"skill":"크리스 아래 → 크리스 위 → 녹스 위","turn":"선공 or 후공","formation":"공격진형","equip1":"크리스: 주술사(효효받받), 부옵: 효저, 받받, 약공 / 반지: 즉사+CC(권능)","equip2":"녹스: 조율자(효효막막), 부옵: 약공 / 반지: 부활+CC","equip3":"로지: 조율자(효효받받), 부옵: 약공 / 반지: 부활+CC","tip":"녹스: 조율자로 효저, 막기 최대한 높게 설정\n크리스: 약공, 효적, 효저 최대한 높게 설정\n로지: 효저 최대한 높게 설정 (막기는 낮더라도)"}]},
-        {"defense":["라드그리드","손오공","앨리스"],"counters":[{"attacker":["델론즈","여포","파이"],"skill":"파이 위 → 델론즈 위 → 여포 아래","turn":"선공","formation":"기본진형","equip1":"파이: 추적자(약치모모) / 반지: 권능+불사","equip2":"여포: 암살자(약치모모) 부옵: 속공 / 반지: 권능+불사","equip3":"델론즈: 추적자(약치모모) / 반지: 불사","tip":"기본진형을 베이스로 3인 같은 후열에 배치하고,\n가급적 상대 약공 어디 박히는지, 손오공 탱 세팅인지 확인하고 사용할 것."}]},
-        {"defense":["밀리아","키리엘.프레이야"],"counters":[{"attacker":["루디","손오공","앨리스"],"skill":"루디(위)  → 손오공(위)  → 손오공 (아래)","turn":"후턴","formation":"보호진형 (손오공 후열)","equip1":"루디: 조율자 /방방받받 / 부옵: 막기,효저 (반지: 부활)","equip2":"손오공: 수문장 / 약약받받 / 부옵: 막기,약공 (반지: 부활)","equip3":"앨리스: 조율지 / 생생받받 / 부옵: 막기, 효저 (반지: 부활)","tip":"\"펫은 루디, 카람\" / 마덱 상대로 매우 높은 승률이며 프레이야 마덱과 상대 시 프레이야 스킬 버틸 시 거의 승리 확정"}]},
-        {"defense":["밀리아","연희","키리엘"],"counters":[{"attacker":["아라곤","팔라누스","플라튼"],"skill":"아라곤 → 팔라누스(아래) → 팔라누스(위)","turn":"-","formation":"밸런스진형 (팔라누스 후열)","equip1":"팔라누스: 암살자 / 치치받받 / 부옵: 막기 (반지: 불사or부활+기합)","equip2":"아라곤: 성기사 / 방방받받 / 부옵: 막기 (반지: 부활)","equip3":"플라튼: 수문장 / 방방받받 / 막기 위주 (반지: 부활)","tip":"CC가 없을 경우 방어력을 극대화하여 굳건하게 버틸 것."},{"attacker":["루디","팔라누스","플라튼"],"skill":"루디(위) / 팔라누스(아래) / 플라튼(위)","turn":"방어팀 선공","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"상세 세팅 정보 업데이트가 필요함","equip2":"상세 세팅 정보 업데이트가 필요함","equip3":"상세 세팅 정보 업데이트가 필요함","tip":"펫 루 사용 시 필승임."},{"attacker":["스파이크","아멜리아","트루드"],"skill":"트루드(위) / 아멜리아(아래) / 스파이크(위)","turn":"방어팀 선공","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"상세 세팅 정보 업데이트가 필요함","equip2":"상세 세팅 정보 업데이트가 필요함","equip3":"상세 세팅 정보 업데이트가 필요함","tip":"펫 파이크 사용 시 필승임."}]},
-        {"defense":["밀리아","바네사","키리엘"],"counters":[{"attacker":["루디","손오공","앨리스"],"skill":"루디(위)  → 손오공(위)  → 손오공 (아래)","turn":"후턴","formation":"보호진형 (손오공 후열)","equip1":"루디: 조율자 /방방받받 / 부옵: 막기,효저 (반지: 부활)","equip2":"손오공: 수문장 / 약약받받 / 부옵: 막기,약공 (반지: 부활)","equip3":"앨리스: 조율지 / 생생받받 / 부옵: 막기, 효저 (반지: 부활)","tip":"\"펫은 루디, 카람\" / 마덱 상대로 매우 높은 승률이며 프레이야 마덱과 상대 시 프레이야 스킬 버틸 시 거의 승리 확정"},{"attacker":["아라곤","팔라누스","플라튼"],"skill":"아라곤 → 팔라누스(아래) → 팔라누스(위)","turn":"-","formation":"밸런스진형 (팔라누스 후열)","equip1":"팔라누스: 암살자 / 치치받받 / 부옵: 막기 (반지: 불사or부활+기합)","equip2":"아라곤: 성기사 / 방방받받 / 부옵: 막기 (반지: 부활)","equip3":"플라튼: 수문장 / 방방받받 / 막기 위주 (반지: 부활)","tip":"CC가 없을 경우 방어력을 극대화하여 굳건하게 버틸 것."}]},
-        {"defense":["밀리아","키리엘","프레이야"],"counters":[{"attacker":["브브","여포","카구라"],"skill":"여포 아래 → 여포 위 → 브브 위","turn":"선공","formation":"밸런스진형","equip1":"카구라: 선봉장,주술사(효효모모), 부옵: 속공 / 반지: CC+CC","equip2":"여포: 암살자,추적자(약치모모), 부옵:속공 / 반지: 불사+기합, 권능+기합, 불사+권능","equip3":"브브 : 추적자(약치공공), 부옵: 속공 / 반지: 불사","tip":"카구라(전열), 여포,브브(후열)\n속공 지더라도 현재까지 승률이 100% 긴 함. 불사 싸움 될 확률이 높으므로 가급적 6불사 세팅\n(2026-03-03 기준)"},{"attacker":["아라곤","팔라누스","플라튼"],"skill":"아라곤 → 팔라누스(아래) → 팔라누스(위)","turn":"-","formation":"밸런스진형 (팔라누스 후열)","equip1":"팔라누스: 암살자 / 치치받받 / 부옵: 막기 (반지: 불사or부활+기합)","equip2":"아라곤: 성기사 / 방방받받 / 부옵: 막기 (반지: 부활)","equip3":"플라튼: 수문장 / 방방받받 / 막기 위주 (반지: 부활)","tip":"CC가 없을 경우 방어력을 극대화하여 굳건하게 버틸 것."}]},
-        {"defense":["밀리아","바네사","프레이야"],"counters":[{"attacker":["아라곤","팔라누스","플라튼"],"skill":"아라곤 → 팔라누스(아래) → 팔라누스(위)","turn":"-","formation":"밸런스진형 (팔라누스 후열)","equip1":"팔라누스: 암살자 / 치치받받 / 부옵: 막기 (반지: 불사or부활+기합)","equip2":"아라곤: 성기사 / 방방받받 / 부옵: 막기 (반지: 부활)","equip3":"플라튼: 수문장 / 방방받받 / 막기 위주 (반지: 부활)","tip":"CC가 없을 경우 방어력을 극대화하여 굳건하게 버틸 것."}]},
-        {"defense":["밀리아","연희","프레이야"],"counters":[{"attacker":["아라곤","팔라누스","플라튼"],"skill":"아라곤 → 팔라누스(아래) → 팔라누스(위)","turn":"-","formation":"밸런스진형 (팔라누스 후열)","equip1":"팔라누스: 암살자 / 치치받받 / 부옵: 막기 (반지: 불사or부활+기합)","equip2":"아라곤: 성기사 / 방방받받 / 부옵: 막기 (반지: 부활)","equip3":"플라튼: 수문장 / 방방받받 / 막기 위주 (반지: 부활)","tip":"CC가 없을 경우 방어력을 극대화하여 굳건하게 버틸 것."}]},
-        {"defense":["카구라","카일","파이"],"counters":[{"attacker":["겔리두스","스파이크","트루드"],"skill":"겔리두스(상) → 겔리두스(하) → 트루드(상)","turn":"속공 무관함","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"트루드: 추적자 (약약 or 약모 / 막막) / 약공 최대, 막기 40%","equip2":"겔리두스: 주술사 (방방 / 받받) / 막기 효율 최대","equip3":"스파이크: 성기사 (생생 / 받받) / 막기 효율 최대","tip":"상대의 내실이나 속공 여부에 관계없이 운용 가능함 (1번 덱 파훼법)."},{"attacker":["브브","카구라","카일"],"skill":"브브(위) / 카구라(위) / 카일(아래)","turn":"공격팀 선공","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"카일/브브: 추적자 (약치모모) / 약공·치확 내실 강화","equip2":"파이: 수문장 or 선봉자 / 속공 수치 극대화","equip3":"-","tip":"선속공 필수. 상대 속공 확인 후 선제 공격권 확보가 생명임 (미러전)."},{"attacker":["겔리두스","손오공","엘리시아"],"skill":"손오공(위) / 겔리두스(위) / 엘리시아(아래)","turn":"방어팀 선공","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"상세 세팅 정보 업데이트가 필요함","equip2":"상세 세팅 정보 업데이트가 필요함","equip3":"상세 세팅 정보 업데이트가 필요함","tip":"펫 카람 사용 시 필승임."},{"attacker":["로지","아라곤","팔라누스"],"skill":"팔라누스(아래) / 아라(위) / 로지(아래)","turn":"방어팀 선공","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"상세 세팅 정보 업데이트가 필요함","equip2":"상세 세팅 정보 업데이트가 필요함","equip3":"상세 세팅 정보 업데이트가 필요함","tip":"펫 멜페로 사용 시 필승임."}]},
-        {"defense":["초선","키리엘","프레이야"],"counters":[{"attacker":["녹스","로지","크리스"],"skill":"크(아)→로(아)→크(위)","turn":"상세 세팅 정보 업데이트가 필요함","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"로지: 주술사 / 방방+효효(반반) / 효적90+효저100","equip2":"녹스: 조율자 / 효효+반반 / 효적90+효저100 / 6성 즉사","equip3":"크리스: 주술사 / 효효+효효 / 효적100+효저100 / 6성 즉사","tip":"핵심 운영: 효과적중(효적)과 효과저항(효저) 세팅이 승패를 좌우함."}]},
-        {"defense":["겔리두스","에이스","트루드"],"counters":[{"attacker":["라니아","라드그리드","스파이크"],"skill":"라드그리드(아래) → 스파이크(위) → 스파이크(아래)","turn":"후공","formation":"공격진형 (라드 앞)","equip1":"라드그리드: 성기사(방방받받) / 막기 최대","equip2":"스파이크:성기사(생생받받) / 막기 최대","equip3":"라니아: 성기사(방방받받) / 막기최대","tip":"즉사반지 두개 착용, 대랄 하나 착용\n라니아가 빙결 면역, 구조적으로 에이스 피깎이 지속되어 피 차이로 승리 가능"},{"attacker":["녹스","로지","크리스"],"skill":"크(아)→로(아)→크(위)","turn":"상세 세팅 정보 업데이트가 필요함","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"로지: 주술사 / 방방+효효(반반) / 효적90+효저100 / 5성 불사","equip2":"녹스: 조율자 / 효효+반반 / 효적90+효저100 / 6성 즉사","equip3":"크리스: 주술사 / 효효+효효 / 효적100+효저100 / 6성 즉사","tip":"상태이상 적중/저항 싸움이 핵심임."},{"attacker":["브브","여포","풍연"],"skill":"여포(아래) → 브브(아래) or 풍연(아래) → 여포(위)","turn":"선공","formation":"보호진형","equip1":"여포: 추적자+내실 / 6성 불사(권능) / 속도 1위","equip2":"풍연: 수문장+내실 / 5성 불사","equip3":"브브: 내실+추적자 / 5성 불사","tip":"풍연 빙결 면역으로 여포, 브브를 사용해서 극딜하는 덱."}]},
-        {"defense":["여포"],"counters":[{"attacker":["겔리두스","엘리시아","트루드"],"skill":"엘리시아(위) → 겔리두스(위) → 트루드(위)","turn":"상세 세팅 정보 업데이트가 필요함","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"트루드: 약공(공공)/반반 + 추적자","equip2":"겔리두스: 방방/반반 + 조율자","equip3":"엘리시아: 효방(방방)/반반 + 조율자","tip":"엘리시아 선스킬로 상태이상 면역 확보 후 딜링함."}]},
-        {"defense":["카일"],"counters":[{"attacker":["바네사","쥬리","프레이야"],"skill":"바네사(아래) → 쥬리(위) → 프레이야(위)","turn":"공격팀 선공","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"프레이야(위): 추적자 / 속공+내실","equip2":"바네사(아래): 주술사 / 속공(내실)","equip3":"쥬리(위): 주술사 / 속공 MAX","tip":"속도 240~250 이상 필수임 (선타 필승)."}]},
-        {"defense":["겔리두스","손오공","에이스"],"counters":[{"attacker":["브브","여포","풍연"],"skill":"여포(아래) → 풍연(아래) → 여포(위)","turn":"공격팀 선공","formation":"보호진형 (여포 후열)","equip1":"여포: 추적자or암살자 / 약약or치약 / 모모","equip2":"브브: 추적지 / 약약or치약 / 모모","equip3":"풍연: 추적자 / 약약or치약 / 모모 (불사 5성 반지 이상)","tip":"\"풍연\" 불사 5성 반지 이상 ,펫은 \"유, 이린\" 추천"},{"attacker":["브브","아멜리아","카일"],"skill":"브(위)/아(위)/카(아)","turn":"공격 선공","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"카일: 추적자 / 극내실","equip2":"브브: 추적자 / 극내실","equip3":"아멜리아: 조율자 (속공 3순위)","tip":"방어팀 손오공 후열 1명일 때 기용함."},{"attacker":["에이스","키리엘","프레이야"],"skill":"프레이야(위) / 프레이야(아래) / 키리엘(아래)","turn":"공격팀 선공","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"키리엘: 추적자 / 속77 공격력","equip2":"에이스: 수문장 / 속공 짬통","equip3":"프레이야: 극내실 세팅","tip":"-"},{"attacker":["루디","카론","플라튼"],"skill":"플라튼(위) / 루디(위) / 카론(아래)","turn":"상세 세팅 정보 업데이트가 필요함","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"상세 세팅 정보 업데이트가 필요함","equip2":"상세 세팅 정보 업데이트가 필요함","equip3":"상세 세팅 정보 업데이트가 필요함","tip":"손오공 에이스 겔리두스 카운터 덱은 맞으나, 승률 50% 수준임 (비추천)."}]},
-        {"defense":["바네사","손오공","프레이야"],"counters":[{"attacker":["실베스타","아멜리아","플라튼"],"skill":"플라튼(위) / 실베(위) / 실베(아래)","turn":"방어팀 선공","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"상세 세팅 정보 업데이트가 필요함","equip2":"상세 세팅 정보 업데이트가 필요함","equip3":"상세 세팅 정보 업데이트가 필요함","tip":"-"},{"attacker":["브브","카구라","카일"],"skill":"브브(위) / 카구라(위) / 브브(아래)","turn":"공격팀 선공","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"상세 세팅 정보 업데이트가 필요함","equip2":"상세 세팅 정보 업데이트가 필요함","equip3":"상세 세팅 정보 업데이트가 필요함","tip":"상대 펫 유 또는 멜페로 일 때 사용 가능함."}]},
-        {"defense":["손오공","에이스","프레이야"],"counters":[{"attacker":["겔리두스","손오공","에이스"],"skill":"손오공(위) / 겔리두스(위) / 에이스(아래)","turn":"방어팀 선공","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"상세 세팅 정보 업데이트가 필요함","equip2":"상세 세팅 정보 업데이트가 필요함","equip3":"상세 세팅 정보 업데이트가 필요함","tip":"우리팀 펫이 유 또는 멜페로 일 때 사용함."},{"attacker":["초선","키리엘","프레이야"],"skill":"상세 세팅 정보 업데이트가 필요함","turn":"공격팀 선공","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"상세 세팅 정보 업데이트가 필요함","equip2":"상세 세팅 정보 업데이트가 필요함","equip3":"상세 세팅 정보 업데이트가 필요함","tip":"핵심: 선속공 세팅 필수임."}]},
-        {"defense":["겔리두스","손오공","트루드"],"counters":[{"attacker":["겔리두스","손오공","트루드"],"skill":"손오공(위) / 겔리두스(위) / 트루드(위)","turn":"방어팀 선공","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"상세 세팅 정보 업데이트가 필요함","equip2":"상세 세팅 정보 업데이트가 필요함","equip3":"상세 세팅 정보 업데이트가 필요함","tip":"우리팀 펫이 카람 일 때 사용함."}]},
-        {"defense":["바네사","연희","키리엘"],"counters":[{"attacker":["겔리두스","손오공","에이스"],"skill":"손오공(위) / 겔리두스(위) / 에이스(아래)","turn":"방어팀 선공","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"상세 세팅 정보 업데이트가 필요함","equip2":"상세 세팅 정보 업데이트가 필요함","equip3":"상세 세팅 정보 업데이트가 필요함","tip":"펫 유 사용 시 필승임."}]},
-        {"defense":["스파이크","아멜리아","트루드"],"counters":[{"attacker":["린","멜키르","밀리아"],"skill":"린 (위) → 멜키르 (위) → 밀리아 (위) 순서로 사용\n\n속공 순서: 멜키르 - 린 - 밀리아\n\n총 속공: 150","turn":"후턴 / 펫: 카람\n\n힐밴 대상: 밀리아, 멜키르","formation":"기본 진형 (전열: 밀리아, 멜키르 / 후열: 린) / 기본 진형\n\n전열: 밀리아, 멜키르\n\n후열: 린","equip1":"밀리아: 주술사 / 효효받받 / 효적 100↑, 막기 50↑ (반지: 즉사반지)","equip2":"멜키르: 복수자 / 효공효효 / 효적 100↑, 부옵: 공 (반지: 5성 불사반지 이상)","equip3":"린: 선봉장 / 효효받받 / 효적 60↑, 부옵: 약공 (반지: 즉사반지)","tip":"트스아 덱을 파훼하기 위한 세팅으로, 각 캐릭터의 효과 적중(효적) 수치를 기준치 이상으로 맞추는 것이 중요합니다.\n상황에 따라 즉사 반지와 불사 반지를 적절히 활용하여 변수를 차단하시기 바랍니다.\n\n*속공 순서: 멜키르 - 린 - 밀리아 (속공 180 이상 권장)\n*펫: 카람\n*힐밴 대상: 밀리아, 멜키르 / 트스아 덱을 파훼하기 위한 세팅으로, 각 캐릭터의 효과 적중(효적) 수치를 기준치 이상으로 맞추는 것이 중요합니다.\n\n상황에 따라 즉사 반지와 불사 반지를 적절히 활용하여 변수를 차단하시기 바랍니다."},{"attacker":["스파이크","첸슬러","카론"],"skill":"상세 세팅 정보 업데이트가 필요함","turn":"방어팀 선공","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"전원: 조율자 세트 + 효과 저항 100% (필수)","equip2":"스파이크: 방생받받 or 생생받받","equip3":"첸슬러/카론: 방생받받 or 방방받받","tip":"3번 덱 파훼법임."},{"attacker":["리","스파이크","카론"],"skill":"리(아래) / 스파이크(위) / 카론(아래)","turn":"방어팀 선공","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"상세 세팅 정보 업데이트가 필요함","equip2":"상세 세팅 정보 업데이트가 필요함","equip3":"상세 세팅 정보 업데이트가 필요함","tip":"-"},{"attacker":["바네사","키리엘","프레이야"],"skill":"프레이야(위) / 바네사(아래) / 프레이야(아래)","turn":"공격팀 선공","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"상세 세팅 정보 업데이트가 필요함","equip2":"상세 세팅 정보 업데이트가 필요함","equip3":"상세 세팅 정보 업데이트가 필요함","tip":"-"},{"attacker":["아멜리아","카일","파이"],"skill":"카일(아래) / 카일(위) / 아멜리아(위)","turn":"공격팀 선공","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"카일: 속공 팀내 1,2위","equip2":"아멜리아: 수문장","equip3":"-","tip":"-"}]},
-        {"defense":["아라곤","팔라누스","플라튼"],"counters":[{"attacker":["루디","팔라누스","플라튼"],"skill":"루디(위) / 팔라누스(아래) / 플라튼(위)","turn":"방어팀 선공","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"상세 세팅 정보 업데이트가 필요함","equip2":"상세 세팅 정보 업데이트가 필요함","equip3":"상세 세팅 정보 업데이트가 필요함","tip":"-"},{"attacker":["로지","아라곤","팔라누스"],"skill":"팔라누스(아래) / 아라(위) / 로지(아래)","turn":"방어팀 선공","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"상세 세팅 정보 업데이트가 필요함","equip2":"상세 세팅 정보 업데이트가 필요함","equip3":"상세 세팅 정보 업데이트가 필요함","tip":"-"},{"attacker":["콜트","트루드","플라튼"],"skill":"플라튼(위) / 트루드(위) / 콜트(아래)","turn":"방어팀 선공","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"상세 세팅 정보 업데이트가 필요함","equip2":"상세 세팅 정보 업데이트가 필요함","equip3":"상세 세팅 정보 업데이트가 필요함","tip":"-"},{"attacker":["루디","앨리스","플라튼"],"skill":"루디(위) / 팔라누스(아래) / 앨리스(위)","turn":"방어팀 선공","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"상세 세팅 정보 업데이트가 필요함","equip2":"상세 세팅 정보 업데이트가 필요함","equip3":"상세 세팅 정보 업데이트가 필요함","tip":"-"}]},
-        {"defense":["겔리두스","엘리시아","트루드"],"counters":[{"attacker":["루디","앨리스","플라튼"],"skill":"루디(위) → 앨리스(아래) → 플라튼(위)","turn":"버팀","formation":"진형: 밸런스/기본","equip1":"플라튼: 조율자 / 방방받받 / 효저100","equip2":"루디: 조율자 / 방방받받 / 효저100","equip3":"앨리스: 조율자 / 생생받받 / 효저100","tip":"펫: 스파이크/방어(효저100).<br>1. 부옵 막기 최대로 세팅할 것 (반지 무관).<br>2. 에이스 상대 시 연습을 권장함. 아멜리아 덱은 금지임."}]},
-        {"defense":["겔리두스","스파이크","트루드"],"counters":[{"attacker":["루디","앨리스","플라튼"],"skill":"루디(위) → 앨리스(아래) → 플라튼(위)","turn":"버팀","formation":"진형: 밸런스/기본","equip1":"플라튼: 조율자 / 방방받받 / 효저100","equip2":"루디: 조율자 / 방방받받 / 효저100","equip3":"앨리스: 조율자 / 생생받받 / 효저100","tip":"펫: 스파이크/방어(효저100).<br>1. 부옵 막기 최대로 세팅할 것 (반지 무관).<br>2. 에이스 상대 시 연습을 권장함. 아멜리아 덱은 금지임."}]},
-        {"defense":["브브","여포","카일"],"counters":[{"attacker":["루디","손오공","앨리스"],"skill":"루디(위)  → 손오공(위)  → 손오공 (아래)","turn":"후턴","formation":"보호진형 (손오공 후열)","equip1":"루디: 조율자 /방방받받 / 부옵: 막기,효저 (반지: 부활)","equip2":"손오공: 수문장 / 약약받받 / 부옵: 막기,약공 (반지: 부활)","equip3":"앨리스: 조율지 / 생생받받 / 부옵: 막기, 효저 (반지: 부활)","tip":"\"펫은 루디, 카람\" / 3인 공격덱에 파괴력이 매우 높으나 내실, 반지 위주로 신경쓰면 카운터로 사용 가능성 높음"},{"attacker":["겔리두스","엘리시아","트루드"],"skill":"엘리시아 (위) → 겔리두스 (위) → 트루드 (위) 순서로 사용\n\n아멜리아/여포 CC 방지를 위한 엘리시아 선스킬 기준","turn":"트루드: 추적자 운용\n\n겔리두스 & 엘리시아: 조율자 운용","formation":"여포 덱 상대 안정적 대응 지향 (단, 강한 여포 덱은 주의)","equip1":"트루드: 약공받받 또는 공공받받","equip2":"겔리두스: 방방받받 (중랄 세팅 권장)","equip3":"엘리시아: 효방받받 또는 방방받받 (중랄 세팅 권장)","tip":"세팅의 핵심은 안정성과 상태이상 대응입니다. 겔리두스와 엘리시아는 '중랄' 세팅을 통해 안정감을 높이시기 바랍니다."},{"attacker":["로지","아라곤","팔라누스"],"skill":"아라곤 → 팔라누스(아래) → 팔라누스(위)","turn":"-","formation":"보호진형 (팔라누스 후열)","equip1":"팔라누스: 암살자 / 치확치확(치피)받받 / 막기 최대 (준비물: 대랄)","equip2":"아라곤: 수문장 or 조율자 / 방방받받 / 막기 최대 (여포 아래스킬 의식 / 준비물: 중랄)","equip3":"로지: 수문장 or 조율자 / 방방(생방)받받 / 막기 최대 (여포 아래스킬 의식 / 준비물: 중랄)","tip":"펫: 루 또는 카람.<br>1. 철거덱 파훼용으로 구성된 덱임.<br>2. 반드시 세팅 후 테스트가 필요함.<br>3. 팔라누스 생존력이 낮으면 치피를 낮추고 막기를 올릴 것."}]},
-        {"defense":["연희","키리엘","플라튼"],"counters":[]},{"defense":["로지","아라곤","팔라누스"],"counters":[]},{"defense":["브브","카구라","카일"],"counters":[]},{"defense":["멜키르","밀리아","키리엘"],"counters":[]},{"defense":["아멜리아","엘리시아","트루드"],"counters":[]},{"defense":["브브","카일","파이"],"counters":[]},{"defense":["손오공","엘리시아","프레이야"],"counters":[]},
-        {"defense":["바네사","키리엘","프레이야"],"counters":[{"attacker":["루디","손오공","앨리스"],"skill":"루디(위)  → 손오공(위)  → 손오공 (아래)","turn":"후턴","formation":"보호진형 (손오공 후열)","equip1":"루디: 조율자 /방방받받 / 부옵: 막기,효저 (반지: 부활)","equip2":"손오공: 수문장 / 약약받받 / 부옵: 막기,약공 (반지: 부활)","equip3":"앨리스: 조율지 / 생생받받 / 부옵: 막기, 효저 (반지: 부활)","tip":"\"펫은 루디, 카람\" / 마덱 상대로 매우 높은 승률이며 프레이야 마덱과 상대 시 프레이야 스킬 버틸 시 거의 승리 확정"}]},
-        {"defense":["린","멜키르","밀리아"],"counters":[]},
-        {"defense":["브브","아멜리아","여포"],"counters":[{"attacker":["라드그리드","손오공","엘리시아"],"skill":"엘리시아 아래 → 손오공 위 → 라드그리드 아래","turn":"후공","formation":"공격진형","equip1":"손오공: 추적자[약약받받] / 부옵: 막기 / 반지: 부활","equip2":"라드그리드: 성기사[방방받받] / 부옵: 막기 / 반지: 부활","equip3":"엘시시아: 조율자[효효받받] / 부옵: 막기 / 반지: 부활","tip":"펫: 카람or루"},{"attacker":["브브","여포","카일"],"skill":"카일(위) → 브브(아래) → 카일(위)","turn":"공격팀 선공 (후턴 가능)","formation":"밸런스 진형, 보호 진형","equip1":"브브: 조율자 딜세팅 [ 후턴 ] , 조율자 딜세팅 [ 선턴 ]","equip2":"여포: 조율자 딜세팅 [ 후턴 ] , 조율자 딜세팅 [ 선턴 ]","equip3":"카일: 조율자 딜세팅 [ 후턴 ] , 추적자 딜세팅 [ 선턴 ]","tip":"속공에 자신 없다면 3명 조율자 딜 세팅\n속공에 자신 있다면 카일 제외 조율자 딜 세팅\n      [카일, 여포는 딜이 충분 , 브브한테 딜템 몰아주기 ]"},{"attacker":["겔리두스","엘리시아","트루드"],"skill":"엘리시아 (위) → 겔리두스 (위) → 트루드 (위) 순서로 사용\n\n아멜리아/여포 CC 방지를 위한 엘리시아 선스킬 기준","turn":"트루드: 추적자 운용\n\n겔리두스 & 엘리시아: 조율자 운용","formation":"여포 덱 상대 안정적 대응 지향 (단, 강한 여포 덱은 주의)","equip1":"트루드: 약공받받 또는 공공받받","equip2":"겔리두스: 방방받받 (중랄 세팅 권장)","equip3":"엘리시아: 효방받받 또는 방방받받 (중랄 세팅 권장)","tip":"세팅의 핵심은 안정성과 상태이상 대응입니다. 겔리두스와 엘리시아는 '중랄' 세팅을 통해 안정감을 높이시기 바랍니다."}]},
-        {"defense":["스파이크","에이스","트루드"],"counters":[]},{"defense":["여포","카구라","카일"],"counters":[]},{"defense":["여포","카구라","콜트"],"counters":[]},
-        {"defense":["밀리아","바네사","연희"],"counters":[{"attacker":["아라곤","팔라누스","플라튼"],"skill":"아라곤 → 팔라누스(아래) → 팔라누스(위)","turn":"-","formation":"밸런스진형 (팔라누스 후열)","equip1":"팔라누스: 암살자 / 치치받받 / 부옵: 막기 (반지: 불사or부활+기합)","equip2":"아라곤: 성기사 / 방방받받 / 부옵: 막기 (반지: 부활)","equip3":"플라튼: 수문장 / 방방받받 / 막기 위주 (반지: 부활)","tip":"CC가 없을 경우 방어력을 극대화하여 굳건하게 버틸 것."}]},
-        {"defense":["브브","아멜리아","카일"],"counters":[]},{"defense":["여포","콜트","파이"],"counters":[]},{"defense":["겔리두스","손오공","엘리시아"],"counters":[]},{"defense":["여포","카구라","파이"],"counters":[]},{"defense":["로지","아킬라","팔라누스"],"counters":[]},
-        {"defense":["브브","여포","카구라"],"counters":[{"attacker":["루디","손오공","앨리스"],"skill":"루디(위)  → 손오공(위)  → 손오공 (아래)","turn":"후턴","formation":"보호진형 (손오공 후열)","equip1":"루디: 조율자 /방방받받 / 부옵: 막기,효저 (반지: 부활)","equip2":"손오공: 수문장 / 약약받받 / 부옵: 막기,약공 (반지: 부활)","equip3":"앨리스: 조율지 / 생생받받 / 부옵: 막기, 효저 (반지: 부활)","tip":"\"펫은 루디, 카람\" / 여포,카일, 브브 상대보단 비교적 딜은 약하나 CC 변수 및 브브 2스킬 주의"}]},
-        {"defense":["겔리두스","손오공","프레이야"],"counters":[]},{"defense":["콜트","파이","플라튼"],"counters":[]},{"defense":["엘리시아","여포","프레이야"],"counters":[]},{"defense":["아멜리아","여포","카일"],"counters":[]},{"defense":["실베스타","콜트","플라튼"],"counters":[]},{"defense":["스파이크","엘리시아","트루드"],"counters":[]},{"defense":["스파이크","트루드","플라튼"],"counters":[]},{"defense":["아멜리아","트루드","플라튼"],"counters":[]},{"defense":["손오공","스파이크","엘리시아"],"counters":[]},{"defense":["브브","여포","콜트"],"counters":[]},
-        {"defense":["사라","아라곤","팔라누스"],"counters":[{"attacker":["브브","여포","초선"],"skill":"초선(위) → 여포(아래) → 브브(위)","turn":"후턴","formation":"밸런스진형 (앞열: 초선 / 후열: 여포, 브브)","equip1":"초선(수문장): 약약받받 / 막기 확률 최대치 세팅 (수면 안 깨지게 딜 낮추고 생존 우선)","equip2":"여포(추적자): 치치공공 / 치명타 및 약점 공격 최대치 세팅 (장신구: 권능/불사/부활 필수)","equip3":"브브(추적자): 치약공공 / 치명타 및 약점 공격 최대치 세팅 (장신구: 권능/불사/부활 필수)","tip":"초선을 팀 내 속공 1순위로 반드시 세팅할 것. 여포와 브브는 딜 내실을 최대로 끌어올려야 함. 초선은 무리하게 약점 공격을 챙길 필요 없이, 수면 상태가 깨지지 않도록 딜을 조정하고 생존 위주로 세팅할 것. (추천 펫: 이린 또는 유)"}]},
-        {"defense":["바네사","실베스타","초선"],"counters":[]},{"defense":["엘리시아","트루드","팔라누스"],"counters":[]},{"defense":["겔리두스","아멜리아","트루드"],"counters":[]},{"defense":["바네사","연희","프레이야"],"counters":[]},{"defense":["연희","키리엘","프레이야"],"counters":[]},{"defense":["아멜리아","카일","파이"],"counters":[]},{"defense":["연희","초선","키리엘"],"counters":[]},{"defense":["겔리두스","손오공","크리스"],"counters":[]},{"defense":["브브","손오공","아멜리아"],"counters":[]},{"defense":["스파이크","아멜리아","프레이야"],"counters":[]},{"defense":["손오공","아멜리아","프레이야"],"counters":[]},{"defense":["발리스타","아멜리아","여포"],"counters":[]},{"defense":["여포","카일","파이"],"counters":[]},{"defense":["라드그리드","스파이크","트루드"],"counters":[]},{"defense":["겔리두스","손오공","앨리스"],"counters":[]},{"defense":["바네사","연희","초선"],"counters":[]},{"defense":["엘리시아","초선","팔라누스"],"counters":[]},{"defense":["라드그리드","손오공","엘리시아"],"counters":[]},{"defense":["브브","여포","파이"],"counters":[]},{"defense":["발리스타","아멜리아","카일"],"counters":[]},{"defense":["연희","쥬리","트루드"],"counters":[]},{"defense":["라드그리드","스파이크","엘리시아"],"counters":[]},{"defense":["라드그리드","트루드","팔라누스"],"counters":[]},{"defense":["라드그리드","엘리시아","트루드"],"counters":[]},{"defense":["스파이크","트루드","프레이야"],"counters":[]},{"defense":["카일","콜트","파이"],"counters":[]},{"defense":["겔리두스","손오공","스파이크"],"counters":[]},{"defense":["브브","여포","태오"],"counters":[]},{"defense":["브브","에이스","프레이야"],"counters":[]},{"defense":["로지","키리엘","프레이야"],"counters":[]},{"defense":["라드그리드","손오공","에이스"],"counters":[]},{"defense":["손오공","초선","프레이야"],"counters":[]},{"defense":["멜키르","밀리아","프레이야"],"counters":[]},{"defense":["발리스타","카일","파이"],"counters":[]},{"defense":["발리스타","카구라","카일"],"counters":[]},{"defense":["멜키르","밀리아","바네사"],"counters":[]},{"defense":["라드그리드","엘리시아","팔라누스"],"counters":[]},{"defense":["라드그리드","팔라누스","플라튼"],"counters":[]},{"defense":["연희","초선","프레이야"],"counters":[]},{"defense":["라드그리드","손오공","스파이크"],"counters":[]},{"defense":["레긴레이프","밀리아","프레이야"],"counters":[]},{"defense":["손오공","에이스","엘리시아"],"counters":[]},{"defense":["레긴레이프","키리엘","프레이야"],"counters":[]},{"defense":["손오공","아멜리아","트루드"],"counters":[]},{"defense":["녹스","로지","팔라누스"],"counters":[]},{"defense":["레긴레이프","초선","프레이야"],"counters":[]},{"defense":["로지","룩","팔라누스"],"counters":[]},{"defense":["아라곤","플라튼","플라튼"],"counters":[]}
-      ], []);
-
-      const HERO_GROUPS = useMemo(() => {
-        if (customHeroes.length === 0) return PREDEFINED_HERO_GROUPS;
-        return [...PREDEFINED_HERO_GROUPS, { group: "기타 (자동추가)", heroes: customHeroes }];
-      }, [customHeroes, PREDEFINED_HERO_GROUPS]);
 
       useEffect(() => {
         const handleResize = () => setIsMobileView(window.innerWidth < 1024);
@@ -459,13 +533,9 @@
 
       const handleLogin = () => {
         if (loginId === '관리자' && loginPw === '9457') {
-          setIsAdminMode(true);
-          setIsLoggedIn(true);
-          setLoginError(false);
+          setIsAdminMode(true); setIsLoggedIn(true); setLoginError(false);
         } else if (loginId === '리더' && loginPw === '9277') {
-          setIsAdminMode(false);
-          setIsLoggedIn(true);
-          setLoginError(false);
+          setIsAdminMode(false); setIsLoggedIn(true); setLoginError(false);
         } else {
           setLoginError(true);
         }
@@ -477,13 +547,6 @@
         if (main === 'records') resetForm();
       };
 
-      const currentRecords = useMemo(() => {
-        return records.filter(r => {
-          const type = r.recordType || 'attack';
-          return type === subTab;
-        });
-      }, [records, subTab]);
-
       const rawMatches = useMemo(() => {
         const matches = [];
         records.filter(r => (r.recordType || 'attack') === 'attack').forEach(r => {
@@ -491,13 +554,7 @@
             const myTeam = getSafeArray(m.myTeam).map(h => h.trim()).filter(Boolean).sort();
             const enemyTeam = getSafeArray(m.enemyTeam).map(h => h.trim()).filter(Boolean).sort();
             if (myTeam.length > 0 && enemyTeam.length > 0) {
-              matches.push({
-                a: myTeam.join(' '),
-                d: enemyTeam.join(' '),
-                w: m.result === '승리' ? 1 : 0,
-                l: m.result === '패배' ? 1 : 0,
-                date: r.date
-              });
+              matches.push({ a: myTeam.join(' '), d: enemyTeam.join(' '), w: m.result === '승리' ? 1 : 0, l: m.result === '패배' ? 1 : 0, date: r.date });
             }
           });
         });
@@ -508,7 +565,6 @@
         if (mainTab !== 'strategy' || subTab !== 'basic') return [];
         const recentMatches = rawMatches.slice(-1000);
         const defStats = {};
-        
         recentMatches.forEach(m => {
           if (!defStats[m.d]) defStats[m.d] = { count: 0, atk: {}, normDef: m.d };
           defStats[m.d].count++;
@@ -518,36 +574,31 @@
         });
 
         let sortedDefs = Object.values(defStats).sort((a, b) => b.count - a.count).slice(0, 21);
-        
         return sortedDefs.map(def => {
           const topAtks = Object.values(def.atk).map(a => {
             const total = a.w + a.l;
             return { normAtk: a.normAtk, w: a.w, l: a.l, total, rate: total > 0 ? (a.w/total)*100 : 0 };
           }).filter(a => a.total >= 5) 
-          .sort((a, b) => b.total - a.total || b.w - a.w)
-          .slice(0, 3);
-          
+          .sort((a, b) => b.total - a.total || b.w - a.w).slice(0, 3);
           return { ...def, counters: topAtks };
         });
       }, [rawMatches, mainTab, subTab]);
 
       const dashboardStats = useMemo(() => {
-        if (mainTab !== 'strategy' || subTab !== 'dashboard') return null;
+        if (mainTab !== 'strategy' || subTab !== 'dashboard') return { totalWin: 0, totalLose: 0, topDefs: [] };
         let totalWin = 0, totalLose = 0;
         const deckMap = new Map();
-        
         rawMatches.forEach(m => {
           totalWin += m.w; totalLose += m.l;
           if (!deckMap.has(m.d)) deckMap.set(m.d, 0);
           deckMap.set(m.d, deckMap.get(m.d) + 1);
         });
-
         const topDefs = Array.from(deckMap.entries()).sort((a, b) => b[1] - a[1]).slice(0, 5);
         return { totalWin, totalLose, topDefs };
       }, [rawMatches, mainTab, subTab]);
 
       useEffect(() => {
-        if (mainTab === 'strategy' && subTab === 'dashboard' && dashboardStats) {
+        if (mainTab === 'strategy' && subTab === 'dashboard' && dashboardStats.topDefs.length > 0) {
           if (winRateChartRef.current) {
             if (chartInstance1.current) chartInstance1.current.destroy();
             chartInstance1.current = new Chart(winRateChartRef.current, {
@@ -574,39 +625,11 @@
         };
       }, [mainTab, subTab, dashboardStats]);
 
-      const heatmapData = useMemo(() => {
-        if (mainTab !== 'strategy' || subTab !== 'heatmap') return null;
-        let defCounts = {}; let atkCounts = {};
-        rawMatches.forEach(m => {
-          defCounts[m.d] = (defCounts[m.d]||0) + 1;
-          atkCounts[m.a] = (atkCounts[m.a]||0) + 1;
-        });
-
-        let topDefKeys = Object.entries(defCounts).sort((a,b)=>b[1]-a[1]).slice(0, 15).map(x=>x[0]);
-        let topAtkKeys = Object.entries(atkCounts).sort((a,b)=>b[1]-a[1]).slice(0, 15).map(x=>x[0]);
-
-        const matrix = topAtkKeys.map(atk => {
-          return {
-            atk,
-            defs: topDefKeys.map(def => {
-              let w = 0, l = 0;
-              rawMatches.forEach(m => {
-                if(m.d === def && m.a === atk) { w += m.w; l += m.l; }
-              });
-              return { def, w, l, t: w+l };
-            })
-          };
-        });
-
-        return { cols: topDefKeys, rows: matrix };
-      }, [rawMatches, mainTab, subTab]);
-
       const counterAnalysisData = useMemo(() => {
         const activeEnemies = counterEnemyFilter.filter(h => h.trim() !== '');
         if (activeEnemies.length === 0) return null;
 
         const resultsMap = new Map();
-        let totalMatchedMatches = 0;
 
         STATIC_GUIDE_DB.forEach(guide => {
           const isMatch = activeEnemies.every(filterHero => guide.defense.includes(filterHero));
@@ -625,7 +648,7 @@
           }
         });
 
-        customGuides.filter(g => g.status === 'approved').forEach(guide => {
+        customGuides.filter(g => g.status === 'approved' && (g.guideType === 'counter' || !g.guideType)).forEach(guide => {
           const isMatch = activeEnemies.every(filterHero => getSafeArray(guide.defenseTeam).includes(filterHero));
           if (isMatch) {
             const defKey = getSafeArray(guide.defenseTeam).sort().join(',');
@@ -648,7 +671,6 @@
             if (enemyTeam.length > 0 && myTeam.length > 0) {
               const isMatch = activeEnemies.every(filterHero => enemyTeam.includes(filterHero));
               if (isMatch) {
-                totalMatchedMatches++;
                 const defKey = [...enemyTeam].sort().join(',');
                 const atkKey = [...myTeam].sort().join(',');
                 const key = `${defKey}|${atkKey}`;
@@ -678,8 +700,8 @@
             return (b.hasGuide === a.hasGuide) ? 0 : b.hasGuide ? 1 : -1;
           });
 
-        return { results, totalMatchedMatches };
-      }, [records, customGuides, counterEnemyFilter, STATIC_GUIDE_DB]);
+        return { results };
+      }, [records, customGuides, counterEnemyFilter]);
 
       const recommendDefenseData = useMemo(() => {
         const defCounts = {};
@@ -696,36 +718,42 @@
           }
         });
 
-        return Object.values(defCounts)
+        const defResults = Object.values(defCounts)
           .map(d => ({ ...d, winRate: d.count > 0 ? ((d.wins / d.count) * 100).toFixed(1) : 0 }))
           .filter(d => d.count >= 3)
           .sort((a, b) => {
             if (b.winRate !== a.winRate) return parseFloat(b.winRate) - parseFloat(a.winRate);
             return b.count - a.count;
           }).slice(0, 10);
-      }, [records]);
+          
+        return defResults.map(def => {
+           const matchGuides = customGuides.filter(g => g.status === 'approved' && g.guideType === 'defense' && g.defenseTeam.slice().sort().join(',') === def.heroes.join(','));
+           return { ...def, guides: matchGuides };
+        });
+      }, [records, customGuides]);
 
       const handleGuideSubmit = async () => {
         if (!user) return showAlert("인증 오류", "인증 정보가 없습니다.");
-        if (!guideModal.skill || !guideModal.turn || !guideModal.formation) {
+        if (guideModal.type === 'counter' && (!guideModal.skill || !guideModal.turn || !guideModal.formation)) {
           return showAlert("입력 오류", "스킬운영, 턴, 진형은 필수 입력 항목입니다.");
         }
         try {
           await addDoc(collection(fb.db, 'artifacts', APP_ID, 'public', 'data', GUIDE_COLLECTION), {
+            guideType: guideModal.type,
             defenseTeam: guideModal.defTeam,
-            attackerTeam: guideModal.atkTeam,
-            skill: guideModal.skill,
-            turn: guideModal.turn,
-            formation: guideModal.formation,
-            equip1: guideModal.equip1,
-            equip2: guideModal.equip2,
-            equip3: guideModal.equip3,
-            tip: guideModal.tip,
+            attackerTeam: guideModal.atkTeam || [],
+            skill: guideModal.skill || '',
+            turn: guideModal.turn || '',
+            formation: guideModal.formation || '',
+            equip1: guideModal.equip1 || '',
+            equip2: guideModal.equip2 || '',
+            equip3: guideModal.equip3 || '',
+            tip: guideModal.tip || '',
             status: 'pending',
             createdAt: Date.now(),
             authorId: user.uid
           });
-          setGuideModal({ isOpen: false, defTeam: [], atkTeam: [], skill: '', turn: '', formation: '', equip1: '', equip2: '', equip3: '', tip: '' });
+          setGuideModal({ isOpen: false, type: 'counter', defTeam: [], atkTeam: ['', '', ''], skill: '', turn: '', formation: '', equip1: '', equip2: '', equip3: '', tip: '' });
           showAlert("제출 완료", "공략 제안이 성공적으로 전송되었습니다.\n관리자의 검토 후 반영됩니다.");
         } catch (error) {
           console.error(error);
@@ -840,6 +868,80 @@
             } else {
                 setDefenseMatches([...defenseMatches, ...newDefMatches].slice(0, 15));
             }
+        }
+      };
+      
+      const handleBulkParse = async () => {
+        if (!rawRecordInputState.trim()) return showAlert("알림", "파싱할 텍스트를 입력하세요.");
+        const lines = rawRecordInputState.split('\n');
+        const newRecords = [];
+        const allPredefined = PREDEFINED_HERO_GROUPS.flatMap(g => g.heroes);
+        let unknownCount = 0;
+        
+        lines.forEach(line => {
+          let cleanLine = line.replace(/[\[\]\<\>:\-]/g, ' ').trim();
+          let tokens = cleanLine.split(/\s+/);
+          let atkIdx = tokens.findIndex(t => t === '공격' || t === '공');
+          let defIdx = tokens.findIndex(t => t === '방어' || t === '방');
+          if(atkIdx !== -1 && defIdx !== -1) {
+            let atkTokens, defTokens;
+            if(atkIdx < defIdx) {
+              atkTokens = tokens.slice(atkIdx + 1, defIdx);
+              defTokens = tokens.slice(defIdx + 1);
+            } else {
+              defTokens = tokens.slice(defIdx + 1, atkIdx);
+              atkTokens = tokens.slice(atkIdx + 1);
+            }
+            
+            const extractResult = (arr) => {
+              if(arr.length < 2) return null;
+              let res = arr.pop(); 
+              let isWin = false, isLose = false;
+              if(res.includes('승') && !res.includes('패') && !res.includes('무')) isWin = true;
+              else if(res.includes('패')) isLose = true;
+              if(!isWin && !isLose) return null;
+              
+              const deck = arr.map(h => {
+                 let clean = h.trim();
+                 if (clean && !allPredefined.includes(clean)) unknownCount++;
+                 return clean;
+              });
+              
+              return { deck, result: isWin ? '승리' : '패배' };
+            };
+            
+            let atkData = extractResult(atkTokens);
+            let defData = extractResult(defTokens);
+            
+            if(atkData && defData) {
+              newRecords.push({
+                type: '공격',
+                myTeam: atkData.deck.join(', '),
+                enemyTeam: defData.deck.join(', '),
+                result: atkData.result
+              });
+            }
+          }
+        });
+        
+        if (newRecords.length > 0) {
+           try {
+              await addDoc(collection(fb.db, 'artifacts', APP_ID, 'public', 'data', COLLECTION_NAME), {
+                nickname: '관리자(일괄추가)',
+                date: new Date().toISOString().split('T')[0],
+                opponent: '일괄입력',
+                recordType: 'attack',
+                matches: newRecords,
+                createdAt: Date.now(),
+                authorId: user?.uid || 'admin'
+              });
+              showAlert("성공", `${newRecords.length}개의 전적이 등록되었습니다.\n(미등록 영웅 포함: ${unknownCount}건)`);
+              setRawRecordInputState('');
+           } catch(e) {
+              showAlert("오류", "데이터베이스 저장 중 오류가 발생했습니다.");
+           }
+        } else {
+           showAlert("알림", "인식된 전적이 없습니다. 양식을 확인하세요.");
         }
       };
 
@@ -962,7 +1064,7 @@
         records.filter(r => (r.recordType || 'attack') === 'attack').forEach(r => {
           r.matches?.forEach((m, i) => {
             const my = getSafeArray(m.myTeam); const en = getSafeArray(m.enemyTeam);
-            csv += `${r.date},${r.nickname},${r.opponent},${i+1},${(my[0]||'').trim()},${(my[1]||'').trim()},${(my[2]||'').trim()},${m.result},${(en[0]||'').trim()},${(en[1]||'').trim()},${(en[2]||'').trim()}\n`;
+            csv += `${r.date},${r.nickname},${r.opponent},${(my[0]||'').trim()},${(my[1]||'').trim()},${(my[2]||'').trim()},${i+1},${(en[0]||'').trim()},${(en[1]||'').trim()},${(en[2]||'').trim()}\n`;
           });
         });
         csv += "\n=== [길드전 방어 기록] ===\n날짜,닉네임,상대길드,내방어덱1,내방어덱2,내방어덱3,매치,적군공격1,적군공격2,적군공격3,결과(방어)\n";
@@ -1038,51 +1140,83 @@
           <CustomModal isOpen={confirmModal.isOpen} onClose={() => setConfirmModal({...confirmModal, isOpen: false})} title={confirmModal.title} content={confirmModal.content} onConfirm={confirmModal.action} confirmText={confirmModal.confirmText} />
 
           {guideModal.isOpen && (
-             <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 p-4 animate-in fade-in duration-200">
+             <div className="fixed inset-0 z-[400] flex items-center justify-center bg-black/80 p-4 animate-in fade-in duration-200">
                <div className="gold-panel p-6 md:p-8 rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto custom-scrollbar">
-                 <h3 className="text-xl font-black gold-gradient-text mb-2 flex items-center gap-2"><IconEdit/> 새로운 공략 제안하기</h3>
+                 <h3 className="text-xl font-black gold-gradient-text mb-2 flex items-center gap-2"><IconEdit/> {guideModal.type === 'defense' ? '방어 덱 운영법 제안하기' : '새로운 공략 제안하기'}</h3>
                  <p className="text-xs text-zinc-400 mb-6">작성해주신 공략은 관리자 검토 후 보관소에 공식 등록됩니다.</p>
                  
                  <div className="space-y-4">
                    <div className="flex gap-2 text-xs font-bold text-zinc-300">
-                     <span className="w-16 shrink-0 text-zinc-500">방어 덱:</span>
+                     <span className="w-16 shrink-0 text-zinc-500">대상 방어덱:</span>
                      <span>{getSafeArray(guideModal.defTeam).join(', ')}</span>
                    </div>
-                   <div className="flex gap-2 text-xs font-bold text-zinc-300">
-                     <span className="w-16 shrink-0 text-zinc-500">카운터 덱:</span>
-                     <span>{getSafeArray(guideModal.atkTeam).join(', ')}</span>
-                   </div>
+                   
+                   {guideModal.type === 'counter' && (
+                     <div className="flex gap-2 text-xs font-bold text-zinc-300 items-center">
+                       <span className="w-16 shrink-0 text-zinc-500">카운터 덱:</span>
+                       <div className="flex gap-2 flex-1 relative z-[300]">
+                         {[0,1,2].map(i => (
+                           <SearchableSelect key={i} zIndex={300} value={guideModal.atkTeam[i]} onChange={(v) => {
+                              const newAtk = [...guideModal.atkTeam]; newAtk[i] = v; setGuideModal({...guideModal, atkTeam: newAtk});
+                           }} placeholder={`영웅 ${i+1}`} groups={HERO_GROUPS} className="h-10 text-xs" />
+                         ))}
+                       </div>
+                     </div>
+                   )}
                    
                    <div className="pt-4 border-t border-zinc-800 space-y-3">
+                     {guideModal.type === 'counter' ? (
+                       <>
+                         <div>
+                           <label className="block text-xs font-bold text-zinc-400 mb-1">스킬 운영 (필수)</label>
+                           <input type="text" value={guideModal.skill} onChange={e => setGuideModal({...guideModal, skill: e.target.value})} placeholder="예: 크리스 아래 → 크리스 위" className="w-full px-3 py-2 bg-zinc-900 border border-zinc-700 rounded-lg text-sm text-zinc-100 outline-none focus:ring-1 focus:ring-yellow-600"/>
+                         </div>
+                         <div className="flex gap-3">
+                           <div className="flex-1">
+                             <label className="block text-xs font-bold text-zinc-400 mb-1">턴 (필수)</label>
+                             <input type="text" value={guideModal.turn} onChange={e => setGuideModal({...guideModal, turn: e.target.value})} placeholder="예: 선공 or 후공" className="w-full px-3 py-2 bg-zinc-900 border border-zinc-700 rounded-lg text-sm text-zinc-100 outline-none focus:ring-1 focus:ring-yellow-600"/>
+                           </div>
+                           <div className="flex-1">
+                             <label className="block text-xs font-bold text-zinc-400 mb-1">진형 (필수)</label>
+                             <input type="text" value={guideModal.formation} onChange={e => setGuideModal({...guideModal, formation: e.target.value})} placeholder="예: 공격진형" className="w-full px-3 py-2 bg-zinc-900 border border-zinc-700 rounded-lg text-sm text-zinc-100 outline-none focus:ring-1 focus:ring-yellow-600"/>
+                           </div>
+                         </div>
+                         <div>
+                           <label className="block text-xs font-bold text-zinc-400 mb-1">장비 세팅 1</label>
+                           <input type="text" value={guideModal.equip1} onChange={e => setGuideModal({...guideModal, equip1: e.target.value})} placeholder="예: 크리스: 주술사 / 반지: 즉사" className="w-full px-3 py-2 bg-zinc-900 border border-zinc-700 rounded-lg text-sm text-zinc-100 outline-none focus:ring-1 focus:ring-yellow-600"/>
+                         </div>
+                         <div>
+                           <label className="block text-xs font-bold text-zinc-400 mb-1">장비 세팅 2</label>
+                           <input type="text" value={guideModal.equip2} onChange={e => setGuideModal({...guideModal, equip2: e.target.value})} className="w-full px-3 py-2 bg-zinc-900 border border-zinc-700 rounded-lg text-sm text-zinc-100 outline-none focus:ring-1 focus:ring-yellow-600"/>
+                         </div>
+                         <div>
+                           <label className="block text-xs font-bold text-zinc-400 mb-1">장비 세팅 3</label>
+                           <input type="text" value={guideModal.equip3} onChange={e => setGuideModal({...guideModal, equip3: e.target.value})} className="w-full px-3 py-2 bg-zinc-900 border border-zinc-700 rounded-lg text-sm text-zinc-100 outline-none focus:ring-1 focus:ring-yellow-600"/>
+                         </div>
+                       </>
+                     ) : (
+                       <>
+                         <div>
+                           <label className="block text-xs font-bold text-zinc-400 mb-1">추천 펫</label>
+                           <input type="text" value={guideModal.skill} onChange={e => setGuideModal({...guideModal, skill: e.target.value})} placeholder="예: 루디, 카람" className="w-full px-3 py-2 bg-zinc-900 border border-zinc-700 rounded-lg text-sm text-zinc-100 outline-none focus:ring-1 focus:ring-yellow-600"/>
+                         </div>
+                         <div>
+                           <label className="block text-xs font-bold text-zinc-400 mb-1">핵심 장비 1</label>
+                           <input type="text" value={guideModal.equip1} onChange={e => setGuideModal({...guideModal, equip1: e.target.value})} placeholder="예: 크리스: 주술사 / 반지: 즉사" className="w-full px-3 py-2 bg-zinc-900 border border-zinc-700 rounded-lg text-sm text-zinc-100 outline-none focus:ring-1 focus:ring-yellow-600"/>
+                         </div>
+                         <div>
+                           <label className="block text-xs font-bold text-zinc-400 mb-1">핵심 장비 2</label>
+                           <input type="text" value={guideModal.equip2} onChange={e => setGuideModal({...guideModal, equip2: e.target.value})} className="w-full px-3 py-2 bg-zinc-900 border border-zinc-700 rounded-lg text-sm text-zinc-100 outline-none focus:ring-1 focus:ring-yellow-600"/>
+                         </div>
+                         <div>
+                           <label className="block text-xs font-bold text-zinc-400 mb-1">핵심 장비 3</label>
+                           <input type="text" value={guideModal.equip3} onChange={e => setGuideModal({...guideModal, equip3: e.target.value})} className="w-full px-3 py-2 bg-zinc-900 border border-zinc-700 rounded-lg text-sm text-zinc-100 outline-none focus:ring-1 focus:ring-yellow-600"/>
+                         </div>
+                       </>
+                     )}
                      <div>
-                       <label className="block text-xs font-bold text-zinc-400 mb-1">스킬 운영 (필수)</label>
-                       <input type="text" value={guideModal.skill} onChange={e => setGuideModal({...guideModal, skill: e.target.value})} placeholder="예: 크리스 아래 → 크리스 위" className="w-full px-3 py-2 bg-zinc-900 border border-zinc-700 rounded-lg text-sm text-zinc-100 outline-none focus:ring-1 focus:ring-yellow-600"/>
-                     </div>
-                     <div className="flex gap-3">
-                       <div className="flex-1">
-                         <label className="block text-xs font-bold text-zinc-400 mb-1">턴 (필수)</label>
-                         <input type="text" value={guideModal.turn} onChange={e => setGuideModal({...guideModal, turn: e.target.value})} placeholder="예: 선공 or 후공" className="w-full px-3 py-2 bg-zinc-900 border border-zinc-700 rounded-lg text-sm text-zinc-100 outline-none focus:ring-1 focus:ring-yellow-600"/>
-                       </div>
-                       <div className="flex-1">
-                         <label className="block text-xs font-bold text-zinc-400 mb-1">진형 (필수)</label>
-                         <input type="text" value={guideModal.formation} onChange={e => setGuideModal({...guideModal, formation: e.target.value})} placeholder="예: 공격진형" className="w-full px-3 py-2 bg-zinc-900 border border-zinc-700 rounded-lg text-sm text-zinc-100 outline-none focus:ring-1 focus:ring-yellow-600"/>
-                       </div>
-                     </div>
-                     <div>
-                       <label className="block text-xs font-bold text-zinc-400 mb-1">장비 세팅 1</label>
-                       <input type="text" value={guideModal.equip1} onChange={e => setGuideModal({...guideModal, equip1: e.target.value})} placeholder="예: 크리스: 주술사 / 반지: 즉사" className="w-full px-3 py-2 bg-zinc-900 border border-zinc-700 rounded-lg text-sm text-zinc-100 outline-none focus:ring-1 focus:ring-yellow-600"/>
-                     </div>
-                     <div>
-                       <label className="block text-xs font-bold text-zinc-400 mb-1">장비 세팅 2</label>
-                       <input type="text" value={guideModal.equip2} onChange={e => setGuideModal({...guideModal, equip2: e.target.value})} className="w-full px-3 py-2 bg-zinc-900 border border-zinc-700 rounded-lg text-sm text-zinc-100 outline-none focus:ring-1 focus:ring-yellow-600"/>
-                     </div>
-                     <div>
-                       <label className="block text-xs font-bold text-zinc-400 mb-1">장비 세팅 3</label>
-                       <input type="text" value={guideModal.equip3} onChange={e => setGuideModal({...guideModal, equip3: e.target.value})} className="w-full px-3 py-2 bg-zinc-900 border border-zinc-700 rounded-lg text-sm text-zinc-100 outline-none focus:ring-1 focus:ring-yellow-600"/>
-                     </div>
-                     <div>
-                       <label className="block text-xs font-bold text-zinc-400 mb-1">추가 팁 (Tip)</label>
-                       <textarea value={guideModal.tip} onChange={e => setGuideModal({...guideModal, tip: e.target.value})} rows="3" placeholder="추가적인 펫 정보나 운영법을 적어주세요." className="w-full px-3 py-2 bg-zinc-900 border border-zinc-700 rounded-lg text-sm text-zinc-100 outline-none focus:ring-1 focus:ring-yellow-600 custom-scrollbar"></textarea>
+                       <label className="block text-xs font-bold text-zinc-400 mb-1">{guideModal.type === 'defense' ? '운영 팁' : '추가 팁 (Tip)'}</label>
+                       <textarea value={guideModal.tip} onChange={e => setGuideModal({...guideModal, tip: e.target.value})} rows="3" placeholder="추가적인 운영법이나 주의사항을 적어주세요." className="w-full px-3 py-2 bg-zinc-900 border border-zinc-700 rounded-lg text-sm text-zinc-100 outline-none focus:ring-1 focus:ring-yellow-600 custom-scrollbar"></textarea>
                      </div>
                    </div>
                  </div>
@@ -1148,12 +1282,10 @@
 
             {mainTab === 'strategy' && (
                <div className="flex gap-2 flex-wrap">
-                 {/* 하단 카테고리 순서 변경: 카운터 보관소 - 방어팀 추천 덱 - 기본덱조합 - 전체전적 - 상성히트맵 */}
                  <button onClick={() => setSubTab('counter')} className={`px-5 py-2.5 rounded-full font-bold text-sm transition-colors border ${subTab === 'counter' ? 'bg-zinc-800 text-zinc-100 border-zinc-500' : 'bg-transparent text-zinc-500 border-transparent hover:text-zinc-300'}`}>카운터 보관소</button>
                  <button onClick={() => setSubTab('recommend')} className={`px-5 py-2.5 rounded-full font-bold text-sm transition-colors border ${subTab === 'recommend' ? 'bg-zinc-800 text-zinc-100 border-zinc-500' : 'bg-transparent text-zinc-500 border-transparent hover:text-zinc-300'}`}>방어팀 추천 덱</button>
                  <button onClick={() => setSubTab('basic')} className={`px-5 py-2.5 rounded-full font-bold text-sm transition-colors border ${subTab === 'basic' ? 'bg-zinc-800 text-zinc-100 border-zinc-500' : 'bg-transparent text-zinc-500 border-transparent hover:text-zinc-300'}`}>기본덱조합</button>
                  <button onClick={() => setSubTab('dashboard')} className={`px-5 py-2.5 rounded-full font-bold text-sm transition-colors border ${subTab === 'dashboard' ? 'bg-zinc-800 text-zinc-100 border-zinc-500' : 'bg-transparent text-zinc-500 border-transparent hover:text-zinc-300'}`}>전체전적</button>
-                 <button onClick={() => setSubTab('heatmap')} className={`px-5 py-2.5 rounded-full font-bold text-sm transition-colors border ${subTab === 'heatmap' ? 'bg-zinc-800 text-zinc-100 border-zinc-500' : 'bg-transparent text-zinc-500 border-transparent hover:text-zinc-300'}`}>상성히트맵</button>
                </div>
             )}
 
@@ -1284,8 +1416,8 @@
                   </div>
                 </section>
 
-                <section className="flex flex-col sm:flex-row gap-3">
-                  <input type="text" placeholder="영웅/닉네임 초성 검색" value={filterChar} onChange={(e) => setFilterChar(e.target.value)} className="flex-1 px-4 py-4 bg-zinc-900 border border-zinc-700 rounded-xl text-zinc-100 font-bold outline-none focus:ring-2 focus:ring-yellow-600" />
+                <section className="flex flex-col sm:flex-row gap-3 mt-8">
+                  <input type="text" placeholder="영웅/닉네임 검색..." value={filterChar} onChange={(e) => setFilterChar(e.target.value)} className="flex-1 px-4 py-4 bg-zinc-900 border border-zinc-700 rounded-xl text-zinc-100 font-bold outline-none focus:ring-2 focus:ring-yellow-600" />
                   <button onClick={() => setShowStats(!showStats)} className="px-6 py-4 gold-button rounded-xl font-black flex items-center justify-center gap-2 shrink-0"><IconBarChart /> {showStats?'통계 닫기':'통계 열기'}</button>
                 </section>
 
@@ -1434,6 +1566,18 @@
                       </p>
                     </div>
                   </div>
+                  
+                  {counterEnemyFilter.filter(Boolean).length > 0 && (
+                    <button 
+                      onClick={() => setGuideModal({
+                        isOpen: true, type: 'counter', defTeam: counterEnemyFilter.filter(Boolean), atkTeam: ['', '', ''],
+                        skill: '', turn: '', formation: '', equip1: '', equip2: '', equip3: '', tip: ''
+                      })}
+                      className="w-full mt-4 py-3 bg-zinc-800 border border-yellow-700/50 text-yellow-500 font-bold rounded-xl hover:bg-zinc-700 transition"
+                    >
+                      ➕ 이 방어덱 파훼법 제안하기
+                    </button>
+                  )}
                 </div>
 
                 <div className="flex-1 w-full space-y-4">
@@ -1455,9 +1599,11 @@
                     <div className="space-y-4">
                       {counterAnalysisData.results.map((data, idx) => (
                         <div key={idx} className="bg-zinc-900 border border-zinc-700 rounded-2xl overflow-hidden shadow-md flex flex-col">
-                          <div className="p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-zinc-800 bg-zinc-800/30">
-                            
-                            {/* 상단 (메인): 방어 덱 렌더링으로 변경 */}
+                          
+                          <div 
+                            className="p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-zinc-800 bg-zinc-800/30 cursor-pointer hover:bg-zinc-800/50 transition-colors select-none"
+                            onClick={() => toggleCounter(idx)}
+                          >
                             <div className="flex items-center gap-4">
                               <div className={`w-8 h-8 rounded-full flex items-center justify-center font-black text-sm shrink-0 ${idx < 3 ? 'bg-yellow-600/20 text-yellow-500 border border-yellow-600/30' : 'bg-zinc-800 text-zinc-500'}`}>
                                 {idx + 1}
@@ -1471,12 +1617,15 @@
                                 <div className="text-xs font-bold text-zinc-500 flex items-center flex-wrap gap-2 mt-2">
                                   <span>카운터 덱: <span className="text-zinc-300 ml-1">{getSafeArray(data.attackerTeam).join(', ')}</span></span>
                                   
-                                  {/* 하단 (서브): 카운터 덱 옆 공략 제안 버튼 이동 */}
                                   {!data.hasGuide && (
-                                    <button onClick={() => setGuideModal({
-                                        isOpen: true, defTeam: data.defenseTeam, atkTeam: data.attackerTeam,
-                                        skill: '', turn: '', formation: '', equip1: '', equip2: '', equip3: '', tip: ''
-                                      })} 
+                                    <button 
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setGuideModal({
+                                          isOpen: true, type: 'counter', defTeam: data.defenseTeam, atkTeam: data.attackerTeam,
+                                          skill: '', turn: '', formation: '', equip1: '', equip2: '', equip3: '', tip: ''
+                                        });
+                                      }} 
                                       className="text-[10px] font-bold bg-zinc-800 text-yellow-500 border border-yellow-700/50 px-2 py-0.5 rounded ml-1 hover:bg-zinc-700 transition"
                                     >
                                       📝 공략 제안
@@ -1488,20 +1637,29 @@
                               </div>
                             </div>
 
-                            <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between w-full sm:w-auto bg-zinc-950 sm:bg-transparent p-3 sm:p-0 rounded-xl border border-zinc-800 sm:border-transparent">
-                              <span className="text-xs text-zinc-500 font-bold mb-1">카운터 승률</span>
-                              <span className={`text-xl md:text-2xl font-black ${parseFloat(data.winRate) >= 50 ? 'text-blue-400' : 'text-red-400'}`}>
-                                {data.winRate}%
-                              </span>
+                            <div className="flex flex-row sm:flex-row items-center justify-between w-full sm:w-auto bg-zinc-950 sm:bg-transparent p-3 sm:p-0 rounded-xl border border-zinc-800 sm:border-transparent gap-6">
+                              <div className="flex flex-col items-end">
+                                <span className="text-xs text-zinc-500 font-bold mb-1">카운터 승률</span>
+                                <span className={`text-xl md:text-2xl font-black ${parseFloat(data.winRate) >= 50 ? 'text-blue-400' : 'text-red-400'}`}>
+                                  {data.winRate}%
+                                </span>
+                              </div>
+                              <div className="text-zinc-500 flex items-center justify-center">
+                                {data.hasGuide ? (expandedCounters[idx] ? <IconChevronUp /> : <IconChevronDown />) : <span className="w-5"></span>}
+                              </div>
                             </div>
                           </div>
                           
-                          {data.hasGuide && (
-                            <div className="p-5 bg-zinc-900/80 relative group">
-                              <button onClick={() => setGuideModal({
-                                  isOpen: true, defTeam: data.defenseTeam, atkTeam: data.attackerTeam,
-                                  skill: data.skill||'', turn: data.turn||'', formation: data.formation||'', equip1: data.equips[0]||'', equip2: data.equips[1]||'', equip3: data.equips[2]||'', tip: data.tip||''
-                                })} 
+                          {expandedCounters[idx] && data.hasGuide && (
+                            <div className="p-5 bg-zinc-900/80 relative group animate-in slide-in-from-top-2">
+                              <button 
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setGuideModal({
+                                    isOpen: true, type: 'counter', defTeam: data.defenseTeam, atkTeam: data.attackerTeam,
+                                    skill: data.skill||'', turn: data.turn||'', formation: data.formation||'', equip1: data.equips[0]||'', equip2: data.equips[1]||'', equip3: data.equips[2]||'', tip: data.tip||''
+                                  });
+                                }} 
                                 className="absolute top-4 right-4 text-[10px] font-bold bg-zinc-800 text-zinc-400 border border-zinc-700 px-2 py-1 rounded hover:text-yellow-500 hover:border-yellow-700/50 transition opacity-0 group-hover:opacity-100"
                               >
                                 공략 수정 제안
@@ -1567,19 +1725,89 @@
                 ) : (
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                     {recommendDefenseData.map((data, idx) => (
-                      <div key={idx} className="bg-zinc-800 border border-zinc-600 p-5 rounded-xl flex items-center justify-between relative overflow-hidden group">
+                      <div key={idx} className="bg-zinc-800 border border-zinc-600 rounded-xl flex flex-col relative overflow-hidden group">
                         {idx === 0 && <div className="absolute top-0 right-0 bg-yellow-600 text-black text-[10px] font-black px-3 py-1 rounded-bl-lg z-10">BEST 메타</div>}
-                        <div className="flex items-center gap-4 relative z-10">
-                          <span className={`text-2xl font-black ${idx === 0 ? 'gold-gradient-text' : 'text-zinc-600'}`}>{idx + 1}</span>
-                          <div>
-                            <div className="mb-2">{renderHeroTags(data.heroes)}</div>
-                            <span className="text-xs text-zinc-400 font-medium">총 {data.count}회 피격 중 {data.wins}회 방어 성공</span>
+                        
+                        <div 
+                          className="p-5 flex items-center justify-between cursor-pointer hover:bg-zinc-700/30 transition-colors select-none"
+                          onClick={() => toggleDefGuide(idx)}
+                        >
+                          <div className="flex items-center gap-4 relative z-10">
+                            <span className={`text-2xl font-black ${idx === 0 ? 'gold-gradient-text' : 'text-zinc-600'}`}>{idx + 1}</span>
+                            <div>
+                              <div className="mb-2 flex items-center gap-2 flex-wrap">
+                                {renderHeroTags(data.heroes)}
+                                {data.guides && data.guides.length > 0 && <span className="bg-blue-600/20 text-blue-400 text-[10px] font-black px-2 py-0.5 rounded ml-1">공식 운영법</span>}
+                                {(!data.guides || data.guides.length === 0) && (
+                                  <button 
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setGuideModal({
+                                        isOpen: true, type: 'defense', defTeam: data.heroes, atkTeam: [],
+                                        skill: '', turn: '', formation: '', equip1: '', equip2: '', equip3: '', tip: ''
+                                      });
+                                    }} 
+                                    className="text-[10px] font-bold bg-zinc-800 text-zinc-400 border border-zinc-700 px-2 py-0.5 rounded ml-1 hover:text-yellow-500 hover:border-yellow-700/50 transition"
+                                  >
+                                    📝 운영법 제안
+                                  </button>
+                                )}
+                              </div>
+                              <span className="text-xs text-zinc-400 font-medium">총 {data.count}회 피격 중 {data.wins}회 방어 성공</span>
+                            </div>
+                          </div>
+                          <div className="text-right relative z-10 pl-4 border-l border-zinc-700 flex items-center gap-4">
+                            <div>
+                              <span className="block text-[10px] font-bold text-zinc-500 mb-0.5">방어율</span>
+                              <span className={`text-lg font-black ${parseFloat(data.winRate) >= 50 ? 'text-blue-400' : 'text-red-400'}`}>{data.winRate}%</span>
+                            </div>
+                            <div className="text-zinc-500">
+                              {data.guides && data.guides.length > 0 ? (expandedDefGuides[idx] ? <IconChevronUp /> : <IconChevronDown />) : <span className="w-5"></span>}
+                            </div>
                           </div>
                         </div>
-                        <div className="text-right relative z-10 pl-4 border-l border-zinc-700">
-                          <span className="block text-[10px] font-bold text-zinc-500 mb-0.5">방어율</span>
-                          <span className={`text-lg font-black ${parseFloat(data.winRate) >= 50 ? 'text-blue-400' : 'text-red-400'}`}>{data.winRate}%</span>
-                        </div>
+
+                        {expandedDefGuides[idx] && data.guides && data.guides.length > 0 && (
+                          <div className="p-5 bg-zinc-900/50 border-t border-zinc-700 animate-in slide-in-from-top-2 relative group/guide">
+                            <button 
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                const g = data.guides[0];
+                                setGuideModal({
+                                  isOpen: true, type: 'defense', defTeam: data.heroes, atkTeam: [],
+                                  skill: g.skill||'', turn: '', formation: '', equip1: g.equip1||'', equip2: g.equip2||'', equip3: g.equip3||'', tip: g.tip||''
+                                });
+                              }} 
+                              className="absolute top-4 right-4 text-[10px] font-bold bg-zinc-800 text-zinc-400 border border-zinc-700 px-2 py-1 rounded hover:text-yellow-500 hover:border-yellow-700/50 transition opacity-0 group-hover/guide:opacity-100"
+                            >
+                              운영법 수정 제안
+                            </button>
+                            <div className="space-y-4">
+                              {data.guides.map((g, gIdx) => (
+                                <div key={gIdx}>
+                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                    <div className="flex flex-col gap-1">
+                                      <span className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider">추천 펫</span>
+                                      <span className="text-sm font-medium text-zinc-200 bg-zinc-800/50 p-2.5 rounded-lg border border-zinc-700/50">{g.skill || '-'}</span>
+                                    </div>
+                                    <div className="flex flex-col gap-1">
+                                      <span className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider">핵심 장비 및 세팅</span>
+                                      <ul className="text-[13px] font-medium text-zinc-300 bg-zinc-800/50 p-3 rounded-lg border border-zinc-700/50 space-y-1.5">
+                                        {[g.equip1, g.equip2, g.equip3].filter(Boolean).length > 0 ? [g.equip1, g.equip2, g.equip3].filter(Boolean).map((eq, i) => <li key={i} className="leading-snug flex items-start"><span className="text-blue-500 mr-1.5 mt-0.5">•</span><span>{eq}</span></li>) : <li>세팅 정보 없음</li>}
+                                      </ul>
+                                    </div>
+                                  </div>
+                                  {g.tip && (
+                                    <div className="flex items-start gap-2.5 bg-zinc-800/50 p-3.5 rounded-lg border border-zinc-700/50">
+                                      <span className="text-zinc-400 mt-0.5"><IconInfo /></span>
+                                      <p className="text-sm text-zinc-300 font-medium leading-relaxed whitespace-pre-line">{g.tip}</p>
+                                    </div>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -1657,80 +1885,20 @@
               </div>
             )}
 
-            {mainTab === 'strategy' && subTab === 'heatmap' && (
-              <div className="gold-panel p-6 md:p-8 rounded-2xl animate-in fade-in duration-300">
-                <h2 className="text-xl font-black gold-gradient-text mb-2">💡 상성 히트맵 (Heatmap)</h2>
-                <p className="text-sm text-zinc-400 mb-6">전체 전적을 기반으로 공격 덱과 방어 덱 간의 상성을 시각화합니다.</p>
-                
-                <div className="flex gap-4 mb-4">
-                  <label className="keep-checkbox-wrapper flex items-center gap-2 text-sm text-zinc-300 font-bold cursor-pointer">
-                    <input type="checkbox" checked={heatmapFilters.high} onChange={e=>setHeatmapFilters({...heatmapFilters, high: e.target.checked})} className="keep-checkbox"/>
-                    <span className="text-blue-400">우위 (70%↑)</span>
-                  </label>
-                  <label className="keep-checkbox-wrapper flex items-center gap-2 text-sm text-zinc-300 font-bold cursor-pointer">
-                    <input type="checkbox" checked={heatmapFilters.mid} onChange={e=>setHeatmapFilters({...heatmapFilters, mid: e.target.checked})} className="keep-checkbox"/>
-                    <span className="text-green-400">경합 (50~69%)</span>
-                  </label>
-                  <label className="keep-checkbox-wrapper flex items-center gap-2 text-sm text-zinc-300 font-bold cursor-pointer">
-                    <input type="checkbox" checked={heatmapFilters.low} onChange={e=>setHeatmapFilters({...heatmapFilters, low: e.target.checked})} className="keep-checkbox"/>
-                    <span className="text-red-400">열세 (50%↓)</span>
-                  </label>
-                </div>
-
-                {!heatmapData || heatmapData.cols.length === 0 ? (
-                  <div className="text-center py-10 text-zinc-500 font-bold border border-zinc-800 rounded-xl">데이터가 부족합니다.</div>
-                ) : (
-                  <div className="heatmap-wrapper custom-scrollbar">
-                    <table className="heatmap-table">
-                      <thead>
-                        <tr>
-                          <th>공격 덱 \ 방어 덱</th>
-                          {heatmapData.cols.map((col, i) => (
-                            <th key={i}>
-                              <div className="flex flex-col items-center">
-                                {col.split(' ').map((h, hi) => <span key={hi} className="text-[11px] leading-tight">{h}</span>)}
-                              </div>
-                            </th>
-                          ))}
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {heatmapData.rows.map((row, i) => (
-                          <tr key={i}>
-                            <th>
-                              <div className="flex flex-col items-start">
-                                {row.atk.split(' ').map((h, hi) => <span key={hi} className="text-[11px] leading-tight">{h}</span>)}
-                              </div>
-                            </th>
-                            {row.defs.map((d, j) => {
-                              if (d.t === 0) return <td key={j} style={{background:'#09090b', color:'#3f3f46'}}>-</td>;
-                              const rate = Math.round((d.w/d.t)*100);
-                              let bg = '', color = '', show = false;
-                              if (rate >= 70 && heatmapFilters.high) { bg = 'rgba(96, 165, 250, 0.15)'; color = '#60a5fa'; show = true; }
-                              else if (rate >= 50 && rate < 70 && heatmapFilters.mid) { bg = 'rgba(74, 222, 128, 0.15)'; color = '#4ade80'; show = true; }
-                              else if (rate < 50 && heatmapFilters.low) { bg = 'rgba(248, 113, 113, 0.15)'; color = '#f87171'; show = true; }
-
-                              if (show) {
-                                return (
-                                  <td key={j} style={{background:bg, color:color}}>
-                                    <div className="cell-count">{d.w}W {d.l}L</div>
-                                  </td>
-                                );
-                              } else {
-                                return <td key={j} className="cell-hidden" style={{background:'#09090b', color:'#3f3f46'}}>-</td>;
-                              }
-                            })}
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
-              </div>
-            )}
-
             {mainTab === 'management' && isAdminMode && (
               <div className="gold-panel p-8 rounded-2xl space-y-10 animate-in fade-in">
+                
+                <div className="border-t border-yellow-900/30 pt-8">
+                  <h2 className="text-2xl font-black gold-gradient-text mb-4">데이터 일괄 추가 (다중 파싱)</h2>
+                  <p className="text-zinc-400 mb-4 text-sm font-medium">과거 전적 텍스트를 붙여넣어 한 번에 등록합니다. (양식: 공격 [덱] 승 방어 [덱])</p>
+                  <textarea 
+                    value={rawRecordInputState} 
+                    onChange={e => setRawRecordInputState(e.target.value)} 
+                    className="w-full h-32 p-4 bg-zinc-900 border border-zinc-700 rounded-xl text-zinc-100 text-sm focus:ring-2 focus:ring-yellow-600 outline-none mb-4 custom-scrollbar" 
+                    placeholder="공격 루디 크리스 델론즈 승 방어 밀리아 카일 로지&#10;공격 플라튼 콜트 아킬라 패 방어 프레이야 펜리르 라드그리드"
+                  ></textarea>
+                  <button onClick={handleBulkParse} className="w-full py-4 gold-button font-black rounded-xl">일괄 파싱 및 등록</button>
+                </div>
                 
                 <div>
                   <h2 className="text-2xl font-black gold-gradient-text mb-4 flex items-center gap-2">📝 공략 제안 검토 대기열 <span className="bg-red-600 text-white text-xs px-2 py-1 rounded-full">{customGuides.filter(g=>g.status==='pending').length}</span></h2>
@@ -1740,22 +1908,40 @@
                     <div className="bg-zinc-900 border border-zinc-700 p-8 text-center rounded-xl text-zinc-500 font-bold text-sm">대기 중인 제안이 없습니다.</div>
                   ) : (
                     <div className="space-y-4">
-                      {customGuides.filter(g=>g.status==='pending').map(guide => (
+                      {customGuides.filter(g=>g.status==='pending').sort((a,b)=>b.createdAt-a.createdAt).map(guide => (
                         <div key={guide.id} className="bg-zinc-800 border border-yellow-700/50 p-5 rounded-xl shadow-lg relative">
-                          <div className="flex gap-4 mb-4 items-center">
+                          <div className="absolute top-4 right-4">
+                            <span className={`text-[10px] font-black px-2 py-1 rounded ${guide.guideType === 'defense' ? 'bg-blue-900/40 text-blue-400 border border-blue-800' : 'bg-red-900/40 text-red-400 border border-red-800'}`}>
+                              {guide.guideType === 'defense' ? '🛡️ 방어 운영법' : '⚔️ 카운터 공략'}
+                            </span>
+                          </div>
+
+                          <div className="flex gap-4 mb-4 items-center mt-2">
                             <span className="text-xs font-bold text-zinc-500 w-16">방어 덱:</span>
                             {renderHeroTags(guide.defenseTeam)}
                           </div>
-                          <div className="flex gap-4 mb-4 items-center">
-                            <span className="text-xs font-bold text-zinc-500 w-16">카운터:</span>
-                            {renderHeroTags(guide.attackerTeam)}
-                          </div>
+                          
+                          {guide.guideType !== 'defense' && (
+                            <div className="flex gap-4 mb-4 items-center">
+                              <span className="text-xs font-bold text-zinc-500 w-16">카운터:</span>
+                              {renderHeroTags(guide.attackerTeam)}
+                            </div>
+                          )}
                           
                           <div className="bg-zinc-900 p-4 rounded-lg border border-zinc-700 text-sm text-zinc-300 space-y-2 mb-4">
-                            <p><span className="text-zinc-500 font-bold mr-2">스킬:</span> {guide.skill}</p>
-                            <p><span className="text-zinc-500 font-bold mr-2">턴/진형:</span> {guide.turn} / {guide.formation}</p>
-                            <p><span className="text-zinc-500 font-bold mr-2">장비:</span> {guide.equip1} | {guide.equip2} | {guide.equip3}</p>
-                            <p><span className="text-zinc-500 font-bold mr-2">팁:</span> {guide.tip}</p>
+                            {guide.guideType === 'defense' ? (
+                              <>
+                                <p><span className="text-blue-400 font-bold mr-2">추천 펫:</span> {guide.skill}</p>
+                                <p><span className="text-blue-400 font-bold mr-2">핵심장비:</span> {[guide.equip1, guide.equip2, guide.equip3].filter(Boolean).join(' | ')}</p>
+                              </>
+                            ) : (
+                              <>
+                                <p><span className="text-zinc-500 font-bold mr-2">스킬:</span> {guide.skill}</p>
+                                <p><span className="text-zinc-500 font-bold mr-2">턴/진형:</span> {guide.turn} / {guide.formation}</p>
+                                <p><span className="text-zinc-500 font-bold mr-2">장비:</span> {[guide.equip1, guide.equip2, guide.equip3].filter(Boolean).join(' | ')}</p>
+                              </>
+                            )}
+                            <p><span className="text-yellow-600 font-bold mr-2">팁:</span> {guide.tip}</p>
                           </div>
                           
                           <div className="flex gap-3">
