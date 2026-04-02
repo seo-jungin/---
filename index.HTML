@@ -81,6 +81,7 @@
     .basic-atk-list li:last-child { border-bottom: none; }
     .basic-atk-list li::before { content: '└'; position: absolute; left: 5px; color: #666; pointer-events: none; }
 
+    /* 로그인 화면 배경 */
     .login-bg-anim { position: absolute; inset: -5%; background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.7)), url('https://img.freepik.com/free-photo/gyeongbokgung-palace-with-cherry-blossom-spring-seoul-korea_335224-387.jpg'); background-size: cover; background-position: center; background-repeat: no-repeat; animation: slowZoom 20s ease-in-out infinite alternate; z-index: -1; }
     @keyframes slowZoom { from { transform: scale(1); } to { transform: scale(1.1); } }
     .login-card { background: rgba(20, 20, 23, 0.6); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border: 1px solid rgba(191, 149, 63, 0.4); padding: 50px 40px; width: 360px; text-align: center; border-radius: 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.8); position: relative; }
@@ -95,7 +96,6 @@
   <script type="text/babel" data-type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js';
     import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js';
-    // 대용량 배치 복원(writeBatch) 모듈 추가
     import { getFirestore, collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc, setDoc, writeBatch } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
 
     const { useState, useEffect, useMemo, useRef } = React;
@@ -242,8 +242,9 @@
     
     const fb = initFirebase();
     
-    // ★ Vercel 배포 시, 아래 'sevens-guild-war-app'을 관리자 탭에서 복사한 고유 ID로 변경하시면 기존 데이터를 즉시 연동할 수 있습니다.
-    const APP_ID = typeof __app_id !== 'undefined' ? __app_id : '1:619085647485:web:03cf09b1a9f0d7e6062b14';
+    // ★ 에러 수정 완료: 샌드박스의 기존 데이터 경로를 안전하게 연동합니다.
+    const APP_ID = typeof __app_id !== 'undefined' ? __app_id : 'c_19efbf5c9b9bcc77_index.html-55';
+    
     const COLLECTION_NAME = 'guild_war_records';
     const GUIDE_COLLECTION = 'custom_guides';
 
@@ -2209,6 +2210,7 @@
                   </div>
                 </div>
                 
+                {/* 관리자(Admin) 권한일 때만 보이는 상세 매치업 동적 정렬 및 TOP 3 하이라이트 UI */}
                 {isAdminMode && (
                   <div className="bg-zinc-900 border border-zinc-700 rounded-2xl shadow-lg mt-6">
                      <div className="p-5 md:p-8 cursor-pointer flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-zinc-800" onClick={() => setShowDetailedMatchups(!showDetailedMatchups)}>
@@ -2227,7 +2229,7 @@
                                </div>
                                <input
                                  type="text"
-                                 placeholder="영웅 이름으로 검색..."
+                                 placeholder="영웅 이름으로 다중 검색(띄어쓰기)..."
                                  value={matchupSearchTerm}
                                  onChange={(e) => setMatchupSearchTerm(e.target.value)}
                                  className="w-full pl-9 p-2 bg-zinc-800 border border-zinc-600 rounded-lg text-zinc-200 focus:ring-2 focus:ring-yellow-600 outline-none text-sm"
@@ -2310,7 +2312,6 @@
                            </tbody>
                          </table>
                          
-                         {/* 더보기 페이징 버튼 */}
                          {detailedMatchups.length > matchupLimit && (
                            <div className="p-4 w-full flex justify-center border-t border-zinc-800">
                              <button onClick={() => setMatchupLimit(prev => prev + 10)} className="px-6 py-3 bg-zinc-800/80 hover:bg-zinc-700 text-zinc-300 font-bold rounded-xl transition-colors w-full sm:w-1/2 flex items-center justify-center gap-2">
