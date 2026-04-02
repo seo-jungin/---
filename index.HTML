@@ -241,7 +241,7 @@
       };
       
       try {
-        const config = typeof __firebase_config !== '1:619085647485:web:03cf09b1a9f0d7e6062b14' ? JSON.parse(__firebase_config) : fallback;
+        const config = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : fallback;
         if (config && config.apiKey) {
           const app = initializeApp(config);
           return { app, auth: getAuth(app), db: getFirestore(app), isValid: true };
@@ -253,7 +253,7 @@
     }
     
     const fb = initFirebase();
-    const APP_ID = typeof __app_id !== 'undefined' ? __app_id : 'sevens-guild-war-app';
+    const APP_ID = typeof __app_id !== 'undefined' ? __app_id : '1:619085647485:web:03cf09b1a9f0d7e6062b14';
     const COLLECTION_NAME = 'guild_war_records';
     const GUIDE_COLLECTION = 'custom_guides';
 
