@@ -81,11 +81,10 @@
     .basic-atk-list li:last-child { border-bottom: none; }
     .basic-atk-list li::before { content: '└'; position: absolute; left: 5px; color: #666; pointer-events: none; }
 
-    /* 로그인 화면 배경 */
     .login-bg-anim { position: absolute; inset: -5%; background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.7)), url('https://img.freepik.com/free-photo/gyeongbokgung-palace-with-cherry-blossom-spring-seoul-korea_335224-387.jpg'); background-size: cover; background-position: center; background-repeat: no-repeat; animation: slowZoom 20s ease-in-out infinite alternate; z-index: -1; }
     @keyframes slowZoom { from { transform: scale(1); } to { transform: scale(1.1); } }
-    .login-card { background: rgba(20, 20, 23, 0.6); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border: 1px solid rgba(191, 149, 63, 0.4); padding: 50px 40px; width: 340px; text-align: center; border-radius: 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.8); position: relative; }
-    .login-title-text { color: #fcf6ba; margin-top: 0; margin-bottom: 30px; font-weight: 900; font-size: 24px; letter-spacing: 2px; text-shadow: 0 2px 10px rgba(191, 149, 63, 0.5); }
+    .login-card { background: rgba(20, 20, 23, 0.6); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border: 1px solid rgba(191, 149, 63, 0.4); padding: 50px 40px; width: 360px; text-align: center; border-radius: 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.8); position: relative; }
+    .login-title-text { color: #fcf6ba; margin-top: 0; margin-bottom: 20px; font-weight: 900; font-size: 24px; letter-spacing: 2px; text-shadow: 0 2px 10px rgba(191, 149, 63, 0.5); }
     .login-input { width: 100%; padding: 16px; margin: 10px 0; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(10px); border: 1px solid rgba(191, 149, 63, 0.3); color: #fff; border-radius: 12px; text-align: center; font-size: 16px; transition: 0.3s; box-sizing: border-box; outline: none;}
     .login-input:focus { border-color: #fcf6ba; background: rgba(0, 0, 0, 0.8); box-shadow: 0 0 15px rgba(191, 149, 63, 0.4), inset 0 2px 5px rgba(0,0,0,0.5); }
   </style>
@@ -96,7 +95,8 @@
   <script type="text/babel" data-type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js';
     import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js';
-    import { getFirestore, collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
+    // 대용량 배치 복원(writeBatch) 모듈 추가
+    import { getFirestore, collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc, setDoc, writeBatch } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
 
     const { useState, useEffect, useMemo, useRef } = React;
 
@@ -118,7 +118,6 @@
     function IconSword() { return <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 17.5L3 6V3h3l11.5 11.5"></path><path d="M13 19l6-6"></path><path d="M16 16l4 4"></path><path d="M19 21l2-2"></path><path d="M14.5 6.5L17.5 3h3v3l-3.5 3.5"></path><path d="M10 13L4 19"></path><path d="M5 16l-4 4"></path><path d="M2 21l2-2"></path></svg>; }
     function IconInfo() { return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>; }
 
-    // 유틸리티 함수
     function getChosung(str) {
       if (!str) return "";
       const chosung = ["ㄱ","ㄲ","ㄴ","ㄷ","ㄸ","ㄹ","ㅁ","ㅂ","ㅃ","ㅅ","ㅆ","ㅇ","ㅈ","ㅉ","ㅊ","ㅋ","ㅌ","ㅍ","ㅎ"];
@@ -219,7 +218,6 @@
       window.Chart.defaults.font.family = "'Pretendard', sans-serif";
     }
 
-    // Firebase 초기화
     function initFirebase() {
       const fallback = {
         apiKey: "AIzaSyAqSgVY3zJAmKpLSnxrM5YVMVnqTw8JfTI",
@@ -243,7 +241,9 @@
     }
     
     const fb = initFirebase();
-    const APP_ID = typeof __app_id !== 'undefined' ? __app_id : 'mauve-two.vercel.app';
+    
+    // ★ Vercel 배포 시, 아래 'sevens-guild-war-app'을 관리자 탭에서 복사한 고유 ID로 변경하시면 기존 데이터를 즉시 연동할 수 있습니다.
+    const APP_ID = typeof __app_id !== 'c_19efbf5c9b9bcc77_index.html-55' ? __app_id : 'sevens-guild-war-app';
     const COLLECTION_NAME = 'guild_war_records';
     const GUIDE_COLLECTION = 'custom_guides';
 
@@ -301,10 +301,12 @@
     ];
 
     function App() {
+      // 인증 및 권한 관리
       const [isLoggedIn, setIsLoggedIn] = useState(false);
-      const [loginId, setLoginId] = useState('');
+      const [loginType, setLoginType] = useState('guest'); // 'admin', 'leader', 'guest'
       const [loginPw, setLoginPw] = useState('');
       const [loginError, setLoginError] = useState(false);
+      const [userRole, setUserRole] = useState(null); // 인증된 권한
       
       const [user, setUser] = useState(null);
       const [records, setRecords] = useState([]);
@@ -320,7 +322,6 @@
       const [mainTab, setMainTab] = useState('records');
       const [subTab, setSubTab] = useState('attack');
       
-      const [isAdminMode, setIsAdminMode] = useState(false);
       const [isMobileView, setIsMobileView] = useState(false);
       const [showFloatingBtn, setShowFloatingBtn] = useState(true);
       
@@ -357,13 +358,43 @@
       const [showDetailedMatchups, setShowDetailedMatchups] = useState(false);
       const [matchupSearchTerm, setMatchupSearchTerm] = useState('');
       const [matchupSort, setMatchupSort] = useState({ key: 'winRate', direction: 'desc' });
+      const [matchupLimit, setMatchupLimit] = useState(10); // 상세 매치업 페이징 리미트
+
+      const [dateFilter, setDateFilter] = useState('all'); 
+      const [useRecentOpponentsFilter, setUseRecentOpponentsFilter] = useState(false);
+
+      // 권한 검증 상수
+      const isAdminMode = userRole === 'admin';
+      const isEditor = userRole === 'admin' || userRole === 'leader';
+
+      // 검색어 및 정렬 변경 시 리미트 초기화
+      useEffect(() => { setMatchupLimit(10); }, [matchupSearchTerm, matchupSort]);
+
+      const recentOpponents = useMemo(() => {
+        const uniqueOps = [...new Set(records.map(r => r.opponent))].filter(Boolean);
+        return uniqueOps.slice(0, 5);
+      }, [records]);
+
+      const filteredByDateAndOpponent = useMemo(() => {
+        let filtered = records;
+        if (dateFilter !== 'all') {
+          const now = Date.now();
+          const days = dateFilter === '7days' ? 7 : 30;
+          const ms = days * 24 * 60 * 60 * 1000;
+          filtered = filtered.filter(r => (now - new Date(r.date).getTime()) <= ms);
+        }
+        if (useRecentOpponentsFilter && recentOpponents.length > 0) {
+          filtered = filtered.filter(r => recentOpponents.includes(r.opponent));
+        }
+        return filtered;
+      }, [records, dateFilter, useRecentOpponentsFilter, recentOpponents]);
 
       const currentRecords = useMemo(() => {
-        return records.filter(r => {
+        return filteredByDateAndOpponent.filter(r => {
           const type = r.recordType || 'attack';
           return type === subTab;
         });
-      }, [records, subTab]);
+      }, [filteredByDateAndOpponent, subTab]);
 
       const statsData = useMemo(() => {
         if (mainTab !== 'records') return { deckStats: [], memberStats: [] };
@@ -510,7 +541,7 @@
 
       const handleAdminUnlock = (e) => {
         e.preventDefault();
-        if (unlockPwd === "9457") { setIsAdminMode(true); setIsLoggedIn(true); setUnlockModalOpen(false); setMainTab('management'); } 
+        if (unlockPwd === "9457") { setUserRole('admin'); setIsLoggedIn(true); setUnlockModalOpen(false); setMainTab('management'); } 
         else { setUnlockError(true); setUnlockPwd(''); if (unlockInputRef.current) unlockInputRef.current.focus(); }
       };
 
@@ -548,13 +579,16 @@
         return () => { unsubRecords(); unsubGuides(); };
       }, [user, isLoggedIn]);
 
+      // 3-Tier Login Logic
       const handleLogin = () => {
-        if (loginId === '관리자' && loginPw === '9457') {
-          setIsAdminMode(true); setIsLoggedIn(true); setLoginError(false);
-        } else if (loginId === '리더' && loginPw === '9277') {
-          setIsAdminMode(false); setIsLoggedIn(true); setLoginError(false);
+        if (loginType === 'admin') {
+          if (loginPw === '9457') { setUserRole('admin'); setIsLoggedIn(true); setLoginError(false); }
+          else setLoginError(true);
+        } else if (loginType === 'leader') {
+          if (loginPw === '9277') { setUserRole('leader'); setIsLoggedIn(true); setLoginError(false); }
+          else setLoginError(true);
         } else {
-          setLoginError(true);
+          setUserRole('guest'); setIsLoggedIn(true); setLoginError(false);
         }
       };
 
@@ -566,7 +600,7 @@
 
       const rawMatchesForStats = useMemo(() => {
         const matches = [];
-        records.filter(r => (r.recordType || 'attack') === 'attack').forEach(r => {
+        filteredByDateAndOpponent.filter(r => (r.recordType || 'attack') === 'attack').forEach(r => {
           r.matches?.forEach(m => {
             const myTeam = getSafeArray(m.myTeam).map(h => h.trim()).filter(Boolean).sort();
             const enemyTeam = getSafeArray(m.enemyTeam).map(h => h.trim()).filter(Boolean).sort();
@@ -576,7 +610,7 @@
           });
         });
         return matches.sort((a, b) => new Date(a.date) - new Date(b.date));
-      }, [records]);
+      }, [filteredByDateAndOpponent]);
 
       const basicDeckData = useMemo(() => {
         if (mainTab !== 'strategy' || subTab !== 'basic') return [];
@@ -622,8 +656,8 @@
         setMatchupSort({ key, direction });
       };
 
+      // 상세 매치업 다중 검색(AND 필터) 및 페이징 적용
       const detailedMatchups = useMemo(() => {
-        // 관리자 모드가 아니면 아예 연산하지 않고 즉시 종료 (Early Return)
         if (!isAdminMode || mainTab !== 'strategy' || subTab !== 'dashboard' || !showDetailedMatchups) return [];
         const matchupMap = new Map();
         
@@ -655,8 +689,10 @@
           .filter(m => m.winRate >= 50)
           .filter(m => {
              if (!matchupSearchTerm.trim()) return true;
-             const term = matchupSearchTerm.toLowerCase().trim();
-             return m.myTeam.toLowerCase().includes(term) || m.enemyTeam.toLowerCase().includes(term);
+             const terms = matchupSearchTerm.toLowerCase().trim().split(/\s+/);
+             const combinedText = (m.myTeam + ' ' + m.enemyTeam).toLowerCase();
+             // AND 검색 알고리즘
+             return terms.every(term => combinedText.includes(term));
           })
           .sort((a, b) => {
              let valA = a[matchupSort.key];
@@ -738,7 +774,7 @@
           }
         });
 
-        records.filter(r => (r.recordType || 'attack') === 'attack').forEach(record => {
+        filteredByDateAndOpponent.filter(r => (r.recordType || 'attack') === 'attack').forEach(record => {
           record.matches?.forEach(match => {
             const enemyTeam = getSafeArray(match.enemyTeam).map(h => h.trim()).filter(Boolean);
             const myTeam = getSafeArray(match.myTeam).map(h => h.trim()).filter(Boolean);
@@ -776,11 +812,11 @@
           });
 
         return { results };
-      }, [records, customGuides, counterEnemyFilter]);
+      }, [filteredByDateAndOpponent, customGuides, counterEnemyFilter]);
 
       const recommendDefenseData = useMemo(() => {
         const defCounts = {};
-        records.filter(r => r.recordType === 'defense').forEach(record => {
+        filteredByDateAndOpponent.filter(r => r.recordType === 'defense').forEach(record => {
           const defTeamArr = getSafeArray(record.myTeam);
           const validDefHeroes = defTeamArr.map(h => h && typeof h === 'string' ? h.trim() : '').filter(Boolean).sort();
           if (validDefHeroes.length === 3) {
@@ -805,7 +841,7 @@
            const matchGuides = customGuides.filter(g => g.status === 'approved' && g.guideType === 'defense' && g.defenseTeam.slice().sort().join(',') === def.heroes.join(','));
            return { ...def, guides: matchGuides };
         });
-      }, [records, customGuides]);
+      }, [filteredByDateAndOpponent, customGuides]);
 
       const handleGuideSubmit = async () => {
         if (!user) return showAlert("인증 오류", "인증 정보가 없습니다.");
@@ -1014,15 +1050,24 @@
         
         if (newRecords.length > 0) {
            try {
-              await addDoc(collection(fb.db, 'artifacts', APP_ID, 'public', 'data', COLLECTION_NAME), {
-                nickname: '관리자(일괄추가)',
-                date: new Date().toISOString().split('T')[0],
-                opponent: '일괄입력',
-                recordType: 'attack',
-                matches: newRecords,
-                createdAt: Date.now(),
-                authorId: user?.uid || 'admin'
-              });
+              let batch = writeBatch(fb.db);
+              let opCount = 0;
+              for (let rec of newRecords) {
+                 const docRef = doc(collection(fb.db, 'artifacts', APP_ID, 'public', 'data', COLLECTION_NAME));
+                 batch.set(docRef, {
+                    nickname: '관리자(일괄추가)',
+                    date: new Date().toISOString().split('T')[0],
+                    opponent: '일괄입력',
+                    recordType: 'attack',
+                    matches: [rec],
+                    createdAt: Date.now(),
+                    authorId: user?.uid || 'admin'
+                 });
+                 opCount++;
+                 if(opCount >= 400) { await batch.commit(); batch = writeBatch(fb.db); opCount = 0; }
+              }
+              if(opCount > 0) await batch.commit();
+              
               showAlert("성공", `${newRecords.length}개의 전적이 등록되었습니다.\n(미등록 영웅 포함: ${unknownCount}건)`);
               setRawRecordInputState('');
            } catch(e) {
@@ -1172,6 +1217,85 @@
         handleExportAllCSV(); 
       };
 
+      // Vercel 이관용 JSON 백업 (Export)
+      const handleExportJSON = () => {
+        if (records.length === 0 && customGuides.length === 0) return showAlert("알림", "백업할 데이터가 없습니다.");
+        const exportData = { records, customGuides };
+        const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = `guild_war_backup_${new Date().toISOString().split('T')[0]}.json`;
+        document.body.appendChild(link); link.click(); document.body.removeChild(link);
+      };
+
+      // 대용량 데이터 배치 복원 (Batch Import)
+      const handleImportJSON = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = async (event) => {
+          try {
+            const data = JSON.parse(event.target.result);
+            if (!data.records || !data.customGuides) throw new Error("유효하지 않은 백업 파일 형식입니다.");
+            
+            showConfirm("데이터 복원 진행", `기존 데이터 경로에 총 ${data.records.length}개의 전적과 ${data.customGuides.length}개의 공략을 덮어쓰시겠습니까? (수 분이 소요될 수 있습니다.)`, async () => {
+              setConfirmModal({ isOpen: false });
+              try {
+                let successCount = 0;
+                let batch = writeBatch(fb.db);
+                let opCount = 0;
+
+                // 전적 기록 배치 추가
+                for (const r of data.records) {
+                  const docData = { ...r };
+                  delete docData.id;
+                  const docRef = doc(fb.db, 'artifacts', APP_ID, 'public', 'data', COLLECTION_NAME, r.id);
+                  batch.set(docRef, docData);
+                  opCount++;
+                  successCount++;
+
+                  // Firestore 일괄 처리 제한 방지 (400개 단위 커밋)
+                  if (opCount >= 400) {
+                    await batch.commit();
+                    batch = writeBatch(fb.db);
+                    opCount = 0;
+                  }
+                }
+                
+                // 공략 가이드 배치 추가
+                for (const g of data.customGuides) {
+                  const guideData = { ...g };
+                  delete guideData.id;
+                  const docRef = doc(fb.db, 'artifacts', APP_ID, 'public', 'data', GUIDE_COLLECTION, g.id);
+                  batch.set(docRef, guideData);
+                  opCount++;
+
+                  if (opCount >= 400) {
+                    await batch.commit();
+                    batch = writeBatch(fb.db);
+                    opCount = 0;
+                  }
+                }
+                
+                if (opCount > 0) {
+                  await batch.commit();
+                }
+
+                showAlert("복원 완료", `성공적으로 ${successCount}개의 전적이 복원되었습니다.\n페이지를 새로고침 해주세요.`);
+              } catch (writeErr) {
+                console.error("복원 중 에러:", writeErr);
+                showAlert("복원 실패", "DB에 데이터를 쓰는 중 권한이나 네트워크 에러가 발생했습니다.");
+              }
+            }, "덮어쓰기 복원 진행");
+          } catch (err) {
+            console.error("파싱 에러:", err);
+            showAlert("오류", "파일 형식이 잘못되었거나 파싱 중 오류가 발생했습니다.");
+          }
+          e.target.value = null; // 초기화
+        };
+        reader.readAsText(file);
+      };
+
       const groupedRecords = useMemo(() => {
         const groups = {};
         let search = filterChar.toLowerCase().trim();
@@ -1207,25 +1331,54 @@
       const toggleRecord = (id) => setExpandedRecords(prev => ({ ...prev, [id]: !prev[id] }));
       const toggleGroup = (key) => setExpandedGroups(prev => ({ ...prev, [key]: !prev[key] }));
 
+      // 3단계 로그인 UI 적용
       if (!isLoggedIn) {
         return (
           <div style={{position: 'fixed', inset: 0, zIndex: 9000, display: 'flex', justifyContent: 'center', alignItems: 'center', overflow: 'hidden'}}>
             <div className="login-bg-anim"></div>
             <div className="login-card">
-              <h2 className="login-title-text">[ 리더 길드 ]</h2>
-              <input type="text" value={loginId} onChange={e=>setLoginId(e.target.value)} className="login-input" placeholder="ID" />
-              <input type="password" value={loginPw} onChange={e=>setLoginPw(e.target.value)} className="login-input" placeholder="PASSWORD" onKeyDown={e=>{if(e.key==='Enter') handleLogin()}} />
-              <button onClick={handleLogin} className="gold-button w-full mt-4 py-4 rounded-xl font-black text-lg">LOGIN</button>
-              {loginError && <p style={{color:'var(--danger)', fontSize:'12px', marginTop:'20px', fontWeight:'bold'}}>ACCESS DENIED (정보 불일치)</p>}
+              <h2 className="login-title-text">[ 리더 길드 전략실 ]</h2>
+              
+              <div className="flex bg-zinc-900/80 p-1 rounded-xl mb-6 border border-zinc-700/50">
+                <button onClick={()=>{setLoginType('admin'); setLoginError(false); setLoginPw('');}} className={`flex-1 py-2 text-sm font-bold rounded-lg transition ${loginType==='admin'?'bg-yellow-600 text-black':'text-zinc-400 hover:text-zinc-200'}`}>관리자</button>
+                <button onClick={()=>{setLoginType('leader'); setLoginError(false); setLoginPw('');}} className={`flex-1 py-2 text-sm font-bold rounded-lg transition ${loginType==='leader'?'bg-yellow-600 text-black':'text-zinc-400 hover:text-zinc-200'}`}>기록조</button>
+                <button onClick={()=>{setLoginType('guest'); setLoginError(false); setLoginPw('');}} className={`flex-1 py-2 text-sm font-bold rounded-lg transition ${loginType==='guest'?'bg-yellow-600 text-black':'text-zinc-400 hover:text-zinc-200'}`}>일반열람</button>
+              </div>
+              
+              {loginType !== 'guest' && (
+                <input type="password" value={loginPw} onChange={e=>setLoginPw(e.target.value)} className="login-input" placeholder={`${loginType === 'admin' ? '관리자' : '기록조'} 비밀번호`} onKeyDown={e=>{if(e.key==='Enter') handleLogin()}} />
+              )}
+              
+              <button onClick={handleLogin} className="gold-button w-full mt-2 py-4 rounded-xl font-black text-lg">
+                {loginType === 'guest' ? 'GUEST 입장' : 'LOGIN'}
+              </button>
+              
+              {loginError && <p style={{color:'#ef4444', fontSize:'12px', marginTop:'15px', fontWeight:'bold'}}>비밀번호가 일치하지 않습니다.</p>}
             </div>
           </div>
         );
       }
 
+      // 페이징 (Load More) 계산
+      const paginatedMatchups = detailedMatchups.slice(0, matchupLimit);
+
       return (
         <div className="min-h-screen p-4 md:p-8 text-[15px] pb-32 relative">
           <CustomModal isOpen={alertModal.isOpen} onClose={() => setAlertModal({...alertModal, isOpen: false})} title={alertModal.title} content={alertModal.content} onConfirm={() => setAlertModal({...alertModal, isOpen: false})} hideCancel={true} />
           <CustomModal isOpen={confirmModal.isOpen} onClose={() => setConfirmModal({...confirmModal, isOpen: false})} title={confirmModal.title} content={confirmModal.content} onConfirm={confirmModal.action} confirmText={confirmModal.confirmText} />
+
+          {/* 빈 데이터베이스 경고 안내 넛지 */}
+          {isAdminMode && records.length === 0 && (
+             <div className="max-w-6xl mx-auto mb-6">
+                <div className="bg-red-950/40 border border-red-500/50 p-5 rounded-xl text-red-200 font-bold flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-lg animate-pulse">
+                  <div className="flex items-center gap-3">
+                    <span className="text-2xl">⚠️</span>
+                    <span>현재 연결된 데이터베이스가 비어 있습니다. [데이터 관리] 탭에서 기존 백업(JSON) 파일을 복원해주세요.</span>
+                  </div>
+                  <button onClick={() => handleTabChange('management')} className="px-5 py-2.5 bg-red-900/60 hover:bg-red-800 rounded-lg text-white whitespace-nowrap transition border border-red-700/50">데이터 관리로 이동</button>
+                </div>
+             </div>
+          )}
 
           {guideModal.isOpen && (
              <div className="fixed inset-0 z-[400] flex items-center justify-center bg-black/80 p-4 animate-in fade-in duration-200">
@@ -1345,7 +1498,43 @@
                     리더 길드전 전략실
                   </h1>
                 </div>
+                <div className="mt-4 md:mt-0 px-3 py-1.5 bg-zinc-800 rounded-lg border border-zinc-700 text-xs font-bold text-zinc-400 flex items-center gap-2">
+                  <span>접속 권한:</span>
+                  <span className={`px-2 py-0.5 rounded text-black ${isAdminMode?'bg-yellow-500':userRole==='leader'?'bg-blue-400':'bg-zinc-400'}`}>
+                    {isAdminMode ? '관리자' : userRole === 'leader' ? '기록조' : '일반열람'}
+                  </span>
+                </div>
               </div>
+              
+              {/* 통합 필터 패널 (기간 및 상대 길드) */}
+              <div className="bg-zinc-950/50 border-t border-zinc-700 p-4 px-6 flex flex-col sm:flex-row items-center gap-6 justify-between">
+                <div className="flex items-center gap-3">
+                  <span className="text-zinc-400 font-bold text-sm flex items-center gap-1"><IconFilter /> 데이터 기준:</span>
+                  <select 
+                    value={dateFilter} 
+                    onChange={e => setDateFilter(e.target.value)} 
+                    className="bg-zinc-800 border border-zinc-600 text-zinc-200 text-sm rounded-lg px-3 py-1.5 focus:ring-1 focus:ring-yellow-600 outline-none"
+                  >
+                    <option value="all">전체 기간</option>
+                    <option value="7days">최근 7일</option>
+                    <option value="30days">최근 30일</option>
+                  </select>
+                </div>
+                
+                <div className="flex items-center gap-3">
+                  <label className="flex items-center gap-2 text-sm text-zinc-300 font-bold cursor-pointer">
+                    <input type="checkbox" checked={useRecentOpponentsFilter} onChange={e=>setUseRecentOpponentsFilter(e.target.checked)} className="keep-checkbox"/>
+                    최근 5개 상대 길드 전적만 보기
+                  </label>
+                </div>
+              </div>
+              {useRecentOpponentsFilter && recentOpponents.length > 0 && (
+                 <div className="bg-yellow-900/20 text-yellow-500 text-xs font-bold px-6 py-2 border-t border-yellow-900/30 flex items-center gap-2">
+                   <span>🔥 타겟 분석 길드:</span> 
+                   <span className="text-zinc-200">{recentOpponents.join(', ')}</span>
+                 </div>
+              )}
+
               <div className="flex border-t border-zinc-700 bg-zinc-900 flex-wrap">
                 <button onClick={() => handleTabChange('records', 'attack')} className={`flex-1 py-4 font-black text-sm md:text-base transition-all flex items-center justify-center gap-2 ${mainTab === 'records' ? 'gold-bg-active' : 'text-zinc-500 hover:bg-zinc-800/50 hover:text-zinc-300'}`}>
                   <span className={mainTab === 'records' ? 'gold-gradient-text drop-shadow-sm' : ''}>길드전 기록</span>
@@ -1379,169 +1568,171 @@
 
             {mainTab === 'records' && (
               <div className="space-y-6 animate-in fade-in duration-300">
-                <section className={`bg-zinc-900 border border-zinc-700 p-4 md:p-8 rounded-2xl shadow-lg ${editingId ? 'border-yellow-600 bg-yellow-950/10' : ''}`}>
-                  <h2 className="text-lg md:text-xl font-black text-zinc-100 mb-6 flex items-center gap-2">
-                    {editingId ? <><span className="gold-gradient-text"><IconEdit /></span> 기록 수정 중 ({subTab==='attack'?'공격':'방어'})</> : (subTab==='attack'?'⚔️ 길드전 공격 기록 추가':'🛡️ 길드전 방어 기록 추가')}
-                  </h2>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                    <div>
-                      <div className="flex justify-between items-center mb-1.5">
-                        <label className="block text-sm font-bold text-zinc-400">길드원 닉네임</label>
-                        <label className="flex items-center gap-1.5 text-xs text-yellow-600/80 cursor-pointer hover:text-yellow-500 font-bold">
-                          <input type="checkbox" checked={keepNickname} onChange={(e) => setKeepNickname(e.target.checked)} className="keep-checkbox" />
-                          입력 유지
-                        </label>
+                {isEditor && (
+                  <section className={`bg-zinc-900 border border-zinc-700 p-4 md:p-8 rounded-2xl shadow-lg ${editingId ? 'border-yellow-600 bg-yellow-950/10' : ''}`}>
+                    <h2 className="text-lg md:text-xl font-black text-zinc-100 mb-6 flex items-center gap-2">
+                      {editingId ? <><span className="gold-gradient-text"><IconEdit /></span> 기록 수정 중 ({subTab==='attack'?'공격':'방어'})</> : (subTab==='attack'?'⚔️ 길드전 공격 기록 추가':'🛡️ 길드전 방어 기록 추가')}
+                    </h2>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                      <div>
+                        <div className="flex justify-between items-center mb-1.5">
+                          <label className="block text-sm font-bold text-zinc-400">길드원 닉네임</label>
+                          <label className="flex items-center gap-1.5 text-xs text-yellow-600/80 cursor-pointer hover:text-yellow-500 font-bold">
+                            <input type="checkbox" checked={keepNickname} onChange={(e) => setKeepNickname(e.target.checked)} className="keep-checkbox" />
+                            입력 유지
+                          </label>
+                        </div>
+                        <input type="text" value={nickname} onChange={(e) => setNickname(e.target.value)} className="w-full px-4 py-3 bg-zinc-800 border border-zinc-600 rounded-xl text-zinc-100 font-bold outline-none focus:ring-2 focus:ring-yellow-600"/>
                       </div>
-                      <input type="text" value={nickname} onChange={(e) => setNickname(e.target.value)} className="w-full px-4 py-3 bg-zinc-800 border border-zinc-600 rounded-xl text-zinc-100 font-bold outline-none focus:ring-2 focus:ring-yellow-600"/>
-                    </div>
-                    <div>
-                      <div className="flex justify-between items-center mb-1.5">
-                        <label className="block text-sm font-bold text-zinc-400">날짜</label>
-                        <label className="flex items-center gap-1.5 text-xs text-yellow-600/80 cursor-pointer hover:text-yellow-500 font-bold">
-                          <input type="checkbox" checked={keepDate} onChange={(e) => setKeepDate(e.target.checked)} className="keep-checkbox" />
-                          입력 유지
-                        </label>
+                      <div>
+                        <div className="flex justify-between items-center mb-1.5">
+                          <label className="block text-sm font-bold text-zinc-400">날짜</label>
+                          <label className="flex items-center gap-1.5 text-xs text-yellow-600/80 cursor-pointer hover:text-yellow-500 font-bold">
+                            <input type="checkbox" checked={keepDate} onChange={(e) => setKeepDate(e.target.checked)} className="keep-checkbox" />
+                            입력 유지
+                          </label>
+                        </div>
+                        <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="w-full px-4 py-3 bg-zinc-800 border border-zinc-600 rounded-xl text-zinc-100 font-bold outline-none focus:ring-2 focus:ring-yellow-600"/>
                       </div>
-                      <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="w-full px-4 py-3 bg-zinc-800 border border-zinc-600 rounded-xl text-zinc-100 font-bold outline-none focus:ring-2 focus:ring-yellow-600"/>
-                    </div>
-                    <div>
-                      <div className="flex justify-between items-center mb-1.5">
-                        <label className="block text-sm font-bold text-zinc-400">상대 길드</label>
-                        <label className="flex items-center gap-1.5 text-xs text-yellow-600/80 cursor-pointer hover:text-yellow-500 font-bold">
-                          <input type="checkbox" checked={keepOpponent} onChange={(e) => setKeepOpponent(e.target.checked)} className="keep-checkbox" />
-                          입력 유지
-                        </label>
+                      <div>
+                        <div className="flex justify-between items-center mb-1.5">
+                          <label className="block text-sm font-bold text-zinc-400">상대 길드</label>
+                          <label className="flex items-center gap-1.5 text-xs text-yellow-600/80 cursor-pointer hover:text-yellow-500 font-bold">
+                            <input type="checkbox" checked={keepOpponent} onChange={(e) => setKeepOpponent(e.target.checked)} className="keep-checkbox" />
+                            입력 유지
+                          </label>
+                        </div>
+                        <input type="text" value={opponent} onChange={(e) => setOpponent(e.target.value)} className="w-full px-4 py-3 bg-zinc-800 border border-zinc-600 rounded-xl text-zinc-100 font-bold outline-none focus:ring-2 focus:ring-yellow-600"/>
                       </div>
-                      <input type="text" value={opponent} onChange={(e) => setOpponent(e.target.value)} className="w-full px-4 py-3 bg-zinc-800 border border-zinc-600 rounded-xl text-zinc-100 font-bold outline-none focus:ring-2 focus:ring-yellow-600"/>
                     </div>
-                  </div>
 
-                  {subTab === 'attack' ? (
-                    <div className="space-y-4">
-                      {attackMatches.map((match, index) => (
-                        <div key={index} className="flex flex-col gap-3 bg-zinc-800 p-3 md:p-4 rounded-xl border border-zinc-600">
-                          
-                          <div className="flex flex-col xl:flex-row items-start xl:items-center justify-between w-full border-b border-zinc-700 pb-3 gap-3">
-                            <div className="flex items-center gap-2 w-full xl:w-auto flex-1">
-                              <span className="font-black text-zinc-500 w-5 text-center shrink-0">{index+1}.</span>
-                              <div className="relative flex-1 flex items-center">
-                                <div className="absolute left-2.5 text-zinc-500"><IconClipboard /></div>
-                                <input id={`atk-paste-${index}`} type="text" placeholder="빠른 붙여넣기 (예: 루디 크리스 델론즈 승 밀리아 카일 로지)" 
-                                  className="w-full pl-9 pr-2 py-2 bg-zinc-900 border border-zinc-600 rounded-lg text-xs sm:text-sm text-zinc-200 outline-none focus:ring-2 focus:ring-yellow-600"
-                                  onKeyDown={(e)=>{if(e.key==='Enter'){e.preventDefault();handleAttackQuickPaste(index, e.target.value);e.target.value='';}}}
-                                />
-                              </div>
-                              <button onClick={()=>{const el=document.getElementById(`atk-paste-${index}`); if(el&&el.value){handleAttackQuickPaste(index, el.value);el.value='';}}} className="px-3 py-2 gold-button font-bold rounded-lg text-xs sm:text-sm shrink-0">확인</button>
-                            </div>
+                    {subTab === 'attack' ? (
+                      <div className="space-y-4">
+                        {attackMatches.map((match, index) => (
+                          <div key={index} className="flex flex-col gap-3 bg-zinc-800 p-3 md:p-4 rounded-xl border border-zinc-600">
                             
-                            <div className="flex flex-col sm:flex-row items-center gap-2 w-full xl:w-auto shrink-0">
-                               <select onChange={(e) => {fillAttackTeamQuick(index, 'myTeam', e.target.value); e.target.value='';}} className="w-full sm:w-auto bg-zinc-900 border border-yellow-600/50 text-yellow-500 font-bold rounded-lg px-2 py-2 outline-none text-xs shadow-sm focus:ring-1 focus:ring-yellow-500">
-                                 <option value="" className="text-zinc-400">⚡ 아군 TOP 10 빠른 입력</option>
-                                 {topDecks.topAtk.map((d, i) => <option key={i} value={d} className="bg-zinc-900 text-yellow-500">{d}</option>)}
-                               </select>
-                               <select onChange={(e) => {fillAttackTeamQuick(index, 'enemyTeam', e.target.value); e.target.value='';}} className="w-full sm:w-auto bg-zinc-900 border border-yellow-600/50 text-yellow-500 font-bold rounded-lg px-2 py-2 outline-none text-xs shadow-sm focus:ring-1 focus:ring-yellow-500">
-                                 <option value="" className="text-zinc-400">⚡ 적군 TOP 10 빠른 입력</option>
-                                 {topDecks.topDef.map((d, i) => <option key={i} value={d} className="bg-zinc-900 text-yellow-500">{d}</option>)}
-                               </select>
-                            </div>
-                          </div>
-
-                          <div className={`flex w-full ${isMobileView ? 'flex-col gap-3' : 'flex-row items-center gap-4'}`}>
-                            <div className={`flex flex-1 gap-2 p-2 bg-blue-950/40 border border-blue-800 rounded-lg ${isMobileView?'flex-col':'flex-row'}`}>
-                              <div className="px-2 py-1.5 bg-blue-900 text-blue-200 text-xs font-black rounded flex items-center justify-center shrink-0">아군 공격</div>
-                              <div className="grid grid-cols-3 gap-1 sm:gap-2 flex-1 w-full">
-                                {[0,1,2].map(i => <SearchableSelect key={i} value={match.myTeam[i]} onChange={(v)=>handleAttackTeamChange(index, 'myTeam', i, v)} placeholder="영웅" groups={HERO_GROUPS} className="h-10" />)}
+                            <div className="flex flex-col xl:flex-row items-start xl:items-center justify-between w-full border-b border-zinc-700 pb-3 gap-3">
+                              <div className="flex items-center gap-2 w-full xl:w-auto flex-1">
+                                <span className="font-black text-zinc-500 w-5 text-center shrink-0">{index+1}.</span>
+                                <div className="relative flex-1 flex items-center">
+                                  <div className="absolute left-2.5 text-zinc-500"><IconClipboard /></div>
+                                  <input id={`atk-paste-${index}`} type="text" placeholder="빠른 붙여넣기 (예: 루디 크리스 델론즈 승 밀리아 카일 로지)" 
+                                    className="w-full pl-9 pr-2 py-2 bg-zinc-900 border border-zinc-600 rounded-lg text-xs sm:text-sm text-zinc-200 outline-none focus:ring-2 focus:ring-yellow-600"
+                                    onKeyDown={(e)=>{if(e.key==='Enter'){e.preventDefault();handleAttackQuickPaste(index, e.target.value);e.target.value='';}}}
+                                  />
+                                </div>
+                                <button onClick={()=>{const el=document.getElementById(`atk-paste-${index}`); if(el&&el.value){handleAttackQuickPaste(index, el.value);el.value='';}}} className="px-3 py-2 gold-button font-bold rounded-lg text-xs sm:text-sm shrink-0">확인</button>
                               </div>
-                            </div>
-                            <select value={match.result} onChange={(e) => handleAttackResultChange(index, e.target.value)} className={`h-10 px-2 bg-zinc-900 border border-zinc-600 rounded-lg font-black text-sm shrink-0 ${match.result==='승리'?'text-blue-400':'text-red-400'}`}>
-                              <option value="승리">승리</option><option value="패배">패배</option>
-                            </select>
-                            <div className={`flex flex-1 gap-2 p-2 bg-red-950/40 border border-red-800 rounded-lg ${isMobileView?'flex-col':'flex-row'}`}>
-                              <div className="px-2 py-1.5 bg-red-900 text-red-200 text-xs font-black rounded flex items-center justify-center shrink-0">적군 방어</div>
-                              <div className="grid grid-cols-3 gap-1 sm:gap-2 flex-1 w-full">
-                                {[0,1,2].map(i => <SearchableSelect key={i} value={match.enemyTeam[i]} onChange={(v)=>handleAttackTeamChange(index, 'enemyTeam', i, v)} placeholder="영웅" groups={HERO_GROUPS} className="h-10" />)}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="space-y-6">
-                      <div className="bg-zinc-800 p-3 md:p-4 rounded-xl border border-zinc-600 mb-2">
-                        <label className="block text-sm font-bold text-zinc-400 mb-2 flex items-center gap-2"><IconClipboard/> 텍스트로 한 번에 입력 (다중 파싱 지원)</label>
-                        <div className="flex flex-col sm:flex-row gap-2 w-full">
-                          <textarea id="def-global-paste" rows="3" placeholder="예시: [내 방어덱] 루디 크리스 델론즈 / [1타] 밀리아 카일 로지 (방어 성공) / [2타] 프레이야 트루드 연희 (방어 실패) 등 여러 줄을 붙여넣으세요." 
-                            className="flex-1 w-full p-3 bg-zinc-900 border border-zinc-600 rounded-lg text-sm text-zinc-200 outline-none focus:ring-2 focus:ring-yellow-600 custom-scrollbar"></textarea>
-                          <button onClick={()=>{const el=document.getElementById('def-global-paste'); if(el&&el.value){handleDefenseGlobalPaste(el.value);el.value='';}}} className="px-4 py-3 gold-button font-black rounded-lg shrink-0 w-full sm:w-auto">자동 완성</button>
-                        </div>
-                      </div>
-
-                      <div className="bg-blue-950/30 p-3 md:p-4 border border-blue-800 rounded-xl relative">
-                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-3 gap-2 border-b border-blue-900/50 pb-3">
-                          <label className="text-sm font-black text-blue-300 flex items-center gap-2"><IconShield/> [고정] 아군 방어 영웅</label>
-                          <select onChange={(e) => {fillDefenseTeamQuick(e.target.value); e.target.value='';}} className="bg-zinc-900 border border-yellow-600/50 text-yellow-500 font-bold rounded-lg px-2 py-1.5 outline-none text-xs w-full sm:w-auto shadow-sm">
-                            <option value="" className="bg-zinc-900 text-zinc-400">⚡ 아군 방어덱 TOP 10 빠른 입력</option>
-                            {topDecks.topDef.map((d, i) => <option key={i} value={d} className="bg-zinc-900 text-yellow-500">{d}</option>)}
-                          </select>
-                        </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3 w-full">
-                          {[0,1,2].map(i => <SearchableSelect key={i} value={defenseMyTeam[i]} onChange={(v)=>handleDefenseMyTeamChange(i, v)} placeholder="아군 방어 영웅" groups={HERO_GROUPS} className="h-10 sm:h-12" />)}
-                        </div>
-                      </div>
-                      <div className="space-y-3">
-                        <label className="block text-sm font-black text-rose-300 mb-1 flex justify-between items-center">
-                          <span>적군 공격 기록 (최대 15회 추가 가능)</span>
-                          <span className="text-xs text-zinc-500 bg-zinc-800 px-2 py-1 rounded">현재 {defenseMatches.length} / 15</span>
-                        </label>
-                        <div className="max-h-[400px] overflow-y-auto custom-scrollbar space-y-3 pr-2 w-full">
-                          {defenseMatches.map((match, index) => (
-                            <div key={index} className="flex flex-col gap-3 bg-rose-950/20 p-3 md:p-4 rounded-xl border border-rose-900/50 w-full">
                               
-                              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-rose-900/30 pb-2 mb-1 w-full">
-                                <span className="font-bold text-rose-500 text-sm shrink-0">적군 {index + 1}타</span>
-                                <select onChange={(e) => {
-                                    if(!e.target.value) return;
-                                    const heroes = e.target.value.split(',').map(h=>h.trim());
-                                    handleDefenseEnemyChange(index, 0, heroes[0]||'');
-                                    handleDefenseEnemyChange(index, 1, heroes[1]||'');
-                                    handleDefenseEnemyChange(index, 2, heroes[2]||'');
-                                    e.target.value = ''; 
-                                  }} 
-                                  className="bg-zinc-900 border border-yellow-600/50 text-yellow-500 font-bold rounded-lg px-2 py-1.5 outline-none text-xs w-full sm:w-auto shadow-sm"
-                                >
-                                  <option value="" className="bg-zinc-900 text-zinc-400">⚡ 적군 공격덱 TOP 10 빠른 입력</option>
-                                  {topDecks.topAtk.map((d, i) => <option key={i} value={d} className="bg-zinc-900 text-yellow-500">{d}</option>)}
-                                </select>
+                              <div className="flex flex-col sm:flex-row items-center gap-2 w-full xl:w-auto shrink-0">
+                                 <select onChange={(e) => {fillAttackTeamQuick(index, 'myTeam', e.target.value); e.target.value='';}} className="w-full sm:w-auto bg-zinc-900 border border-yellow-600/50 text-yellow-500 font-bold rounded-lg px-2 py-2 outline-none text-xs shadow-sm focus:ring-1 focus:ring-yellow-500">
+                                   <option value="" className="text-zinc-400">⚡ 아군 TOP 10 빠른 입력</option>
+                                   {topDecks.topAtk.map((d, i) => <option key={i} value={d} className="bg-zinc-900 text-yellow-500">{d}</option>)}
+                                 </select>
+                                 <select onChange={(e) => {fillAttackTeamQuick(index, 'enemyTeam', e.target.value); e.target.value='';}} className="w-full sm:w-auto bg-zinc-900 border border-yellow-600/50 text-yellow-500 font-bold rounded-lg px-2 py-2 outline-none text-xs shadow-sm focus:ring-1 focus:ring-yellow-500">
+                                   <option value="" className="text-zinc-400">⚡ 적군 TOP 10 빠른 입력</option>
+                                   {topDecks.topDef.map((d, i) => <option key={i} value={d} className="bg-zinc-900 text-yellow-500">{d}</option>)}
+                                 </select>
                               </div>
-
-                              <div className="flex flex-col sm:flex-row items-center gap-3 w-full">
-                                <div className="grid grid-cols-3 gap-1 sm:gap-2 flex-1 w-full">
-                                  {[0,1,2].map(i => <SearchableSelect key={i} value={match.enemyTeam[i]} onChange={(v)=>handleDefenseEnemyChange(index, i, v)} placeholder="적군 영웅" groups={HERO_GROUPS} className="h-10" />)}
-                                </div>
-                                <div className="flex w-full sm:w-auto gap-2">
-                                  <select value={match.result} onChange={(e) => handleDefenseResultChange(index, e.target.value)} className={`h-10 px-3 bg-zinc-900 border border-zinc-600 rounded-lg font-black text-sm flex-1 sm:w-28 ${match.result==='방어 성공'?'text-blue-400':'text-red-400'}`}>
-                                    <option value="방어 성공">방어 성공</option><option value="방어 실패">방어 실패</option>
-                                  </select>
-                                  {index === defenseMatches.length - 1 && index < 14 && (
-                                    <button onClick={addDefenseMatch} className="h-10 px-4 gold-button rounded-lg font-bold flex items-center justify-center gap-1 shrink-0"><IconPlus/> 추가</button>
-                                  )}
-                                </div>
-                              </div>
-
                             </div>
-                          ))}
+
+                            <div className={`flex w-full ${isMobileView ? 'flex-col gap-3' : 'flex-row items-center gap-4'}`}>
+                              <div className={`flex flex-1 gap-2 p-2 bg-blue-950/40 border border-blue-800 rounded-lg ${isMobileView?'flex-col':'flex-row'}`}>
+                                <div className="px-2 py-1.5 bg-blue-900 text-blue-200 text-xs font-black rounded flex items-center justify-center shrink-0">아군 공격</div>
+                                <div className="grid grid-cols-3 gap-1 sm:gap-2 flex-1 w-full">
+                                  {[0,1,2].map(i => <SearchableSelect key={i} value={match.myTeam[i]} onChange={(v)=>handleAttackTeamChange(index, 'myTeam', i, v)} placeholder="영웅" groups={HERO_GROUPS} className="h-10" />)}
+                                </div>
+                              </div>
+                              <select value={match.result} onChange={(e) => handleAttackResultChange(index, e.target.value)} className={`h-10 px-2 bg-zinc-900 border border-zinc-600 rounded-lg font-black text-sm shrink-0 ${match.result==='승리'?'text-blue-400':'text-red-400'}`}>
+                                <option value="승리">승리</option><option value="패배">패배</option>
+                              </select>
+                              <div className={`flex flex-1 gap-2 p-2 bg-red-950/40 border border-red-800 rounded-lg ${isMobileView?'flex-col':'flex-row'}`}>
+                                <div className="px-2 py-1.5 bg-red-900 text-red-200 text-xs font-black rounded flex items-center justify-center shrink-0">적군 방어</div>
+                                <div className="grid grid-cols-3 gap-1 sm:gap-2 flex-1 w-full">
+                                  {[0,1,2].map(i => <SearchableSelect key={i} value={match.enemyTeam[i]} onChange={(v)=>handleAttackTeamChange(index, 'enemyTeam', i, v)} placeholder="영웅" groups={HERO_GROUPS} className="h-10" />)}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="space-y-6">
+                        <div className="bg-zinc-800 p-3 md:p-4 rounded-xl border border-zinc-600 mb-2">
+                          <label className="block text-sm font-bold text-zinc-400 mb-2 flex items-center gap-2"><IconClipboard/> 텍스트로 한 번에 입력 (다중 파싱 지원)</label>
+                          <div className="flex flex-col sm:flex-row gap-2 w-full">
+                            <textarea id="def-global-paste" rows="3" placeholder="예시: [내 방어덱] 루디 크리스 델론즈 / [1타] 밀리아 카일 로지 (방어 성공) / [2타] 프레이야 트루드 연희 (방어 실패) 등 여러 줄을 붙여넣으세요." 
+                              className="flex-1 w-full p-3 bg-zinc-900 border border-zinc-600 rounded-lg text-sm text-zinc-200 outline-none focus:ring-2 focus:ring-yellow-600 custom-scrollbar"></textarea>
+                            <button onClick={()=>{const el=document.getElementById('def-global-paste'); if(el&&el.value){handleDefenseGlobalPaste(el.value);el.value='';}}} className="px-4 py-3 gold-button font-black rounded-lg shrink-0 w-full sm:w-auto">자동 완성</button>
+                          </div>
+                        </div>
+
+                        <div className="bg-blue-950/30 p-3 md:p-4 border border-blue-800 rounded-xl relative">
+                          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-3 gap-2 border-b border-blue-900/50 pb-3">
+                            <label className="text-sm font-black text-blue-300 flex items-center gap-2"><IconShield/> [고정] 아군 방어 영웅</label>
+                            <select onChange={(e) => {fillDefenseTeamQuick(e.target.value); e.target.value='';}} className="bg-zinc-900 border border-yellow-600/50 text-yellow-500 font-bold rounded-lg px-2 py-1.5 outline-none text-xs w-full sm:w-auto shadow-sm">
+                              <option value="" className="bg-zinc-900 text-zinc-400">⚡ 아군 방어덱 TOP 10 빠른 입력</option>
+                              {topDecks.topDef.map((d, i) => <option key={i} value={d} className="bg-zinc-900 text-yellow-500">{d}</option>)}
+                            </select>
+                          </div>
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3 w-full">
+                            {[0,1,2].map(i => <SearchableSelect key={i} value={defenseMyTeam[i]} onChange={(v)=>handleDefenseMyTeamChange(i, v)} placeholder="아군 방어 영웅" groups={HERO_GROUPS} className="h-10 sm:h-12" />)}
+                          </div>
+                        </div>
+                        <div className="space-y-3">
+                          <label className="block text-sm font-black text-rose-300 mb-1 flex justify-between items-center">
+                            <span>적군 공격 기록 (최대 15회 추가 가능)</span>
+                            <span className="text-xs text-zinc-500 bg-zinc-800 px-2 py-1 rounded">현재 {defenseMatches.length} / 15</span>
+                          </label>
+                          <div className="max-h-[400px] overflow-y-auto custom-scrollbar space-y-3 pr-2 w-full">
+                            {defenseMatches.map((match, index) => (
+                              <div key={index} className="flex flex-col gap-3 bg-rose-950/20 p-3 md:p-4 rounded-xl border border-rose-900/50 w-full">
+                                
+                                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-rose-900/30 pb-2 mb-1 w-full">
+                                  <span className="font-bold text-rose-500 text-sm shrink-0">적군 {index + 1}타</span>
+                                  <select onChange={(e) => {
+                                      if(!e.target.value) return;
+                                      const heroes = e.target.value.split(',').map(h=>h.trim());
+                                      handleDefenseEnemyChange(index, 0, heroes[0]||'');
+                                      handleDefenseEnemyChange(index, 1, heroes[1]||'');
+                                      handleDefenseEnemyChange(index, 2, heroes[2]||'');
+                                      e.target.value = ''; 
+                                    }} 
+                                    className="bg-zinc-900 border border-yellow-600/50 text-yellow-500 font-bold rounded-lg px-2 py-1.5 outline-none text-xs w-full sm:w-auto shadow-sm"
+                                  >
+                                    <option value="" className="bg-zinc-900 text-zinc-400">⚡ 적군 공격덱 TOP 10 빠른 입력</option>
+                                    {topDecks.topAtk.map((d, i) => <option key={i} value={d} className="bg-zinc-900 text-yellow-500">{d}</option>)}
+                                  </select>
+                                </div>
+
+                                <div className="flex flex-col sm:flex-row items-center gap-3 w-full">
+                                  <div className="grid grid-cols-3 gap-1 sm:gap-2 flex-1 w-full">
+                                    {[0,1,2].map(i => <SearchableSelect key={i} value={match.enemyTeam[i]} onChange={(v)=>handleDefenseEnemyChange(index, i, v)} placeholder="적군 영웅" groups={HERO_GROUPS} className="h-10" />)}
+                                  </div>
+                                  <div className="flex w-full sm:w-auto gap-2">
+                                    <select value={match.result} onChange={(e) => handleDefenseResultChange(index, e.target.value)} className={`h-10 px-3 bg-zinc-900 border border-zinc-600 rounded-lg font-black text-sm flex-1 sm:w-28 ${match.result==='방어 성공'?'text-blue-400':'text-red-400'}`}>
+                                      <option value="방어 성공">방어 성공</option><option value="방어 실패">방어 실패</option>
+                                    </select>
+                                    {index === defenseMatches.length - 1 && index < 14 && (
+                                      <button onClick={addDefenseMatch} className="h-10 px-4 gold-button rounded-lg font-bold flex items-center justify-center gap-1 shrink-0"><IconPlus/> 추가</button>
+                                    )}
+                                  </div>
+                                </div>
+
+                              </div>
+                            ))}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  )}
+                    )}
 
-                  <div className="flex gap-3 mt-6">
-                    <button onClick={handleSave} className="flex-1 gold-button font-black py-4 rounded-xl transition-all flex items-center justify-center gap-2"><IconSave /> 저장하기</button>
-                    {editingId && <button onClick={resetForm} className="bg-zinc-800 text-zinc-400 font-bold py-4 px-6 rounded-xl hover:bg-zinc-700 hover:text-zinc-200 border border-zinc-700 transition-colors"><IconX /> 취소</button>}
-                  </div>
-                </section>
+                    <div className="flex gap-3 mt-6">
+                      <button onClick={handleSave} className="flex-1 gold-button font-black py-4 rounded-xl transition-all flex items-center justify-center gap-2"><IconSave /> 저장하기</button>
+                      {editingId && <button onClick={resetForm} className="bg-zinc-800 text-zinc-400 font-bold py-4 px-6 rounded-xl hover:bg-zinc-700 hover:text-zinc-200 border border-zinc-700 transition-colors"><IconX /> 취소</button>}
+                    </div>
+                  </section>
+                )}
 
                 <section className="flex flex-col sm:flex-row gap-3 mt-8">
                   <input type="text" placeholder="영웅/닉네임 검색..." value={filterChar} onChange={(e) => setFilterChar(e.target.value)} className="flex-1 px-4 py-4 bg-zinc-900 border border-zinc-700 rounded-xl text-zinc-100 font-bold outline-none focus:ring-2 focus:ring-yellow-600" />
@@ -1598,7 +1789,7 @@
                                 const isExpanded = expandedRecords[record.id] || filterChar.trim() !== '';
                                 return (
                                   <div key={record.id} className="bg-zinc-800 p-3 md:p-4 rounded-xl border border-zinc-600 relative w-full">
-                                    {(record.authorId === user?.uid || isAdminMode) && (
+                                    {isEditor && (record.authorId === user?.uid || isAdminMode) && (
                                       <div className="absolute top-3 right-3 flex gap-1 sm:gap-2">
                                         <button onClick={(e) => { e.stopPropagation(); handleEditClick(record); }} className="text-zinc-400 hover:text-yellow-500 p-1"><IconEdit /></button>
                                         <button onClick={(e) => { e.stopPropagation(); handleDelete(record.id); }} className="text-zinc-400 hover:text-red-500 p-1"><IconTrash /></button>
@@ -1694,7 +1885,7 @@
                     </div>
                   </div>
                   
-                  {counterEnemyFilter.filter(Boolean).length > 0 && (
+                  {isEditor && counterEnemyFilter.filter(Boolean).length > 0 && (
                     <button 
                       onClick={() => setGuideModal({
                         isOpen: true, type: 'counter', defTeam: counterEnemyFilter.filter(Boolean), atkTeam: ['', '', ''],
@@ -1744,7 +1935,7 @@
                                 <div className="text-xs font-bold text-zinc-500 flex items-center flex-wrap gap-2 mt-2">
                                   <span>카운터 덱: <span className="text-zinc-300 ml-1">{getSafeArray(data.attackerTeam).join(', ')}</span></span>
                                   
-                                  {!data.hasGuide && (
+                                  {isEditor && !data.hasGuide && (
                                     <button 
                                       onClick={(e) => {
                                         e.stopPropagation();
@@ -1782,18 +1973,20 @@
                           
                           {expandedCounters[idx] && data.hasGuide && (
                             <div className="p-4 md:p-5 bg-zinc-900/80 relative group animate-in slide-in-from-top-2">
-                              <button 
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setGuideModal({
-                                    isOpen: true, type: 'counter', defTeam: data.defenseTeam, atkTeam: data.attackerTeam,
-                                    skill: data.skill||'', turn: data.turn||'', formation: data.formation||'', equip1: data.equips[0]||'', equip2: data.equips[1]||'', equip3: data.equips[2]||'', tip: data.tip||''
-                                  });
-                                }} 
-                                className="absolute top-4 right-4 text-[10px] font-bold bg-zinc-800 text-zinc-400 border border-zinc-700 px-2 py-1 rounded hover:text-yellow-500 hover:border-yellow-700/50 transition opacity-0 group-hover:opacity-100"
-                              >
-                                공략 수정 제안
-                              </button>
+                              {isEditor && (
+                                <button 
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setGuideModal({
+                                      isOpen: true, type: 'counter', defTeam: data.defenseTeam, atkTeam: data.attackerTeam,
+                                      skill: data.skill||'', turn: data.turn||'', formation: data.formation||'', equip1: data.equips[0]||'', equip2: data.equips[1]||'', equip3: data.equips[2]||'', tip: data.tip||''
+                                    });
+                                  }} 
+                                  className="absolute top-4 right-4 text-[10px] font-bold bg-zinc-800 text-zinc-400 border border-zinc-700 px-2 py-1 rounded hover:text-yellow-500 hover:border-yellow-700/50 transition opacity-0 group-hover:opacity-100"
+                                >
+                                  공략 수정 제안
+                                </button>
+                              )}
                               
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div className="space-y-3">
@@ -1868,7 +2061,7 @@
                               <div className="mb-2 flex items-center gap-2 flex-wrap">
                                 {renderHeroTags(data.heroes)}
                                 {data.guides && data.guides.length > 0 && <span className="bg-blue-600/20 text-blue-400 text-[10px] font-black px-2 py-0.5 rounded mt-1 sm:mt-0">공식 운영법</span>}
-                                {(!data.guides || data.guides.length === 0) && (
+                                {isEditor && (!data.guides || data.guides.length === 0) && (
                                   <button 
                                     onClick={(e) => {
                                       e.stopPropagation();
@@ -1900,19 +2093,21 @@
 
                         {expandedDefGuides[idx] && data.guides && data.guides.length > 0 && (
                           <div className="p-4 sm:p-5 bg-zinc-900/50 border-t border-zinc-700 animate-in slide-in-from-top-2 relative group/guide w-full">
-                            <button 
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                const g = data.guides[0];
-                                setGuideModal({
-                                  isOpen: true, type: 'defense', defTeam: data.heroes, atkTeam: [],
-                                  skill: g.skill||'', turn: '', formation: '', equip1: g.equip1||'', equip2: g.equip2||'', equip3: g.equip3||'', tip: g.tip||''
-                                });
-                              }} 
-                              className="absolute top-4 right-4 text-[10px] font-bold bg-zinc-800 text-zinc-400 border border-zinc-700 px-2 py-1 rounded hover:text-yellow-500 hover:border-yellow-700/50 transition opacity-0 group-hover/guide:opacity-100"
-                            >
-                              운영법 수정 제안
-                            </button>
+                            {isEditor && (
+                              <button 
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  const g = data.guides[0];
+                                  setGuideModal({
+                                    isOpen: true, type: 'defense', defTeam: data.heroes, atkTeam: [],
+                                    skill: g.skill||'', turn: '', formation: '', equip1: g.equip1||'', equip2: g.equip2||'', equip3: g.equip3||'', tip: g.tip||''
+                                  });
+                                }} 
+                                className="absolute top-4 right-4 text-[10px] font-bold bg-zinc-800 text-zinc-400 border border-zinc-700 px-2 py-1 rounded hover:text-yellow-500 hover:border-yellow-700/50 transition opacity-0 group-hover/guide:opacity-100"
+                              >
+                                운영법 수정 제안
+                              </button>
+                            )}
                             <div className="space-y-4">
                               {data.guides.map((g, gIdx) => (
                                 <div key={gIdx} className="w-full">
@@ -2046,7 +2241,7 @@
                      </div>
                      
                      {showDetailedMatchups && (
-                       <div className="p-0 overflow-x-auto custom-scrollbar animate-in slide-in-from-top-2">
+                       <div className="p-0 overflow-x-auto custom-scrollbar animate-in slide-in-from-top-2 flex flex-col">
                          <table className="w-full text-sm text-left whitespace-nowrap min-w-[750px]">
                            <thead className="bg-zinc-950 text-zinc-400 font-semibold border-y border-zinc-800">
                              <tr>
@@ -2072,7 +2267,7 @@
                                  </td>
                                </tr>
                              ) : (
-                               detailedMatchups.map((m, idx) => {
+                               paginatedMatchups.map((m, idx) => {
                                  let rowClass = "hover:bg-zinc-800/50 transition-colors ";
                                  let rankBadge = null;
                                  
@@ -2114,6 +2309,16 @@
                              )}
                            </tbody>
                          </table>
+                         
+                         {/* 더보기 페이징 버튼 */}
+                         {detailedMatchups.length > matchupLimit && (
+                           <div className="p-4 w-full flex justify-center border-t border-zinc-800">
+                             <button onClick={() => setMatchupLimit(prev => prev + 10)} className="px-6 py-3 bg-zinc-800/80 hover:bg-zinc-700 text-zinc-300 font-bold rounded-xl transition-colors w-full sm:w-1/2 flex items-center justify-center gap-2">
+                               <IconChevronDown />
+                               더보기 ({matchupLimit} / {detailedMatchups.length})
+                             </button>
+                           </div>
+                         )}
                        </div>
                      )}
                   </div>
@@ -2123,6 +2328,29 @@
 
             {mainTab === 'management' && isAdminMode && (
               <div className="gold-panel p-8 rounded-2xl space-y-10 animate-in fade-in">
+                
+                <div className="border-t border-yellow-900/30 pt-8">
+                  <h2 className="text-2xl font-black gold-gradient-text mb-4">데이터 서버 경로 (APP_ID) 확인</h2>
+                  <div className="bg-zinc-800 p-4 rounded-xl flex justify-between items-center border border-zinc-600">
+                    <code className="text-yellow-500 font-mono select-all" id="app-id-display">{APP_ID}</code>
+                    <button onClick={() => {
+                        navigator.clipboard.writeText(APP_ID).then(() => showAlert("복사 완료", "클립보드에 복사되었습니다.\nVercel 코드의 APP_ID 변수에 붙여넣으세요."));
+                    }} className="bg-zinc-900 border border-yellow-600 text-yellow-500 hover:bg-yellow-600 hover:text-black px-4 py-2 text-sm font-bold rounded-lg transition-colors">복사</button>
+                  </div>
+                  <p className="text-xs text-zinc-500 mt-2">Vercel 호스팅 시 기존 데이터를 보려면 소스코드의 <code>const APP_ID</code> 값을 위 값으로 변경하세요.</p>
+                </div>
+
+                <div className="border-t border-yellow-900/30 pt-8">
+                  <h2 className="text-2xl font-black gold-gradient-text mb-4">Vercel 이관용 데이터 백업/복원 (JSON)</h2>
+                  <p className="text-zinc-400 mb-4 text-sm font-medium">현재 서버의 모든 데이터를 파일로 내려받고, 다른 서버에 완벽하게 복원할 수 있습니다.</p>
+                  <div className="flex flex-col sm:flex-row gap-4">
+                    <button onClick={handleExportJSON} className="flex-1 px-6 py-5 bg-zinc-800 border border-yellow-600/50 text-yellow-500 font-black rounded-xl hover:bg-zinc-700 transition shadow-md">JSON 전체 데이터 백업</button>
+                    <label className="flex-1 px-6 py-5 bg-zinc-800 border border-blue-600/50 text-blue-500 font-black rounded-xl hover:bg-zinc-700 transition cursor-pointer text-center shadow-md">
+                      JSON 파일로 복원 (덮어쓰기)
+                      <input type="file" accept=".json" onChange={handleImportJSON} className="hidden" />
+                    </label>
+                  </div>
+                </div>
                 
                 <div className="border-t border-yellow-900/30 pt-8">
                   <h2 className="text-2xl font-black gold-gradient-text mb-4">데이터 일괄 추가 (다중 파싱)</h2>
@@ -2191,7 +2419,7 @@
                 </div>
 
                 <div className="border-t border-yellow-900/30 pt-8">
-                  <h2 className="text-2xl font-black gold-gradient-text mb-4">데이터 통합 다운로드 센터</h2>
+                  <h2 className="text-2xl font-black gold-gradient-text mb-4">엑셀(CSV) 다운로드</h2>
                   <div className="flex flex-col sm:flex-row gap-4">
                     <button onClick={handleExportStatsCSV} className="flex-1 px-6 py-5 gold-button font-black rounded-xl flex items-center justify-center gap-2 text-base shadow-lg"><IconBarChart /> 통계 데이터 다운로드</button>
                     <button onClick={handleExportAllCSV} className="flex-1 px-6 py-5 gold-button font-black rounded-xl flex items-center justify-center gap-2 text-base shadow-lg"><IconDownload /> 원본 로그 다운로드</button>
