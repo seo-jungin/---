@@ -241,7 +241,7 @@
       };
       
       try {
-        const config = typeof __firebase_config !== '1:619085647485:web:03cf09b1a9f0d7e6062b14' ? JSON.parse(__firebase_config) : fallback;
+        const config = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : fallback;
         if (config && config.apiKey) {
           const app = initializeApp(config);
           return { app, auth: getAuth(app), db: getFirestore(app), isValid: true };
@@ -251,9 +251,9 @@
       }
       return { app: null, auth: null, db: null, isValid: false };
     }
-    
+
     const fb = initFirebase();
-    const appId = typeof __app_id !== 'undefined' ? __app_id : 'sevens-guild-war-app';
+    const APP_ID = (typeof window !== 'undefined' && window.__app_id) ? window.__app_id : 'sevens-guild-war-app';
     const COLLECTION_NAME = 'guild_war_records';
     const GUIDE_COLLECTION = 'custom_guides';
 
@@ -293,7 +293,7 @@
       {"defense":["겔리두스","손오공","트루드"],"counters":[{"attacker":["겔리두스","손오공","트루드"],"skill":"손오공(위) / 겔리두스(위) / 트루드(위)","turn":"방어팀 선공","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"상세 세팅 정보 업데이트가 필요함","equip2":"상세 세팅 정보 업데이트가 필요함","equip3":"상세 세팅 정보 업데이트가 필요함","tip":"우리팀 펫이 카람 일 때 사용함."}]},
       {"defense":["바네사","연희","키리엘"],"counters":[{"attacker":["겔리두스","손오공","에이스"],"skill":"손오공(위) / 겔리두스(위) / 에이스(아래)","turn":"방어팀 선공","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"상세 세팅 정보 업데이트가 필요함","equip2":"상세 세팅 정보 업데이트가 필요함","equip3":"상세 세팅 정보 업데이트가 필요함","tip":"펫 유 사용 시 필승임."}]},
       {"defense":["스파이크","아멜리아","트루드"],"counters":[{"attacker":["린","멜키르","밀리아"],"skill":"린 (위) → 멜키르 (위) → 밀리아 (위) 순서로 사용\n\n속공 순서: 멜키르 - 린 - 밀리아\n\n총 속공: 150","turn":"후턴 / 펫: 카람\n\n힐밴 대상: 밀리아, 멜키르","formation":"기본 진형 (전열: 밀리아, 멜키르 / 후열: 린) / 기본 진형\n\n전열: 밀리아, 멜키르\n\n후열: 린","equip1":"밀리아: 주술사 / 효효받받 / 효적 100↑, 막기 50↑ (반지: 즉사반지)","equip2":"멜키르: 복수자 / 효공효효 / 효적 100↑, 부옵: 공 (반지: 5성 불사반지 이상)","equip3":"린: 선봉장 / 효효받받 / 효적 60↑, 부옵: 약공 (반지: 즉사반지)","tip":"트스아 덱을 파훼하기 위한 세팅으로, 각 캐릭터의 효과 적중(효적) 수치를 기준치 이상으로 맞추는 것이 중요합니다.\n상황에 따라 즉사 반지와 불사 반지를 적절히 활용하여 변수를 차단하시기 바랍니다.\n\n*속공 순서: 멜키르 - 린 - 밀리아 (속공 180 이상 권장)\n*펫: 카람\n*힐밴 대상: 밀리아, 멜키르 / 트스아 덱을 파훼하기 위한 세팅으로, 각 캐릭터의 효과 적중(효적) 수치를 기준치 이상으로 맞추는 것이 중요합니다.\n\n상황에 따라 즉사 반지와 불사 반지를 적절히 활용하여 변수를 차단하시기 바랍니다."},{"attacker":["스파이크","첸슬러","카론"],"skill":"상세 세팅 정보 업데이트가 필요함","turn":"방어팀 선공","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"전원: 조율자 세트 + 효과 저항 100% (필수)","equip2":"스파이크: 방생받받 or 생생받받","equip3":"첸슬러/카론: 방생받받 or 방방받받","tip":"3번 덱 파훼법임."},{"attacker":["리","스파이크","카론"],"skill":"리(아래) / 스파이크(위) / 카론(아래)","turn":"방어팀 선공","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"상세 세팅 정보 업데이트가 필요함","equip2":"상세 세팅 정보 업데이트가 필요함","equip3":"상세 세팅 정보 업데이트가 필요함","tip":"-"},{"attacker":["바네사","키리엘","프레이야"],"skill":"프레이야(위) / 바네사(아래) / 프레이야(아래)","turn":"공격팀 선공","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"상세 세팅 정보 업데이트가 필요함","equip2":"상세 세팅 정보 업데이트가 필요함","equip3":"상세 세팅 정보 업데이트가 필요함","tip":"-"},{"attacker":["아멜리아","카일","파이"],"skill":"카일(아래) / 카일(위) / 아멜리아(위)","turn":"공격팀 선공","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"카일: 속공 팀내 1,2위","equip2":"아멜리아: 수문장","equip3":"-","tip":"-"}]},
-      {"defense":["아라곤","팔라누스","플라튼"],"counters":[{"attacker":["루디","팔라누스","플라튼"],"skill":"루디(위) / 팔라누스(아래) / 플라튼(위)","turn":"방어팀 선공","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"상세 세팅 정보 업데이트가 필요함","equip2":"상세 세팅 정보 업데이트가 필요함","equip3":"상세 세팅 정보 업데이트가 필요함","tip":"-"},{"attacker":["로지","아라곤","팔라누스"],"skill":"팔라누스(아래) / 아라(위) / 로지(아래)","turn":"방어팀 선공","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"상세 세팅 정보 업데이트가 필요함","equip2":"상세 세팅 정보 업데이트가 필요함","equip3":"상세 세팅 정보 업데이트가 필요함","tip":"-"},{"attacker":["콜트","트루드","플라튼"],"skill":"플라튼(위) / 트루드(위) / 콜트(아래)","turn":"방어팀 선공","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"상세 세팅 정보 업데이트가 필요함","equip2":"상세 세팅 정보 업데이트가 필요함","equip3":"상세 세팅 정보 업데이트가 필요함","tip":"-"},{"attacker":["루디","앨리스","플라튼"],"skill":"루디(위) / 팔라누스(아래) / 앨리스(위)","turn":"방어팀 선공","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"상세 세팅 정보 업데이트가 필요함","equip2":"상세 세팅 정보 업데이트가 필요함","equip3":"상세 세팅 정보 업데이트가 필요함","tip":"-"}]},
+      {"defense":["아라곤","팔라누스","플라튼"],"counters":[{"attacker":["루디","팔라누스","플라튼"],"skill":"루디(위) / 팔라누스(아래) / 플라튼(위)","turn":"방어팀 선공","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"상세 세팅 정보 업데이트가 필요함","equip2":"상세 세팅 정보 업데이트가 필요함","equip3":"상세 세팅 정보 업데이트가 필요함","tip":"-"},{"attacker":["로지","아라곤","팔라누스"],"skill":"팔라누스(아래) / 아라(위) / 로지(아래)","turn":"방어팀 선공","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"상세 세팅 정보 업데이트가 필요함","equip2":"상세 세팅 정보 업데이트가 필요함","equip3":"상세 세팅 정보 업데이트가 일요함","tip":"-"},{"attacker":["콜트","트루드","플라튼"],"skill":"플라튼(위) / 트루드(위) / 콜트(아래)","turn":"방어팀 선공","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"상세 세팅 정보 업데이트가 필요함","equip2":"상세 세팅 정보 업데이트가 필요함","equip3":"상세 세팅 정보 업데이트가 필요함","tip":"-"},{"attacker":["루디","앨리스","플라튼"],"skill":"루디(위) / 팔라누스(아래) / 앨리스(위)","turn":"방어팀 선공","formation":"진형: 상세 세팅 정보 업데이트가 필요함","equip1":"상세 세팅 정보 업데이트가 필요함","equip2":"상세 세팅 정보 업데이트가 필요함","equip3":"상세 세팅 정보 업데이트가 필요함","tip":"-"}]},
       {"defense":["겔리두스","엘리시아","트루드"],"counters":[{"attacker":["루디","앨리스","플라튼"],"skill":"루디(위) → 앨리스(아래) → 플라튼(위)","turn":"버팀","formation":"진형: 밸런스/기본","equip1":"플라튼: 조율자 / 방방받받 / 효저100","equip2":"루디: 조율자 / 방방받받 / 효저100","equip3":"앨리스: 조율자 / 생생받받 / 효저100","tip":"펫: 스파이크/방어(효저100).<br>1. 부옵 막기 최대로 세팅할 것 (반지 무관).<br>2. 에이스 상대 시 연습을 권장함. 아멜리아 덱은 금지임."}]},
       {"defense":["겔리두스","스파이크","트루드"],"counters":[{"attacker":["루디","앨리스","플라튼"],"skill":"루디(위) → 앨리스(아래) → 플라튼(위)","turn":"버팀","formation":"진형: 밸런스/기본","equip1":"플라튼: 조율자 / 방방받받 / 효저100","equip2":"루디: 조율자 / 방방받받 / 효저100","equip3":"앨리스: 조율자 / 생생받받 / 효저100","tip":"펫: 스파이크/방어(효저100).<br>1. 부옵 막기 최대로 세팅할 것 (반지 무관).<br>2. 에이스 상대 시 연습을 권장함. 아멜리아 덱은 금지임."}]},
       {"defense":["브브","여포","카일"],"counters":[{"attacker":["루디","손오공","앨리스"],"skill":"루디(위)  → 손오공(위)  → 손오공 (아래)","turn":"후턴","formation":"보호진형 (손오공 후열)","equip1":"루디: 조율자 /방방받받 / 부옵: 막기,효저 (반지: 부활)","equip2":"손오공: 수문장 / 약약받받 / 부옵: 막기,약공 (반지: 부활)","equip3":"앨리스: 조율지 / 생생받받 / 부옵: 막기, 효저 (반지: 부활)","tip":"\"펫은 루디, 카람\" / 3인 공격덱에 파괴력이 매우 높으나 내실, 반지 위주로 신경쓰면 카운터로 사용 가능성 높음"},{"attacker":["겔리두스","엘리시아","트루드"],"skill":"엘리시아 (위) → 겔리두스 (위) → 트루드 (위) 순서로 사용\n\n아멜리아/여포 CC 방지를 위한 엘리시아 선스킬 기준","turn":"트루드: 추적자 운용\n\n겔리두스 & 엘리시아: 조율자 운용","formation":"여포 덱 상대 안정적 대응 지향 (단, 강한 여포 덱은 주의)","equip1":"트루드: 약공받받 또는 공공받받","equip2":"겔리두스: 방방받받 (중랄 세팅 권장)","equip3":"엘리시아: 효방받받 또는 방방받받 (중랄 세팅 권장)","tip":"세팅의 핵심은 안정성과 상태이상 대응입니다. 겔리두스와 엘리시아는 '중랄' 세팅을 통해 안정감을 높이시기 바랍니다."},{"attacker":["로지","아라곤","팔라누스"],"skill":"아라곤 → 팔라누스(아래) → 팔라누스(위)","turn":"-","formation":"보호진형 (팔라누스 후열)","equip1":"팔라누스: 암살자 / 치확치확(치피)받받 / 막기 최대 (준비물: 대랄)","equip2":"아라곤: 수문장 or 조율자 / 방방받받 / 막기 최대 (여포 아래스킬 의식 / 준비물: 중랄)","equip3":"로지: 수문장 or 조율자 / 방방(생방)받받 / 막기 최대 (여포 아래스킬 의식 / 준비물: 중랄)","tip":"펫: 루 또는 카람.<br>1. 철거덱 파훼용으로 구성된 덱임.<br>2. 반드시 세팅 후 테스트가 필요함.<br>3. 팔라누스 생존력이 낮으면 치피를 낮추고 막기를 올릴 것."}]},
@@ -1176,93 +1176,93 @@
           <CustomModal isOpen={confirmModal.isOpen} onClose={() => setConfirmModal({...confirmModal, isOpen: false})} title={confirmModal.title} content={confirmModal.content} onConfirm={confirmModal.action} confirmText={confirmModal.confirmText} />
 
           {guideModal.isOpen && (
-             <div className="fixed inset-0 z-[400] flex items-center justify-center bg-black/80 p-4 animate-in fade-in duration-200">
-               <div className="gold-panel p-6 md:p-8 rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto custom-scrollbar">
-                 <h3 className="text-xl font-black gold-gradient-text mb-2 flex items-center gap-2"><IconEdit/> {guideModal.type === 'defense' ? '방어 덱 운영법 제안하기' : '새로운 공략 제안하기'}</h3>
-                 <p className="text-xs text-zinc-400 mb-6">작성해주신 공략은 관리자 검토 후 보관소에 공식 등록됩니다.</p>
-                 
-                 <div className="space-y-4">
-                   <div className="flex gap-2 text-xs font-bold text-zinc-300">
-                     <span className="w-16 shrink-0 text-zinc-500">대상 방어덱:</span>
-                     <span>{getSafeArray(guideModal.defTeam).join(', ')}</span>
-                   </div>
-                   
-                   {guideModal.type === 'counter' && (
-                     <div className="flex gap-2 text-xs font-bold text-zinc-300 items-center">
-                       <span className="w-16 shrink-0 text-zinc-500">카운터 덱:</span>
-                       <div className="flex gap-2 flex-1 relative z-[300]">
-                         {[0,1,2].map(i => (
-                           <SearchableSelect key={i} zIndex={300} value={guideModal.atkTeam[i]} onChange={(v) => {
-                              const newAtk = [...guideModal.atkTeam]; newAtk[i] = v; setGuideModal({...guideModal, atkTeam: newAtk});
-                           }} placeholder={`영웅 ${i+1}`} groups={HERO_GROUPS} className="h-10 text-xs" />
-                         ))}
-                       </div>
-                     </div>
-                   )}
-                   
-                   <div className="pt-4 border-t border-zinc-800 space-y-3">
-                     {guideModal.type === 'counter' ? (
-                       <>
-                         <div>
-                           <label className="block text-xs font-bold text-zinc-400 mb-1">스킬 운영 (필수)</label>
-                           <input type="text" value={guideModal.skill} onChange={e => setGuideModal({...guideModal, skill: e.target.value})} placeholder="예: 크리스 아래 → 크리스 위" className="w-full px-3 py-2 bg-zinc-900 border border-zinc-700 rounded-lg text-sm text-zinc-100 outline-none focus:ring-1 focus:ring-yellow-600"/>
-                         </div>
-                         <div className="flex gap-3">
-                           <div className="flex-1">
-                             <label className="block text-xs font-bold text-zinc-400 mb-1">턴 (필수)</label>
-                             <input type="text" value={guideModal.turn} onChange={e => setGuideModal({...guideModal, turn: e.target.value})} placeholder="예: 선공 or 후공" className="w-full px-3 py-2 bg-zinc-900 border border-zinc-700 rounded-lg text-sm text-zinc-100 outline-none focus:ring-1 focus:ring-yellow-600"/>
-                           </div>
-                           <div className="flex-1">
-                             <label className="block text-xs font-bold text-zinc-400 mb-1">진형 (필수)</label>
-                             <input type="text" value={guideModal.formation} onChange={e => setGuideModal({...guideModal, formation: e.target.value})} placeholder="예: 공격진형" className="w-full px-3 py-2 bg-zinc-900 border border-zinc-700 rounded-lg text-sm text-zinc-100 outline-none focus:ring-1 focus:ring-yellow-600"/>
-                           </div>
-                         </div>
-                         <div>
-                           <label className="block text-xs font-bold text-zinc-400 mb-1">장비 세팅 1</label>
-                           <input type="text" value={guideModal.equip1} onChange={e => setGuideModal({...guideModal, equip1: e.target.value})} placeholder="예: 크리스: 주술사 / 반지: 즉사" className="w-full px-3 py-2 bg-zinc-900 border border-zinc-700 rounded-lg text-sm text-zinc-100 outline-none focus:ring-1 focus:ring-yellow-600"/>
-                         </div>
-                         <div>
-                           <label className="block text-xs font-bold text-zinc-400 mb-1">장비 세팅 2</label>
-                           <input type="text" value={guideModal.equip2} onChange={e => setGuideModal({...guideModal, equip2: e.target.value})} className="w-full px-3 py-2 bg-zinc-900 border border-zinc-700 rounded-lg text-sm text-zinc-100 outline-none focus:ring-1 focus:ring-yellow-600"/>
-                         </div>
-                         <div>
-                           <label className="block text-xs font-bold text-zinc-400 mb-1">장비 세팅 3</label>
-                           <input type="text" value={guideModal.equip3} onChange={e => setGuideModal({...guideModal, equip3: e.target.value})} className="w-full px-3 py-2 bg-zinc-900 border border-zinc-700 rounded-lg text-sm text-zinc-100 outline-none focus:ring-1 focus:ring-yellow-600"/>
-                         </div>
-                       </>
-                     ) : (
-                       <>
-                         <div>
-                           <label className="block text-xs font-bold text-zinc-400 mb-1">추천 펫</label>
-                           <input type="text" value={guideModal.skill} onChange={e => setGuideModal({...guideModal, skill: e.target.value})} placeholder="예: 루디, 카람" className="w-full px-3 py-2 bg-zinc-900 border border-zinc-700 rounded-lg text-sm text-zinc-100 outline-none focus:ring-1 focus:ring-yellow-600"/>
-                         </div>
-                         <div>
-                           <label className="block text-xs font-bold text-zinc-400 mb-1">핵심 장비 1</label>
-                           <input type="text" value={guideModal.equip1} onChange={e => setGuideModal({...guideModal, equip1: e.target.value})} placeholder="예: 크리스: 주술사 / 반지: 즉사" className="w-full px-3 py-2 bg-zinc-900 border border-zinc-700 rounded-lg text-sm text-zinc-100 outline-none focus:ring-1 focus:ring-yellow-600"/>
-                         </div>
-                         <div>
-                           <label className="block text-xs font-bold text-zinc-400 mb-1">핵심 장비 2</label>
-                           <input type="text" value={guideModal.equip2} onChange={e => setGuideModal({...guideModal, equip2: e.target.value})} className="w-full px-3 py-2 bg-zinc-900 border border-zinc-700 rounded-lg text-sm text-zinc-100 outline-none focus:ring-1 focus:ring-yellow-600"/>
-                         </div>
-                         <div>
-                           <label className="block text-xs font-bold text-zinc-400 mb-1">핵심 장비 3</label>
-                           <input type="text" value={guideModal.equip3} onChange={e => setGuideModal({...guideModal, equip3: e.target.value})} className="w-full px-3 py-2 bg-zinc-900 border border-zinc-700 rounded-lg text-sm text-zinc-100 outline-none focus:ring-1 focus:ring-yellow-600"/>
-                         </div>
-                       </>
-                     )}
-                     <div>
-                       <label className="block text-xs font-bold text-zinc-400 mb-1">{guideModal.type === 'defense' ? '운영 팁' : '추가 팁 (Tip)'}</label>
-                       <textarea value={guideModal.tip} onChange={e => setGuideModal({...guideModal, tip: e.target.value})} rows="3" placeholder="추가적인 운영법이나 주의사항을 적어주세요." className="w-full px-3 py-2 bg-zinc-900 border border-zinc-700 rounded-lg text-sm text-zinc-100 outline-none focus:ring-1 focus:ring-yellow-600 custom-scrollbar"></textarea>
-                     </div>
-                   </div>
-                 </div>
+              <div className="fixed inset-0 z-[400] flex items-center justify-center bg-black/80 p-4 animate-in fade-in duration-200">
+                <div className="gold-panel p-6 md:p-8 rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto custom-scrollbar">
+                  <h3 className="text-xl font-black gold-gradient-text mb-2 flex items-center gap-2"><IconEdit/> {guideModal.type === 'defense' ? '방어 덱 운영법 제안하기' : '새로운 공략 제안하기'}</h3>
+                  <p className="text-xs text-zinc-400 mb-6">작성해주신 공략은 관리자 검토 후 보관소에 공식 등록됩니다.</p>
+                  
+                  <div className="space-y-4">
+                    <div className="flex gap-2 text-xs font-bold text-zinc-300">
+                      <span className="w-16 shrink-0 text-zinc-500">대상 방어덱:</span>
+                      <span>{getSafeArray(guideModal.defTeam).join(', ')}</span>
+                    </div>
+                    
+                    {guideModal.type === 'counter' && (
+                      <div className="flex gap-2 text-xs font-bold text-zinc-300 items-center">
+                        <span className="w-16 shrink-0 text-zinc-500">카운터 덱:</span>
+                        <div className="flex gap-2 flex-1 relative z-[300]">
+                          {[0,1,2].map(i => (
+                            <SearchableSelect key={i} zIndex={300} value={guideModal.atkTeam[i]} onChange={(v) => {
+                               const newAtk = [...guideModal.atkTeam]; newAtk[i] = v; setGuideModal({...guideModal, atkTeam: newAtk});
+                            }} placeholder={`영웅 ${i+1}`} groups={HERO_GROUPS} className="h-10 text-xs" />
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    
+                    <div className="pt-4 border-t border-zinc-800 space-y-3">
+                      {guideModal.type === 'counter' ? (
+                        <>
+                          <div>
+                            <label className="block text-xs font-bold text-zinc-400 mb-1">스킬 운영 (필수)</label>
+                            <input type="text" value={guideModal.skill} onChange={e => setGuideModal({...guideModal, skill: e.target.value})} placeholder="예: 크리스 아래 → 크리스 위" className="w-full px-3 py-2 bg-zinc-900 border border-zinc-700 rounded-lg text-sm text-zinc-100 outline-none focus:ring-1 focus:ring-yellow-600"/>
+                          </div>
+                          <div className="flex gap-3">
+                            <div className="flex-1">
+                              <label className="block text-xs font-bold text-zinc-400 mb-1">턴 (필수)</label>
+                              <input type="text" value={guideModal.turn} onChange={e => setGuideModal({...guideModal, turn: e.target.value})} placeholder="예: 선공 or 후공" className="w-full px-3 py-2 bg-zinc-900 border border-zinc-700 rounded-lg text-sm text-zinc-100 outline-none focus:ring-1 focus:ring-yellow-600"/>
+                            </div>
+                            <div className="flex-1">
+                              <label className="block text-xs font-bold text-zinc-400 mb-1">진형 (필수)</label>
+                              <input type="text" value={guideModal.formation} onChange={e => setGuideModal({...guideModal, formation: e.target.value})} placeholder="예: 공격진형" className="w-full px-3 py-2 bg-zinc-900 border border-zinc-700 rounded-lg text-sm text-zinc-100 outline-none focus:ring-1 focus:ring-yellow-600"/>
+                            </div>
+                          </div>
+                          <div>
+                            <label className="block text-xs font-bold text-zinc-400 mb-1">장비 세팅 1</label>
+                            <input type="text" value={guideModal.equip1} onChange={e => setGuideModal({...guideModal, equip1: e.target.value})} placeholder="예: 크리스: 주술사 / 반지: 즉사" className="w-full px-3 py-2 bg-zinc-900 border border-zinc-700 rounded-lg text-sm text-zinc-100 outline-none focus:ring-1 focus:ring-yellow-600"/>
+                          </div>
+                          <div>
+                            <label className="block text-xs font-bold text-zinc-400 mb-1">장비 세팅 2</label>
+                            <input type="text" value={guideModal.equip2} onChange={e => setGuideModal({...guideModal, equip2: e.target.value})} className="w-full px-3 py-2 bg-zinc-900 border border-zinc-700 rounded-lg text-sm text-zinc-100 outline-none focus:ring-1 focus:ring-yellow-600"/>
+                          </div>
+                          <div>
+                            <label className="block text-xs font-bold text-zinc-400 mb-1">장비 세팅 3</label>
+                            <input type="text" value={guideModal.equip3} onChange={e => setGuideModal({...guideModal, equip3: e.target.value})} className="w-full px-3 py-2 bg-zinc-900 border border-zinc-700 rounded-lg text-sm text-zinc-100 outline-none focus:ring-1 focus:ring-yellow-600"/>
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <div>
+                            <label className="block text-xs font-bold text-zinc-400 mb-1">추천 펫</label>
+                            <input type="text" value={guideModal.skill} onChange={e => setGuideModal({...guideModal, skill: e.target.value})} placeholder="예: 루디, 카람" className="w-full px-3 py-2 bg-zinc-900 border border-zinc-700 rounded-lg text-sm text-zinc-100 outline-none focus:ring-1 focus:ring-yellow-600"/>
+                          </div>
+                          <div>
+                            <label className="block text-xs font-bold text-zinc-400 mb-1">핵심 장비 1</label>
+                            <input type="text" value={guideModal.equip1} onChange={e => setGuideModal({...guideModal, equip1: e.target.value})} placeholder="예: 크리스: 주술사 / 반지: 즉사" className="w-full px-3 py-2 bg-zinc-900 border border-zinc-700 rounded-lg text-sm text-zinc-100 outline-none focus:ring-1 focus:ring-yellow-600"/>
+                          </div>
+                          <div>
+                            <label className="block text-xs font-bold text-zinc-400 mb-1">핵심 장비 2</label>
+                            <input type="text" value={guideModal.equip2} onChange={e => setGuideModal({...guideModal, equip2: e.target.value})} className="w-full px-3 py-2 bg-zinc-900 border border-zinc-700 rounded-lg text-sm text-zinc-100 outline-none focus:ring-1 focus:ring-yellow-600"/>
+                          </div>
+                          <div>
+                            <label className="block text-xs font-bold text-zinc-400 mb-1">핵심 장비 3</label>
+                            <input type="text" value={guideModal.equip3} onChange={e => setGuideModal({...guideModal, equip3: e.target.value})} className="w-full px-3 py-2 bg-zinc-900 border border-zinc-700 rounded-lg text-sm text-zinc-100 outline-none focus:ring-1 focus:ring-yellow-600"/>
+                          </div>
+                        </>
+                      )}
+                      <div>
+                        <label className="block text-xs font-bold text-zinc-400 mb-1">{guideModal.type === 'defense' ? '운영 팁' : '추가 팁 (Tip)'}</label>
+                        <textarea value={guideModal.tip} onChange={e => setGuideModal({...guideModal, tip: e.target.value})} rows="3" placeholder="추가적인 운영법이나 주의사항을 적어주세요." className="w-full px-3 py-2 bg-zinc-900 border border-zinc-700 rounded-lg text-sm text-zinc-100 outline-none focus:ring-1 focus:ring-yellow-600 custom-scrollbar"></textarea>
+                      </div>
+                    </div>
+                  </div>
 
-                 <div className="flex gap-3 mt-6">
-                   <button onClick={() => setGuideModal({...guideModal, isOpen: false})} className="flex-1 py-3 rounded-xl bg-zinc-800 border border-zinc-700 text-zinc-300 font-bold text-sm hover:bg-zinc-700 transition-colors">취소</button>
-                   <button onClick={handleGuideSubmit} className="flex-1 py-3 rounded-xl gold-button font-bold text-sm">제출하기</button>
-                 </div>
-               </div>
-             </div>
+                  <div className="flex gap-3 mt-6">
+                    <button onClick={() => setGuideModal({...guideModal, isOpen: false})} className="flex-1 py-3 rounded-xl bg-zinc-800 border border-zinc-700 text-zinc-300 font-bold text-sm hover:bg-zinc-700 transition-colors">취소</button>
+                    <button onClick={handleGuideSubmit} className="flex-1 py-3 rounded-xl gold-button font-bold text-sm">제출하기</button>
+                  </div>
+                </div>
+              </div>
           )}
 
           {unlockModalOpen && (
