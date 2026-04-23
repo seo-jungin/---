@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>리더 길드전 전략실</title>
+  <title>Pirates 길드전 전략실</title>
   
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
@@ -92,7 +92,7 @@
     .basic-atk-list li::before { content: '└'; position: absolute; left: 5px; color: #666; pointer-events: none; }
 
     /* 로그인 화면 배경 */
-    .login-bg-anim { position: absolute; inset: -5%; background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.7)), url('https://img.freepik.com/free-photo/gyeongbokgung-palace-with-cherry-blossom-spring-seoul-korea_335224-387.jpg'); background-size: cover; background-position: center; background-repeat: no-repeat; animation: slowZoom 20s ease-in-out infinite alternate; z-index: -1; }
+    .login-bg-anim { position: absolute; inset: 2.5%; background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.7)), url('https://kin-phinf.pstatic.net/20260423_109/1776906822269CTART_JPEG/39933ed0-8ef4-4f94-90ca-59925aa7c169.jpeg?type=w750'); background-size: cover; background-position: center; background-repeat: no-repeat; animation: slowZoom 20s ease-in-out infinite alternate; z-index: -1; }
     @keyframes slowZoom { from { transform: scale(1); } to { transform: scale(1.1); } }
     .login-card { background: rgba(20, 20, 23, 0.6); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border: 1px solid rgba(191, 149, 63, 0.4); padding: 50px 40px; width: 340px; text-align: center; border-radius: 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.8); position: relative; }
     .login-title-text { color: #fcf6ba; margin-top: 0; margin-bottom: 30px; font-weight: 900; font-size: 24px; letter-spacing: 2px; text-shadow: 0 2px 10px rgba(191, 149, 63, 0.5); }
@@ -557,7 +557,7 @@
       const handleLogin = () => {
         if (loginId === '관리자' && loginPw === '9457') {
           setIsAdminMode(true); setIsLoggedIn(true); setLoginError(false);
-        } else if (loginId === '리더' && loginPw === '2281') {
+        } else if (loginId === '길드' && loginPw === '3188') {
           setIsAdminMode(false); setIsLoggedIn(true); setLoginError(false);
         } else {
           setLoginError(true);
@@ -1160,7 +1160,7 @@
           <div style={{position: 'fixed', inset: 0, zIndex: 9000, display: 'flex', justifyContent: 'center', alignItems: 'center', overflow: 'hidden'}}>
             <div className="login-bg-anim"></div>
             <div className="login-card">
-              <h2 className="login-title-text">[ 리더 길드 ]</h2>
+              <h2 className="login-title-text">[ Pirates ]</h2>
               <input type="text" value={loginId} onChange={e=>setLoginId(e.target.value)} className="login-input" placeholder="ID" />
               <input type="password" value={loginPw} onChange={e=>setLoginPw(e.target.value)} className="login-input" placeholder="PASSWORD" onKeyDown={e=>{if(e.key==='Enter') handleLogin()}} />
               <button onClick={handleLogin} className="gold-button w-full mt-4 py-4 rounded-xl font-black text-lg">LOGIN</button>
@@ -1290,7 +1290,7 @@
               <div className="p-6 md:p-8 flex flex-col md:flex-row items-center justify-between bg-gradient-to-b from-zinc-800 to-zinc-900">
                 <div>
                   <h1 className="text-3xl md:text-4xl font-black gold-gradient-text cursor-pointer select-none drop-shadow-md" onClick={handleTitleClick} title="타이틀 5번 연속 클릭 시 관리자 모드 열림">
-                    리더 길드전 전략실
+                    Pirates 길드전 전략실
                   </h1>
                 </div>
               </div>
