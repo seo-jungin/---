@@ -11,7 +11,6 @@
   <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
     body { font-family: 'Pretendard', sans-serif; background-color: #09090b; color: #e4e4e7; -webkit-user-select: none; user-select: none; }
@@ -53,45 +52,11 @@
     }
     .gold-button:active { transform: translateY(1px); }
 
-    .keep-checkbox {
-      appearance: none; background-color: #18181b; margin: 0; font: inherit; color: currentColor;
-      width: 1.15em; height: 1.15em; border: 1px solid rgba(191, 149, 63, 0.5); border-radius: 0.25em; display: grid; place-content: center; cursor: pointer; transition: all 0.2s;
-    }
-    .keep-checkbox::before {
-      content: ""; width: 0.65em; height: 0.65em; transform: scale(0); transition: 120ms transform ease-in-out;
-      box-shadow: inset 1em 1em #fcf6ba; background-color: #fcf6ba; transform-origin: center;
-      clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
-    }
-    .keep-checkbox:checked { border-color: #fcf6ba; background-color: rgba(191, 149, 63, 0.2); }
-    .keep-checkbox:checked::before { transform: scale(1); }
-
     .stat-box { background: rgba(24, 24, 27, 0.8); padding: 25px; border-radius: 16px; border: 1px solid rgba(191, 149, 63, 0.3); text-align: center; position: relative; overflow: hidden; box-shadow: inset 0 0 20px rgba(191, 149, 63, 0.05); }
     .stat-box::before { content:''; position: absolute; top:0; left:0; width:100%; height:3px; background: linear-gradient(90deg, transparent, #bf953f, transparent); }
     .stat-val { font-size: 36px; font-weight: 900; margin-bottom: 5px; color: #fff; text-shadow: 0 2px 10px rgba(191, 149, 63, 0.3); }
     .stat-lbl { font-size: 12px; color: #94a3b8; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;}
-    
-    .chart-card { background: rgba(24, 24, 27, 0.8); border: 1px solid rgba(191, 149, 63, 0.3); border-radius: 16px; padding: 20px; position: relative; box-shadow: inset 0 0 20px rgba(191, 149, 63, 0.05); }
-    .chart-title { font-size: 15px; font-weight: 800; color: #fcf6ba; margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 
-    /* 히트맵 가독성 최적화 */
-    .heatmap-wrapper { max-height: 65vh; overflow: auto; border-radius: 12px; border: 1px solid rgba(191, 149, 63, 0.3); background: #09090b; position: relative; }
-    .heatmap-table { border-collapse: separate; border-spacing: 0; width: 100%; text-align: center; font-size: 11px; min-width: 800px; }
-    .heatmap-table th, .heatmap-table td { padding: 8px 6px; border-right: 1px solid rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.05); min-width: 50px; }
-    .heatmap-table thead th { font-size: 11px; font-weight: 800; color: #fcf6ba; padding: 10px 6px; background: linear-gradient(180deg, #18181b, #09090b); border-bottom: 2px solid #bf953f; position: sticky; top: 0; z-index: 10; }
-    .heatmap-table tbody th { font-size: 11px; font-weight: 800; color: #e4e4e7; padding: 8px 10px; background: linear-gradient(90deg, #18181b, #09090b); border-right: 2px solid #bf953f; position: sticky; left: 0; z-index: 10; text-align: left; }
-    .heatmap-table thead th:first-child { background: #09090b; border-right: 2px solid #bf953f; position: sticky; left: 0; top: 0; z-index: 20; }
-    .cell-count { font-size: 11px; font-weight: bold; text-shadow: 0 1px 2px rgba(0,0,0,0.8); }
-    .cell-hidden { opacity: 0.1; }
-
-    .basic-deck-item { border: 1px solid rgba(191, 149, 63, 0.2); border-radius: 12px; background: rgba(0,0,0,0.4); padding: 15px; margin-bottom: 15px; transition: 0.2s; }
-    .basic-deck-item:hover { border-color: rgba(191, 149, 63, 0.6); box-shadow: 0 0 15px rgba(191, 149, 63, 0.1); background: rgba(0,0,0,0.6); }
-    .basic-def { font-size: 14px; font-weight: 800; color: #fcf6ba; margin-bottom: 12px; background: rgba(191, 149, 63, 0.1); padding: 8px 12px; border-radius: 8px; border-left: 4px solid #bf953f; line-height: 1.4; display: flex; justify-content: space-between; align-items: center;}
-    .basic-atk-list { list-style: none; padding: 0; margin: 0; font-size: 12px; color: #e4e4e7; font-weight: 600; line-height: 2; }
-    .basic-atk-list li { position: relative; padding: 6px 12px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed rgba(255,255,255,0.05); border-radius: 6px; }
-    .basic-atk-list li:last-child { border-bottom: none; }
-    .basic-atk-list li::before { content: '└'; position: absolute; left: 5px; color: #666; pointer-events: none; }
-
-    /* 로그인 화면 배경 */
     .login-bg-anim { position: absolute; inset: 0%; background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.7)), url('https://search.pstatic.net/sunny/?src=https%3A%2F%2Fi.ytimg.com%2Fvi%2FQReewS_W5Q0%2Fmaxresdefault.jpg%3Fsqp%3D-oaymwEmCIAKENAF8quKqQMa8AEB-AH-CYAC0AWKAgwIABABGGUgUShOMA8%3D%26rs%3DAOn4CLAAaU1Qo-jJmUG3ABuptYt_408XUg&type=sc960_832'); background-size: cover; background-position: center; background-repeat: no-repeat; animation: slowZoom 20s ease-in-out infinite alternate; z-index: -1; }
     @keyframes slowZoom { from { transform: scale(1); } to { transform: scale(1.1); } }
     .login-card { background: rgba(20, 20, 23, 0.6); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border: 1px solid rgba(191, 149, 63, 0.4); padding: 50px 40px; width: 340px; text-align: center; border-radius: 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.8); position: relative; }
@@ -110,25 +75,18 @@
 
     const { useState, useEffect, useMemo, useRef } = React;
 
-    function IconTrash() { return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>; }
-    function IconEdit() { return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>; }
-    function IconSave() { return <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>; }
     function IconSearch() { return <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>; }
     function IconBarChart() { return <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="20" x2="12" y2="10"></line><line x1="18" y1="20" x2="18" y2="4"></line><line x1="6" y1="20" x2="6" y2="16"></line></svg>; }
-    function IconUsers() { return <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>; }
     function IconChevronDown() { return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>; }
     function IconChevronUp() { return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>; }
     function IconX() { return <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>; }
     function IconLock() { return <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>; }
     function IconDownload() { return <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>; }
-    function IconPlus() { return <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>; }
     function IconShield() { return <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>; }
-    function IconClipboard() { return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>; }
-    function IconFilter() { return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>; }
+    function IconEdit() { return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>; }
     function IconSword() { return <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 17.5L3 6V3h3l11.5 11.5"></path><path d="M13 19l6-6"></path><path d="M16 16l4 4"></path><path d="M19 21l2-2"></path><path d="M14.5 6.5L17.5 3h3v3l-3.5 3.5"></path><path d="M10 13L4 19"></path><path d="M5 16l-4 4"></path><path d="M2 21l2-2"></path></svg>; }
     function IconInfo() { return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>; }
 
-    // 유틸리티 함수
     function getChosung(str) {
       if (!str) return "";
       const chosung = ["ㄱ","ㄲ","ㄴ","ㄷ","ㄸ","ㄹ","ㅁ","ㅂ","ㅃ","ㅅ","ㅆ","ㅇ","ㅈ","ㅉ","ㅊ","ㅋ","ㅌ","ㅍ","ㅎ"];
@@ -224,12 +182,6 @@
       );
     }
 
-    if (typeof window !== 'undefined' && window.Chart) {
-      window.Chart.defaults.color = '#94a3b8';
-      window.Chart.defaults.font.family = "'Pretendard', sans-serif";
-    }
-
-    // Firebase 초기화
     function initFirebase() {
       const fallback = {
         apiKey: "AIzaSyAqSgVY3zJAmKpLSnxrM5YVMVnqTw8JfTI",
@@ -319,16 +271,10 @@
       const [user, setUser] = useState(null);
       const [records, setRecords] = useState([]);
       const [customGuides, setCustomGuides] = useState([]); 
-      
-      const [editingId, setEditingId] = useState(null);
-      const [editingAuthorId, setEditingAuthorId] = useState(null); 
-      
       const [customHeroes, setCustomHeroes] = useState([]); 
-      const [expandedGroups, setExpandedGroups] = useState({}); 
-      const [expandedRecords, setExpandedRecords] = useState({});
       
-      const [mainTab, setMainTab] = useState('records');
-      const [subTab, setSubTab] = useState('attack');
+      const [mainTab, setMainTab] = useState('strategy');
+      const [subTab, setSubTab] = useState('counter');
       
       const [isAdminMode, setIsAdminMode] = useState(false);
       const [isMobileView, setIsMobileView] = useState(false);
@@ -344,108 +290,135 @@
       const clickTimeoutRef = useRef(null);
       const unlockInputRef = useRef(null);
 
-      const [nickname, setNickname] = useState('');
-      const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
-      const [opponent, setOpponent] = useState('');
-      const [keepNickname, setKeepNickname] = useState(false);
-      const [keepDate, setKeepDate] = useState(false);
-      const [keepOpponent, setKeepOpponent] = useState(false);
-
-      const [attackMatches, setAttackMatches] = useState(Array.from({ length: 5 }, () => ({ myTeam: ['', '', ''], result: '승리', enemyTeam: ['', '', ''] })));
-      const [defenseMyTeam, setDefenseMyTeam] = useState(['', '', '']);
-      const [defenseMatches, setDefenseMatches] = useState([{ enemyTeam: ['', '', ''], result: '방어 성공' }]);
-
       const [counterEnemyFilter, setCounterEnemyFilter] = useState(['', '', '']);
       const [guideModal, setGuideModal] = useState({ isOpen: false, type: 'counter', defTeam: [], atkTeam: ['', '', ''], skill: '', turn: '', formation: '', equip1: '', equip2: '', equip3: '', tip: '' });
-      const [filterChar, setFilterChar] = useState('');
-      const [showStats, setShowStats] = useState(false);
       
       const [expandedCounters, setExpandedCounters] = useState({});
       const [expandedDefGuides, setExpandedDefGuides] = useState({});
+      
+      // 관리자용 텍스트 다중 파싱 State
       const [rawRecordInputState, setRawRecordInputState] = useState('');
 
-      const currentRecords = useMemo(() => {
-        return records.filter(r => {
-          const type = r.recordType || 'attack';
-          return type === subTab;
+      const rawMatchesForStats = useMemo(() => {
+        const matches = [];
+        records.filter(r => (r.recordType || 'attack') === 'attack').forEach(r => {
+          r.matches?.forEach(m => {
+            const myTeam = getSafeArray(m.myTeam).map(h => h.trim()).filter(Boolean).sort();
+            const enemyTeam = getSafeArray(m.enemyTeam).map(h => h.trim()).filter(Boolean).sort();
+            if (myTeam.length > 0 && enemyTeam.length > 0) {
+              matches.push({ a: myTeam.join(' '), d: enemyTeam.join(' '), w: m.result === '승리' ? 1 : 0, l: m.result === '패배' ? 1 : 0, date: r.date });
+            }
+          });
         });
-      }, [records, subTab]);
-
-      const statsData = useMemo(() => {
-        if (mainTab !== 'records') return { deckStats: [], memberStats: [] };
-
-        const deckCounts = {};
-        const memberData = {};
-
-        currentRecords.forEach(record => {
-          const name = record.nickname || '익명';
-          if (!memberData[name]) memberData[name] = { name, recordsCount: 0, totalMatches: 0, wins: 0 };
-          memberData[name].recordsCount += 1;
-
-          if (subTab === 'attack') {
-            record.matches?.forEach(match => {
-              memberData[name].totalMatches += 1;
-              if (match.result === '승리') memberData[name].wins += 1;
-
-              const myArr = getSafeArray(match.myTeam);
-              const validHeroes = myArr.map(h => h && typeof h === 'string' ? h.trim() : '').filter(Boolean).sort();
-              if (validHeroes.length === 3) {
-                const deckKey = validHeroes.join(', ');
-                if (!deckCounts[deckKey]) deckCounts[deckKey] = { deck: deckKey, count: 0, wins: 0 };
-                deckCounts[deckKey].count += 1;
-                if (match.result === '승리') deckCounts[deckKey].wins += 1;
-              }
-            });
-          } else if (subTab === 'defense') {
-            const defTeamArr = getSafeArray(record.myTeam);
-            const validDefHeroes = defTeamArr.map(h => h && typeof h === 'string' ? h.trim() : '').filter(Boolean).sort();
-            const defDeckKey = validDefHeroes.length === 3 ? validDefHeroes.join(', ') : null;
-
-            record.defenseMatches?.forEach(match => {
-              memberData[name].totalMatches += 1; 
-              if (match.result === '방어 성공') memberData[name].wins += 1;
-
-              if (defDeckKey) {
-                if (!deckCounts[defDeckKey]) deckCounts[defDeckKey] = { deck: defDeckKey, count: 0, wins: 0 };
-                deckCounts[defDeckKey].count += 1; 
-                if (match.result === '방어 성공') deckCounts[defDeckKey].wins += 1;
-              }
-            });
-          }
-        });
-
-        const deckStats = Object.values(deckCounts)
-          .map(s => ({ ...s, winRate: s.count > 0 ? ((s.wins / s.count) * 100).toFixed(1) : 0 }))
-          .sort((a, b) => b.count - a.count).slice(0, 5);
-
-        const memberStats = Object.values(memberData)
-          .map(s => ({ ...s, winRate: s.totalMatches > 0 ? ((s.wins / s.totalMatches) * 100).toFixed(1) : 0 }))
-          .sort((a, b) => b.recordsCount - a.recordsCount);
-
-        return { deckStats, memberStats };
-      }, [currentRecords, mainTab, subTab]);
-      
-      const topDecks = useMemo(() => {
-        const atkCounts = {};
-        const defCounts = {};
-        records.forEach(r => {
-          if ((r.recordType || 'attack') === 'attack') {
-            r.matches?.forEach(m => {
-              const atk = getSafeArray(m.myTeam).filter(Boolean).sort().join(', ');
-              const def = getSafeArray(m.enemyTeam).filter(Boolean).sort().join(', ');
-              if (atk.split(',').length === 3) atkCounts[atk] = (atkCounts[atk] || 0) + 1;
-              if (def.split(',').length === 3) defCounts[def] = (defCounts[def] || 0) + 1;
-            });
-          } else {
-            const myDef = getSafeArray(r.myTeam).filter(Boolean).sort().join(', ');
-            if (myDef.split(',').length === 3) defCounts[myDef] = (defCounts[myDef] || 0) + 1;
-          }
-        });
-        
-        const topAtk = Object.entries(atkCounts).sort((a,b)=>b[1]-a[1]).slice(0,10).map(e=>e[0]);
-        const topDef = Object.entries(defCounts).sort((a,b)=>b[1]-a[1]).slice(0,10).map(e=>e[0]);
-        return { topAtk, topDef };
+        return matches.sort((a, b) => new Date(a.date) - new Date(b.date));
       }, [records]);
+
+      const counterAnalysisData = useMemo(() => {
+        const activeEnemies = counterEnemyFilter.filter(h => h.trim() !== '');
+        if (activeEnemies.length === 0) return null;
+
+        const resultsMap = new Map();
+
+        STATIC_GUIDE_DB.forEach(guide => {
+          const isMatch = activeEnemies.every(filterHero => guide.defense.includes(filterHero));
+          if (isMatch) {
+            const defKey = [...guide.defense].sort().join(',');
+            guide.counters?.forEach(counter => {
+              const atkKey = [...counter.attacker].sort().join(',');
+              const key = `${defKey}|${atkKey}`;
+              resultsMap.set(key, {
+                defenseTeam: guide.defense, attackerTeam: counter.attacker,
+                skill: counter.skill, turn: counter.turn, formation: counter.formation,
+                equips: [counter.equip1, counter.equip2, counter.equip3].filter(Boolean),
+                tip: counter.tip, dynamicCount: 0, dynamicWins: 0, hasGuide: true, isCustom: false
+              });
+            });
+          }
+        });
+
+        customGuides.filter(g => g.status === 'approved' && (g.guideType === 'counter' || !g.guideType)).forEach(guide => {
+          const isMatch = activeEnemies.every(filterHero => getSafeArray(guide.defenseTeam).includes(filterHero));
+          if (isMatch) {
+            const defKey = getSafeArray(guide.defenseTeam).sort().join(',');
+            const atkKey = getSafeArray(guide.attackerTeam).sort().join(',');
+            const key = `${defKey}|${atkKey}`;
+            resultsMap.set(key, {
+              defenseTeam: guide.defenseTeam, attackerTeam: guide.attackerTeam,
+              skill: guide.skill, turn: guide.turn, formation: guide.formation,
+              equips: [guide.equip1, guide.equip2, guide.equip3].filter(Boolean),
+              tip: guide.tip, dynamicCount: 0, dynamicWins: 0, hasGuide: true, isCustom: true
+            });
+          }
+        });
+
+        records.filter(r => (r.recordType || 'attack') === 'attack').forEach(record => {
+          record.matches?.forEach(match => {
+            const enemyTeam = getSafeArray(match.enemyTeam).map(h => h.trim()).filter(Boolean);
+            const myTeam = getSafeArray(match.myTeam).map(h => h.trim()).filter(Boolean);
+
+            if (enemyTeam.length > 0 && myTeam.length > 0) {
+              const isMatch = activeEnemies.every(filterHero => enemyTeam.includes(filterHero));
+              if (isMatch) {
+                const defKey = [...enemyTeam].sort().join(',');
+                const atkKey = [...myTeam].sort().join(',');
+                const key = `${defKey}|${atkKey}`;
+
+                if (!resultsMap.has(key)) {
+                  resultsMap.set(key, {
+                    defenseTeam: enemyTeam, attackerTeam: myTeam,
+                    skill: null, turn: null, formation: null, equips: [], tip: null,
+                    dynamicCount: 0, dynamicWins: 0, hasGuide: false, isCustom: false
+                  });
+                }
+
+                const entry = resultsMap.get(key);
+                entry.dynamicCount++;
+                if (match.result === '승리') entry.dynamicWins++;
+              }
+            }
+          });
+        });
+
+        const results = Array.from(resultsMap.values())
+          .filter(d => d.dynamicCount >= 5 || d.hasGuide) 
+          .map(d => ({ ...d, winRate: d.dynamicCount > 0 ? ((d.dynamicWins / d.dynamicCount) * 100).toFixed(1) : 0 }))
+          .sort((a, b) => {
+            if (b.winRate !== a.winRate) return parseFloat(b.winRate) - parseFloat(a.winRate);
+            if (b.dynamicCount !== a.dynamicCount) return b.dynamicCount - a.dynamicCount;
+            return (b.hasGuide === a.hasGuide) ? 0 : b.hasGuide ? 1 : -1;
+          });
+
+        return { results };
+      }, [records, customGuides, counterEnemyFilter]);
+
+      const recommendDefenseData = useMemo(() => {
+        const defCounts = {};
+        records.filter(r => r.recordType === 'defense').forEach(record => {
+          const defTeamArr = getSafeArray(record.myTeam);
+          const validDefHeroes = defTeamArr.map(h => h && typeof h === 'string' ? h.trim() : '').filter(Boolean).sort();
+          if (validDefHeroes.length === 3) {
+            const defDeckKey = validDefHeroes.join(', ');
+            if (!defCounts[defDeckKey]) defCounts[defDeckKey] = { deck: defDeckKey, count: 0, wins: 0, heroes: validDefHeroes };
+            record.defenseMatches?.forEach(match => {
+              defCounts[defDeckKey].count++;
+              if (match.result === '방어 성공') defCounts[defDeckKey].wins++;
+            });
+          }
+        });
+
+        const defResults = Object.values(defCounts)
+          .map(d => ({ ...d, winRate: d.count > 0 ? ((d.wins / d.count) * 100).toFixed(1) : 0 }))
+          .filter(d => d.count >= 3)
+          .sort((a, b) => {
+            if (b.winRate !== a.winRate) return parseFloat(b.winRate) - parseFloat(a.winRate);
+            return b.count - a.count;
+          }).slice(0, 10);
+          
+        return defResults.map(def => {
+           const matchGuides = customGuides.filter(g => g.status === 'approved' && g.guideType === 'defense' && g.defenseTeam.slice().sort().join(',') === def.heroes.join(','));
+           return { ...def, guides: matchGuides };
+        });
+      }, [records, customGuides]);
 
       const HERO_GROUPS = useMemo(() => {
         if (customHeroes.length === 0) return PREDEFINED_HERO_GROUPS;
@@ -455,11 +428,6 @@
       useEffect(() => { setExpandedCounters({}); }, [counterEnemyFilter]);
       const toggleCounter = (idx) => { setExpandedCounters(prev => ({ ...prev, [idx]: !prev[idx] })); };
       const toggleDefGuide = (idx) => { setExpandedDefGuides(prev => ({ ...prev, [idx]: !prev[idx] })); };
-      
-      const winRateChartRef = useRef(null);
-      const defMetaChartRef = useRef(null);
-      const chartInstance1 = useRef(null);
-      const chartInstance2 = useRef(null);
 
       useEffect(() => {
         const handleResize = () => setIsMobileView(window.innerWidth < 1024);
@@ -538,6 +506,7 @@
 
       useEffect(() => {
         if (!fb.isValid || !user || !fb.db || !isLoggedIn) return;
+        
         const recordsRef = collection(fb.db, 'artifacts', APP_ID, 'public', 'data', COLLECTION_NAME);
         const unsubRecords = onSnapshot(recordsRef, (snapshot) => {
             const fetchedRecords = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -567,193 +536,7 @@
       const handleTabChange = (main, sub) => {
         setMainTab(main);
         if (sub) setSubTab(sub);
-        if (main === 'records') resetForm();
       };
-
-      const rawMatchesForStats = useMemo(() => {
-        const matches = [];
-        records.filter(r => (r.recordType || 'attack') === 'attack').forEach(r => {
-          r.matches?.forEach(m => {
-            const myTeam = getSafeArray(m.myTeam).map(h => h.trim()).filter(Boolean).sort();
-            const enemyTeam = getSafeArray(m.enemyTeam).map(h => h.trim()).filter(Boolean).sort();
-            if (myTeam.length > 0 && enemyTeam.length > 0) {
-              matches.push({ a: myTeam.join(' '), d: enemyTeam.join(' '), w: m.result === '승리' ? 1 : 0, l: m.result === '패배' ? 1 : 0, date: r.date });
-            }
-          });
-        });
-        return matches.sort((a, b) => new Date(a.date) - new Date(b.date));
-      }, [records]);
-
-      const basicDeckData = useMemo(() => {
-        if (mainTab !== 'strategy' || subTab !== 'basic') return [];
-        const recentMatches = rawMatchesForStats.slice(-1000);
-        const defStats = {};
-        recentMatches.forEach(m => {
-          if (!defStats[m.d]) defStats[m.d] = { count: 0, atk: {}, normDef: m.d };
-          defStats[m.d].count++;
-          if (!defStats[m.d].atk[m.a]) defStats[m.d].atk[m.a] = { w: 0, l: 0, normAtk: m.a };
-          defStats[m.d].atk[m.a].w += m.w;
-          defStats[m.d].atk[m.a].l += m.l;
-        });
-
-        let sortedDefs = Object.values(defStats).sort((a, b) => b.count - a.count).slice(0, 21);
-        return sortedDefs.map(def => {
-          const topAtks = Object.values(def.atk).map(a => {
-            const total = a.w + a.l;
-            return { normAtk: a.normAtk, w: a.w, l: a.l, total, rate: total > 0 ? (a.w/total)*100 : 0 };
-          }).filter(a => a.total >= 5) 
-          .sort((a, b) => b.total - a.total || b.w - a.w).slice(0, 3);
-          return { ...def, counters: topAtks };
-        });
-      }, [rawMatchesForStats, mainTab, subTab]);
-
-      const dashboardStats = useMemo(() => {
-        if (mainTab !== 'strategy' || subTab !== 'dashboard') return { totalWin: 0, totalLose: 0, topDefs: [] };
-        let totalWin = 0, totalLose = 0;
-        const deckMap = new Map();
-        rawMatchesForStats.forEach(m => {
-          totalWin += m.w; totalLose += m.l;
-          if (!deckMap.has(m.d)) deckMap.set(m.d, 0);
-          deckMap.set(m.d, deckMap.get(m.d) + 1);
-        });
-        const topDefs = Array.from(deckMap.entries()).sort((a, b) => b[1] - a[1]).slice(0, 5);
-        return { totalWin, totalLose, topDefs };
-      }, [rawMatchesForStats, mainTab, subTab]);
-
-      useEffect(() => {
-        if (mainTab === 'strategy' && subTab === 'dashboard' && dashboardStats.topDefs.length > 0) {
-          if (winRateChartRef.current) {
-            if (chartInstance1.current) chartInstance1.current.destroy();
-            chartInstance1.current = new Chart(winRateChartRef.current, {
-              type: 'doughnut',
-              data: { labels: ['승리', '패배'], datasets: [{ data: [dashboardStats.totalWin, dashboardStats.totalLose], backgroundColor: ['#2ed573', '#ff4757'], borderWidth: 0 }] },
-              options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { color: '#fcf6ba' } } } }
-            });
-          }
-          if (defMetaChartRef.current) {
-            if (chartInstance2.current) chartInstance2.current.destroy();
-            chartInstance2.current = new Chart(defMetaChartRef.current, {
-              type: 'bar',
-              data: { 
-                labels: dashboardStats.topDefs.map(d => d[0].split(' ').join(', ').substring(0,15)), 
-                datasets: [{ label: '만난 횟수', data: dashboardStats.topDefs.map(d => d[1]), backgroundColor: '#bf953f', borderRadius: 4 }] 
-              },
-              options: { responsive: true, maintainAspectRatio: false, scales: { y: { grid: { color: 'rgba(255,255,255,0.05)' } }, x: { grid: { display: false } } }, plugins: { legend: { display: false } } }
-            });
-          }
-        }
-        return () => {
-          if (chartInstance1.current) chartInstance1.current.destroy();
-          if (chartInstance2.current) chartInstance2.current.destroy();
-        };
-      }, [mainTab, subTab, dashboardStats]);
-
-      const counterAnalysisData = useMemo(() => {
-        const activeEnemies = counterEnemyFilter.filter(h => h.trim() !== '');
-        if (activeEnemies.length === 0) return null;
-
-        const resultsMap = new Map();
-
-        STATIC_GUIDE_DB.forEach(guide => {
-          const isMatch = activeEnemies.every(filterHero => guide.defense.includes(filterHero));
-          if (isMatch) {
-            const defKey = [...guide.defense].sort().join(',');
-            guide.counters?.forEach(counter => {
-              const atkKey = [...counter.attacker].sort().join(',');
-              const key = `${defKey}|${atkKey}`;
-              resultsMap.set(key, {
-                defenseTeam: guide.defense, attackerTeam: counter.attacker,
-                skill: counter.skill, turn: counter.turn, formation: counter.formation,
-                equips: [counter.equip1, counter.equip2, counter.equip3].filter(Boolean),
-                tip: counter.tip, dynamicCount: 0, dynamicWins: 0, hasGuide: true, isCustom: false
-              });
-            });
-          }
-        });
-
-        customGuides.filter(g => g.status === 'approved' && (g.guideType === 'counter' || !g.guideType)).forEach(guide => {
-          const isMatch = activeEnemies.every(filterHero => getSafeArray(guide.defenseTeam).includes(filterHero));
-          if (isMatch) {
-            const defKey = getSafeArray(guide.defenseTeam).sort().join(',');
-            const atkKey = getSafeArray(guide.attackerTeam).sort().join(',');
-            const key = `${defKey}|${atkKey}`;
-            resultsMap.set(key, {
-              defenseTeam: guide.defenseTeam, attackerTeam: guide.attackerTeam,
-              skill: guide.skill, turn: guide.turn, formation: guide.formation,
-              equips: [guide.equip1, guide.equip2, guide.equip3].filter(Boolean),
-              tip: guide.tip, dynamicCount: 0, dynamicWins: 0, hasGuide: true, isCustom: true
-            });
-          }
-        });
-
-        records.filter(r => (r.recordType || 'attack') === 'attack').forEach(record => {
-          record.matches?.forEach(match => {
-            const enemyTeam = getSafeArray(match.enemyTeam).map(h => h.trim()).filter(Boolean);
-            const myTeam = getSafeArray(match.myTeam).map(h => h.trim()).filter(Boolean);
-
-            if (enemyTeam.length > 0 && myTeam.length > 0) {
-              const isMatch = activeEnemies.every(filterHero => enemyTeam.includes(filterHero));
-              if (isMatch) {
-                const defKey = [...enemyTeam].sort().join(',');
-                const atkKey = [...myTeam].sort().join(',');
-                const key = `${defKey}|${atkKey}`;
-
-                if (!resultsMap.has(key)) {
-                  resultsMap.set(key, {
-                    defenseTeam: enemyTeam, attackerTeam: myTeam,
-                    skill: null, turn: null, formation: null, equips: [], tip: null,
-                    dynamicCount: 0, dynamicWins: 0, hasGuide: false, isCustom: false
-                  });
-                }
-
-                const entry = resultsMap.get(key);
-                entry.dynamicCount++;
-                if (match.result === '승리') entry.dynamicWins++;
-              }
-            }
-          });
-        });
-
-        const results = Array.from(resultsMap.values())
-          .filter(d => d.dynamicCount >= 5) 
-          .map(d => ({ ...d, winRate: d.dynamicCount > 0 ? ((d.dynamicWins / d.dynamicCount) * 100).toFixed(1) : 0 }))
-          .sort((a, b) => {
-            if (b.winRate !== a.winRate) return parseFloat(b.winRate) - parseFloat(a.winRate);
-            if (b.dynamicCount !== a.dynamicCount) return b.dynamicCount - a.dynamicCount;
-            return (b.hasGuide === a.hasGuide) ? 0 : b.hasGuide ? 1 : -1;
-          });
-
-        return { results };
-      }, [records, customGuides, counterEnemyFilter]);
-
-      const recommendDefenseData = useMemo(() => {
-        const defCounts = {};
-        records.filter(r => r.recordType === 'defense').forEach(record => {
-          const defTeamArr = getSafeArray(record.myTeam);
-          const validDefHeroes = defTeamArr.map(h => h && typeof h === 'string' ? h.trim() : '').filter(Boolean).sort();
-          if (validDefHeroes.length === 3) {
-            const defDeckKey = validDefHeroes.join(', ');
-            if (!defCounts[defDeckKey]) defCounts[defDeckKey] = { deck: defDeckKey, count: 0, wins: 0, heroes: validDefHeroes };
-            record.defenseMatches?.forEach(match => {
-              defCounts[defDeckKey].count++;
-              if (match.result === '방어 성공') defCounts[defDeckKey].wins++;
-            });
-          }
-        });
-
-        const defResults = Object.values(defCounts)
-          .map(d => ({ ...d, winRate: d.count > 0 ? ((d.wins / d.count) * 100).toFixed(1) : 0 }))
-          .filter(d => d.count >= 3)
-          .sort((a, b) => {
-            if (b.winRate !== a.winRate) return parseFloat(b.winRate) - parseFloat(a.winRate);
-            return b.count - a.count;
-          }).slice(0, 10);
-          
-        return defResults.map(def => {
-           const matchGuides = customGuides.filter(g => g.status === 'approved' && g.guideType === 'defense' && g.defenseTeam.slice().sort().join(',') === def.heroes.join(','));
-           return { ...def, guides: matchGuides };
-        });
-      }, [records, customGuides]);
 
       const handleGuideSubmit = async () => {
         if (!user) return showAlert("인증 오류", "인증 정보가 없습니다.");
@@ -797,116 +580,6 @@
         }
       };
 
-      const handleAttackTeamChange = (index, teamType, heroIndex, value) => {
-        const newMatches = [...attackMatches]; newMatches[index][teamType][heroIndex] = value; setAttackMatches(newMatches);
-      };
-      const handleAttackResultChange = (index, value) => {
-        const newMatches = [...attackMatches]; newMatches[index].result = value; setAttackMatches(newMatches);
-      };
-      
-      const fillAttackTeamQuick = (index, teamType, deckStr) => {
-        if (!deckStr) return;
-        const heroes = deckStr.split(',').map(h => h.trim());
-        const newMatches = [...attackMatches];
-        newMatches[index][teamType] = [heroes[0] || '', heroes[1] || '', heroes[2] || ''];
-        setAttackMatches(newMatches);
-      };
-      const fillDefenseTeamQuick = (deckStr) => {
-        if (!deckStr) return;
-        const heroes = deckStr.split(',').map(h => h.trim());
-        setDefenseMyTeam([heroes[0] || '', heroes[1] || '', heroes[2] || '']);
-      };
-
-      const handleAttackQuickPaste = (index, text) => {
-        if (!text || text.trim() === '') return;
-        let result = '승리';
-        if (text.includes('패배') || text.includes('(패)') || text.includes('[패]') || text.includes(' 패 ')) result = '패배';
-        
-        let cleanText = text.replace(/공격|방어|승리|패배|\(승\)|\(패\)|\[승\]|\[패\]|:/gi, ' ').replace(/vs/gi, '/').replace(/[\[\]\(\),]/g, ' ').replace(/or/gi, ' ').trim();
-        let myTeamStr = '', enemyTeamStr = '';
-
-        if (cleanText.includes('/')) {
-            let parts = cleanText.split('/');
-            myTeamStr = parts[0]; enemyTeamStr = parts.slice(1).join(' ');
-        } else {
-            let tokens = cleanText.split(/[\s]+/).filter(Boolean);
-            myTeamStr = tokens.slice(0, 3).join(' '); enemyTeamStr = tokens.slice(3, 6).join(' ');
-        }
-
-        const parseTeam = (str) => {
-            let arr = str.split(/[\s]+/).filter(Boolean);
-            return [arr[0] || '', arr[1] || '', arr[2] || ''];
-        };
-        const parsedMyTeam = parseTeam(myTeamStr); const parsedEnemyTeam = parseTeam(enemyTeamStr);
-        const allPredefined = PREDEFINED_HERO_GROUPS.flatMap(g => g.heroes);
-        const newDetectedHeroes = [...parsedMyTeam, ...parsedEnemyTeam].filter(h => h !== '' && !allPredefined.includes(h) && !customHeroes.includes(h));
-        if (newDetectedHeroes.length > 0) setCustomHeroes(prev => [...prev, ...newDetectedHeroes]);
-
-        const newMatches = [...attackMatches];
-        newMatches[index] = { myTeam: parsedMyTeam, result, enemyTeam: parsedEnemyTeam };
-        setAttackMatches(newMatches);
-      };
-
-      const handleDefenseMyTeamChange = (heroIndex, value) => {
-        const newTeam = [...defenseMyTeam]; newTeam[heroIndex] = value; setDefenseMyTeam(newTeam);
-      };
-      const handleDefenseEnemyChange = (index, heroIndex, value) => {
-        const newMatches = [...defenseMatches]; newMatches[index].enemyTeam[heroIndex] = value; setDefenseMatches(newMatches);
-      };
-      const handleDefenseResultChange = (index, value) => {
-        const newMatches = [...defenseMatches]; newMatches[index].result = value; setDefenseMatches(newMatches);
-      };
-      const addDefenseMatch = () => {
-        if (defenseMatches.length < 15) setDefenseMatches([...defenseMatches, { enemyTeam: ['', '', ''], result: '방어 성공' }]);
-        else showAlert("추가 불가", "방어 기록은 한 번에 최대 15개까지만 입력 가능합니다.");
-      };
-
-      const handleDefenseGlobalPaste = (text) => {
-        if (!text || text.trim() === '') return;
-        
-        const lines = text.split(/\n|\||\//).map(l => l.trim()).filter(Boolean);
-        const allPredefined = PREDEFINED_HERO_GROUPS.flatMap(g => g.heroes);
-        
-        let newMyTeam = [...defenseMyTeam];
-        let newDefMatches = [];
-        let foundNewHeroes = [];
-
-        lines.forEach((line, lineIdx) => {
-            let result = '방어 성공';
-            if (line.includes('실패') || line.includes('패배') || line.includes('방실') || line.includes('(패)') || line.includes(' 패 ')) result = '방어 실패';
-
-            let cleanLine = line.replace(/성공|실패|승리|패배|방어|공격|방성|방실|\(승\)|\(패\)|\[.*?\]|:/g, ' ').replace(/[^\w\s가-힣ㄱ-ㅎㅏ-ㅣ]/g, ' ').trim();
-            let tokens = cleanLine.split(/[\s]+/).filter(Boolean);
-            let extractedHeroes = tokens.slice(0, 3);
-
-            extractedHeroes.forEach(h => {
-                if (h && !allPredefined.includes(h) && !customHeroes.includes(h)) foundNewHeroes.push(h);
-            });
-
-            if (extractedHeroes.length > 0) {
-                if (lineIdx === 0 && !newMyTeam.some(h => h.trim())) {
-                    newMyTeam = [extractedHeroes[0]||'', extractedHeroes[1]||'', extractedHeroes[2]||''];
-                } else {
-                    newDefMatches.push({
-                        enemyTeam: [extractedHeroes[0]||'', extractedHeroes[1]||'', extractedHeroes[2]||''],
-                        result: result
-                    });
-                }
-            }
-        });
-
-        if (foundNewHeroes.length > 0) setCustomHeroes(prev => [...new Set([...prev, ...foundNewHeroes])]);
-        if (newMyTeam.some(h => h.trim())) setDefenseMyTeam(newMyTeam);
-        
-        if (newDefMatches.length > 0) {
-            if (defenseMatches.length === 1 && !defenseMatches[0].enemyTeam.some(h => h.trim())) {
-                setDefenseMatches(newDefMatches.slice(0, 15));
-            } else {
-                setDefenseMatches([...defenseMatches, ...newDefMatches].slice(0, 15));
-            }
-        }
-      };
-      
       const handleBulkParse = async () => {
         if (!rawRecordInputState.trim()) return showAlert("알림", "파싱할 텍스트를 입력하세요.");
         const lines = rawRecordInputState.split('\n');
@@ -981,105 +654,6 @@
         }
       };
 
-      const resetForm = () => {
-        if (editingId) {
-          setNickname(''); setDate(new Date().toISOString().split('T')[0]); setOpponent('');
-        } else {
-          if (!keepNickname) setNickname('');
-          if (!keepDate) setDate(new Date().toISOString().split('T')[0]);
-          if (!keepOpponent) setOpponent('');
-        }
-        setEditingId(null); setEditingAuthorId(null);
-        setAttackMatches(Array.from({ length: 5 }, () => ({ myTeam: ['', '', ''], result: '승리', enemyTeam: ['', '', ''] })));
-        setDefenseMyTeam(['', '', '']);
-        setDefenseMatches([{ enemyTeam: ['', '', ''], result: '방어 성공' }]);
-      };
-
-      const handleSave = async () => {
-        if (!fb.isValid) return showAlert("설정 오류", "데이터베이스에 연결되지 않았습니다.");
-        if (!user) return showAlert("인증 오류", "인증 정보가 없습니다.");
-        if (!nickname || !date || !opponent) return showAlert("입력 오류", "상단 기본 정보(닉네임, 날짜, 상대)를 모두 입력해주세요.");
-
-        let dataToSave = { 
-          nickname, date, opponent, recordType: subTab, 
-          authorId: editingId ? (editingAuthorId || user.uid) : user.uid 
-        };
-        
-        let allInputHeroes = [];
-
-        if (subTab === 'attack') {
-          const valid = attackMatches.filter(m => m.myTeam.some(h => h.trim()) || m.enemyTeam.some(h => h.trim()));
-          if (valid.length === 0) return showAlert("입력 오류", "최소 1개의 공격 기록을 입력하세요.");
-          dataToSave.matches = valid;
-          valid.forEach(m => { allInputHeroes.push(...m.myTeam, ...m.enemyTeam); });
-        } else {
-          if (!defenseMyTeam.some(h => h.trim())) return showAlert("입력 오류", "아군 방어 영웅을 입력하세요.");
-          const valid = defenseMatches.filter(m => m.enemyTeam.some(h => h.trim()));
-          if (valid.length === 0) return showAlert("입력 오류", "최소 1개의 적군 공격 기록을 입력하세요.");
-          dataToSave.myTeam = defenseMyTeam;
-          dataToSave.defenseMatches = valid;
-          allInputHeroes.push(...defenseMyTeam);
-          valid.forEach(m => allInputHeroes.push(...m.enemyTeam));
-        }
-
-        const allValidHeroes = PREDEFINED_HERO_GROUPS.flatMap(g => g.heroes);
-        const usedHeroes = new Set(allInputHeroes.map(h => h && typeof h === 'string' ? h.trim() : '').filter(Boolean));
-        const unknownHeroes = [...usedHeroes].filter(h => !allValidHeroes.includes(h));
-
-        if (unknownHeroes.length > 0) {
-          showConfirm("오타 확인", `목록에 없는 이름이 있습니다.\n[${unknownHeroes.join(', ')}]\n\n오타라면 '취소', 신규 영웅이라면 '강제 저장'을 누르세요.`, () => { executeSave(dataToSave, unknownHeroes); setConfirmModal({ isOpen: false }); }, "강제 저장");
-        } else { executeSave(dataToSave, []); }
-      };
-
-      const executeSave = async (data, newHeroes) => {
-        try {
-          if (editingId) {
-            data.updatedAt = Date.now();
-            await updateDoc(doc(fb.db, 'artifacts', APP_ID, 'public', 'data', COLLECTION_NAME, editingId), data);
-          } else {
-            data.createdAt = Date.now();
-            await addDoc(collection(fb.db, 'artifacts', APP_ID, 'public', 'data', COLLECTION_NAME), data);
-          }
-          if (newHeroes.length > 0) {
-            const added = newHeroes.filter(h => !customHeroes.includes(h));
-            if (added.length > 0) setCustomHeroes(prev => [...prev, ...added]);
-          }
-          resetForm(); showAlert("저장 완료", "성공적으로 저장되었습니다.");
-        } catch (error) { console.error("Save Error:", error); showAlert("시스템 오류", "저장 중 오류가 발생했습니다."); }
-      };
-
-      const handleEditClick = (record) => {
-        setEditingId(record.id); 
-        setEditingAuthorId(record.authorId || null); 
-        setNickname(record.nickname || ''); setDate(record.date || new Date().toISOString().split('T')[0]); setOpponent(record.opponent || '');
-        
-        if (subTab === 'attack') {
-          const loaded = record.matches?.map(m => ({
-            myTeam: getSafeArray(m.myTeam).length > 0 ? getSafeArray(m.myTeam) : ['', '', ''],
-            result: m.result || '승리',
-            enemyTeam: getSafeArray(m.enemyTeam).length > 0 ? getSafeArray(m.enemyTeam) : ['', '', '']
-          })) || [];
-          while(loaded.length < 5) loaded.push({ myTeam: ['', '', ''], result: '승리', enemyTeam: ['', '', ''] });
-          setAttackMatches(loaded.slice(0,5));
-        } else {
-          setDefenseMyTeam(getSafeArray(record.myTeam).length > 0 ? getSafeArray(record.myTeam) : ['', '', '']);
-          const loadedDef = record.defenseMatches?.map(m => ({
-            enemyTeam: getSafeArray(m.enemyTeam).length > 0 ? getSafeArray(m.enemyTeam) : ['', '', ''],
-            result: m.result || '방어 성공'
-          })) || [{ enemyTeam: ['', '', ''], result: '방어 성공' }];
-          setDefenseMatches(loadedDef);
-        }
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      };
-
-      const handleDelete = (id) => {
-        if (!fb.isValid) return;
-        showConfirm("기록 삭제", "기록을 영구히 삭제합니다.", async () => {
-          try { await deleteDoc(doc(fb.db, 'artifacts', APP_ID, 'public', 'data', COLLECTION_NAME, id)); if (editingId === id) resetForm(); setConfirmModal({ isOpen: false }); } 
-          catch (error) { showAlert("오류", "삭제 권한이 부족합니다."); }
-        }, "삭제 진행");
-      };
-
       const handleDeleteAllByType = (type) => {
         if (!isAdminMode) return;
         const typeRecords = records.filter(r => (r.recordType || 'attack') === type);
@@ -1116,45 +690,6 @@
         document.body.appendChild(link); link.click(); document.body.removeChild(link);
       };
 
-      const handleExportStatsCSV = () => {
-        handleExportAllCSV(); 
-      };
-
-      const groupedRecords = useMemo(() => {
-        const groups = {};
-        let search = filterChar.toLowerCase().trim();
-        let choSearch = getChosung(search);
-        
-        currentRecords.forEach(r => {
-          let isMatch = false;
-          if (search === '') isMatch = true;
-          else if (r.nickname?.toLowerCase().includes(search) || getChosung(r.nickname||'').includes(choSearch)) isMatch = true;
-          else {
-            if (subTab === 'attack') {
-              r.matches?.forEach(m => {
-                const str = getSafeArray(m.myTeam).join(',') + getSafeArray(m.enemyTeam).join(',');
-                if (str.toLowerCase().includes(search) || getChosung(str).includes(choSearch)) isMatch = true;
-              });
-            } else {
-              const myStr = getSafeArray(r.myTeam).join(',');
-              if (myStr.toLowerCase().includes(search) || getChosung(myStr).includes(choSearch)) isMatch = true;
-              r.defenseMatches?.forEach(m => {
-                const enStr = getSafeArray(m.enemyTeam).join(',');
-                if (enStr.toLowerCase().includes(search) || getChosung(enStr).includes(choSearch)) isMatch = true;
-              });
-            }
-          }
-          if (!isMatch) return;
-
-          const groupKey = `${r.date} / vs ${r.opponent || '알 수 없음'}`;
-          if (!groups[groupKey]) groups[groupKey] = []; groups[groupKey].push(r);
-        });
-        return Object.entries(groups).sort((a, b) => b[0].localeCompare(a[0]));
-      }, [currentRecords, filterChar, subTab]);
-
-      const toggleRecord = (id) => setExpandedRecords(prev => ({ ...prev, [id]: !prev[id] }));
-      const toggleGroup = (key) => setExpandedGroups(prev => ({ ...prev, [key]: !prev[key] }));
-
       if (!isLoggedIn) {
         return (
           <div style={{position: 'fixed', inset: 0, zIndex: 9000, display: 'flex', justifyContent: 'center', alignItems: 'center', overflow: 'hidden'}}>
@@ -1184,7 +719,7 @@
                   <div className="space-y-4">
                     <div className="flex gap-2 text-xs font-bold text-zinc-300">
                       <span className="w-16 shrink-0 text-zinc-500">대상 방어덱:</span>
-                      <span>{getSafeArray(guideModal.defTeam).join(', ')}</span>
+                      <span>{guideModal.defTeam.filter(Boolean).length > 0 ? getSafeArray(guideModal.defTeam).join(', ') : '선택 안됨'}</span>
                     </div>
                     
                     {guideModal.type === 'counter' && (
@@ -1295,9 +830,6 @@
                 </div>
               </div>
               <div className="flex border-t border-zinc-700 bg-zinc-900 flex-wrap">
-                <button onClick={() => handleTabChange('records', 'attack')} className={`flex-1 py-4 font-black text-sm md:text-base transition-all flex items-center justify-center gap-2 ${mainTab === 'records' ? 'gold-bg-active' : 'text-zinc-500 hover:bg-zinc-800/50 hover:text-zinc-300'}`}>
-                  <span className={mainTab === 'records' ? 'gold-gradient-text drop-shadow-sm' : ''}>길드전 기록</span>
-                </button>
                 <button onClick={() => handleTabChange('strategy', 'counter')} className={`flex-1 py-4 font-black text-sm md:text-base transition-all flex items-center justify-center gap-2 ${mainTab === 'strategy' ? 'gold-bg-active' : 'text-zinc-500 hover:bg-zinc-800/50 hover:text-zinc-300'}`}>
                   <span className={mainTab === 'strategy' ? 'gold-gradient-text drop-shadow-sm' : ''}>길드전 공략실</span>
                 </button>
@@ -1309,301 +841,11 @@
               </div>
             </div>
 
-            {mainTab === 'records' && (
-               <div className="flex gap-2 flex-wrap">
-                 <button onClick={() => {setSubTab('attack'); resetForm();}} className={`px-6 py-2.5 rounded-full font-bold text-sm transition-colors border ${subTab === 'attack' ? 'bg-zinc-800 text-zinc-100 border-zinc-500' : 'bg-transparent text-zinc-500 border-transparent hover:text-zinc-300'}`}>공격 기록지</button>
-                 <button onClick={() => {setSubTab('defense'); resetForm();}} className={`px-6 py-2.5 rounded-full font-bold text-sm transition-colors border ${subTab === 'defense' ? 'bg-zinc-800 text-zinc-100 border-zinc-500' : 'bg-transparent text-zinc-500 border-transparent hover:text-zinc-300'}`}>방어 기록지</button>
-               </div>
-            )}
-
             {mainTab === 'strategy' && (
                <div className="flex gap-2 flex-wrap">
                  <button onClick={() => setSubTab('counter')} className={`px-5 py-2.5 rounded-full font-bold text-sm transition-colors border ${subTab === 'counter' ? 'bg-zinc-800 text-zinc-100 border-zinc-500' : 'bg-transparent text-zinc-500 border-transparent hover:text-zinc-300'}`}>카운터 보관소</button>
                  <button onClick={() => setSubTab('recommend')} className={`px-5 py-2.5 rounded-full font-bold text-sm transition-colors border ${subTab === 'recommend' ? 'bg-zinc-800 text-zinc-100 border-zinc-500' : 'bg-transparent text-zinc-500 border-transparent hover:text-zinc-300'}`}>방어팀 추천 덱</button>
-                 <button onClick={() => setSubTab('basic')} className={`px-5 py-2.5 rounded-full font-bold text-sm transition-colors border ${subTab === 'basic' ? 'bg-zinc-800 text-zinc-100 border-zinc-500' : 'bg-transparent text-zinc-500 border-transparent hover:text-zinc-300'}`}>기본덱조합</button>
-                 <button onClick={() => setSubTab('dashboard')} className={`px-5 py-2.5 rounded-full font-bold text-sm transition-colors border ${subTab === 'dashboard' ? 'bg-zinc-800 text-zinc-100 border-zinc-500' : 'bg-transparent text-zinc-500 border-transparent hover:text-zinc-300'}`}>전체전적</button>
                </div>
-            )}
-
-            {mainTab === 'records' && (
-              <div className="space-y-6 animate-in fade-in duration-300">
-                <section className={`bg-zinc-900 border border-zinc-700 p-4 md:p-8 rounded-2xl shadow-lg ${editingId ? 'border-yellow-600 bg-yellow-950/10' : ''}`}>
-                  <h2 className="text-lg md:text-xl font-black text-zinc-100 mb-6 flex items-center gap-2">
-                    {editingId ? <><span className="gold-gradient-text"><IconEdit /></span> 기록 수정 중 ({subTab==='attack'?'공격':'방어'})</> : (subTab==='attack'?'⚔️ 길드전 공격 기록 추가':'🛡️ 길드전 방어 기록 추가')}
-                  </h2>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                    <div>
-                      <div className="flex justify-between items-center mb-1.5">
-                        <label className="block text-sm font-bold text-zinc-400">길드원 닉네임</label>
-                        <label className="flex items-center gap-1.5 text-xs text-yellow-600/80 cursor-pointer hover:text-yellow-500 font-bold">
-                          <input type="checkbox" checked={keepNickname} onChange={(e) => setKeepNickname(e.target.checked)} className="keep-checkbox" />
-                          입력 유지
-                        </label>
-                      </div>
-                      <input type="text" value={nickname} onChange={(e) => setNickname(e.target.value)} className="w-full px-4 py-3 bg-zinc-800 border border-zinc-600 rounded-xl text-zinc-100 font-bold outline-none focus:ring-2 focus:ring-yellow-600"/>
-                    </div>
-                    <div>
-                      <div className="flex justify-between items-center mb-1.5">
-                        <label className="block text-sm font-bold text-zinc-400">날짜</label>
-                        <label className="flex items-center gap-1.5 text-xs text-yellow-600/80 cursor-pointer hover:text-yellow-500 font-bold">
-                          <input type="checkbox" checked={keepDate} onChange={(e) => setKeepDate(e.target.checked)} className="keep-checkbox" />
-                          입력 유지
-                        </label>
-                      </div>
-                      <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="w-full px-4 py-3 bg-zinc-800 border border-zinc-600 rounded-xl text-zinc-100 font-bold outline-none focus:ring-2 focus:ring-yellow-600"/>
-                    </div>
-                    <div>
-                      <div className="flex justify-between items-center mb-1.5">
-                        <label className="block text-sm font-bold text-zinc-400">상대 길드</label>
-                        <label className="flex items-center gap-1.5 text-xs text-yellow-600/80 cursor-pointer hover:text-yellow-500 font-bold">
-                          <input type="checkbox" checked={keepOpponent} onChange={(e) => setKeepOpponent(e.target.checked)} className="keep-checkbox" />
-                          입력 유지
-                        </label>
-                      </div>
-                      <input type="text" value={opponent} onChange={(e) => setOpponent(e.target.value)} className="w-full px-4 py-3 bg-zinc-800 border border-zinc-600 rounded-xl text-zinc-100 font-bold outline-none focus:ring-2 focus:ring-yellow-600"/>
-                    </div>
-                  </div>
-
-                  {subTab === 'attack' ? (
-                    <div className="space-y-4">
-                      {attackMatches.map((match, index) => (
-                        <div key={index} className="flex flex-col gap-3 bg-zinc-800 p-3 md:p-4 rounded-xl border border-zinc-600">
-                          
-                          <div className="flex flex-col xl:flex-row items-start xl:items-center justify-between w-full border-b border-zinc-700 pb-3 gap-3">
-                            <div className="flex items-center gap-2 w-full xl:w-auto flex-1">
-                              <span className="font-black text-zinc-500 w-5 text-center shrink-0">{index+1}.</span>
-                              <div className="relative flex-1 flex items-center">
-                                <div className="absolute left-2.5 text-zinc-500"><IconClipboard /></div>
-                                <input id={`atk-paste-${index}`} type="text" placeholder="빠른 붙여넣기 (예: 루디 크리스 델론즈 승 밀리아 카일 로지)" 
-                                  className="w-full pl-9 pr-2 py-2 bg-zinc-900 border border-zinc-600 rounded-lg text-xs sm:text-sm text-zinc-200 outline-none focus:ring-2 focus:ring-yellow-600"
-                                  onKeyDown={(e)=>{if(e.key==='Enter'){e.preventDefault();handleAttackQuickPaste(index, e.target.value);e.target.value='';}}}
-                                />
-                              </div>
-                              <button onClick={()=>{const el=document.getElementById(`atk-paste-${index}`); if(el&&el.value){handleAttackQuickPaste(index, el.value);el.value='';}}} className="px-3 py-2 gold-button font-bold rounded-lg text-xs sm:text-sm shrink-0">확인</button>
-                            </div>
-                            
-                            <div className="flex flex-col sm:flex-row items-center gap-2 w-full xl:w-auto shrink-0">
-                               <select onChange={(e) => {fillAttackTeamQuick(index, 'myTeam', e.target.value); e.target.value='';}} className="w-full sm:w-auto bg-zinc-900 border border-yellow-600/50 text-yellow-500 font-bold rounded-lg px-2 py-2 outline-none text-xs shadow-sm focus:ring-1 focus:ring-yellow-500">
-                                 <option value="" className="text-zinc-400">⚡ 아군 TOP 10 빠른 입력</option>
-                                 {topDecks.topAtk.map((d, i) => <option key={i} value={d} className="text-yellow-500">{d}</option>)}
-                               </select>
-                               <select onChange={(e) => {fillAttackTeamQuick(index, 'enemyTeam', e.target.value); e.target.value='';}} className="w-full sm:w-auto bg-zinc-900 border border-yellow-600/50 text-yellow-500 font-bold rounded-lg px-2 py-2 outline-none text-xs shadow-sm focus:ring-1 focus:ring-yellow-500">
-                                 <option value="" className="text-zinc-400">⚡ 적군 TOP 10 빠른 입력</option>
-                                 {topDecks.topDef.map((d, i) => <option key={i} value={d} className="text-yellow-500">{d}</option>)}
-                               </select>
-                            </div>
-                          </div>
-
-                          <div className={`flex w-full ${isMobileView ? 'flex-col gap-3' : 'flex-row items-center gap-4'}`}>
-                            <div className={`flex flex-1 gap-2 p-2 bg-blue-950/40 border border-blue-800 rounded-lg ${isMobileView?'flex-col':'flex-row'}`}>
-                              <div className="px-2 py-1.5 bg-blue-900 text-blue-200 text-xs font-black rounded flex items-center justify-center shrink-0">아군 공격</div>
-                              <div className="grid grid-cols-3 gap-1 sm:gap-2 flex-1 w-full">
-                                {[0,1,2].map(i => <SearchableSelect key={i} value={match.myTeam[i]} onChange={(v)=>handleAttackTeamChange(index, 'myTeam', i, v)} placeholder="영웅" groups={HERO_GROUPS} className="h-10" />)}
-                              </div>
-                            </div>
-                            <select value={match.result} onChange={(e) => handleAttackResultChange(index, e.target.value)} className={`h-10 px-2 bg-zinc-900 border border-zinc-600 rounded-lg font-black text-sm shrink-0 ${match.result==='승리'?'text-blue-400':'text-red-400'}`}>
-                              <option value="승리">승리</option><option value="패배">패배</option>
-                            </select>
-                            <div className={`flex flex-1 gap-2 p-2 bg-red-950/40 border border-red-800 rounded-lg ${isMobileView?'flex-col':'flex-row'}`}>
-                              <div className="px-2 py-1.5 bg-red-900 text-red-200 text-xs font-black rounded flex items-center justify-center shrink-0">적군 방어</div>
-                              <div className="grid grid-cols-3 gap-1 sm:gap-2 flex-1 w-full">
-                                {[0,1,2].map(i => <SearchableSelect key={i} value={match.enemyTeam[i]} onChange={(v)=>handleAttackTeamChange(index, 'enemyTeam', i, v)} placeholder="영웅" groups={HERO_GROUPS} className="h-10" />)}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="space-y-6">
-                      <div className="bg-zinc-800 p-3 md:p-4 rounded-xl border border-zinc-600 mb-2">
-                        <label className="block text-sm font-bold text-zinc-400 mb-2 flex items-center gap-2"><IconClipboard/> 텍스트로 한 번에 입력 (다중 파싱 지원)</label>
-                        <div className="flex flex-col sm:flex-row gap-2 w-full">
-                          <textarea id="def-global-paste" rows="3" placeholder="예시: [내 방어덱] 루디 크리스 델론즈 / [1타] 밀리아 카일 로지 (방어 성공) / [2타] 프레이야 트루드 연희 (방어 실패) 등 여러 줄을 붙여넣으세요." 
-                            className="flex-1 w-full p-3 bg-zinc-900 border border-zinc-600 rounded-lg text-sm text-zinc-200 outline-none focus:ring-2 focus:ring-yellow-600 custom-scrollbar"></textarea>
-                          <button onClick={()=>{const el=document.getElementById('def-global-paste'); if(el&&el.value){handleDefenseGlobalPaste(el.value);el.value='';}}} className="px-4 py-3 gold-button font-black rounded-lg shrink-0 w-full sm:w-auto">자동 완성</button>
-                        </div>
-                      </div>
-
-                      <div className="bg-blue-950/30 p-3 md:p-4 border border-blue-800 rounded-xl relative">
-                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-3 gap-2 border-b border-blue-900/50 pb-3">
-                          <label className="text-sm font-black text-blue-300 flex items-center gap-2"><IconShield/> [고정] 아군 방어 영웅</label>
-                          <select onChange={(e) => {fillDefenseTeamQuick(e.target.value); e.target.value='';}} className="bg-zinc-900 border border-yellow-600/50 text-yellow-500 font-bold rounded-lg px-2 py-1.5 outline-none text-xs w-full sm:w-auto shadow-sm">
-                            <option value="" className="text-zinc-400">⚡ 아군 방어덱 TOP 10 빠른 입력</option>
-                            {topDecks.topDef.map((d, i) => <option key={i} value={d} className="text-yellow-500">{d}</option>)}
-                          </select>
-                        </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3 w-full">
-                          {[0,1,2].map(i => <SearchableSelect key={i} value={defenseMyTeam[i]} onChange={(v)=>handleDefenseMyTeamChange(i, v)} placeholder="아군 방어 영웅" groups={HERO_GROUPS} className="h-10 sm:h-12" />)}
-                        </div>
-                      </div>
-                      <div className="space-y-3">
-                        <label className="block text-sm font-black text-rose-300 mb-1 flex justify-between items-center">
-                          <span>적군 공격 기록 (최대 15회 추가 가능)</span>
-                          <span className="text-xs text-zinc-500 bg-zinc-800 px-2 py-1 rounded">현재 {defenseMatches.length} / 15</span>
-                        </label>
-                        <div className="max-h-[400px] overflow-y-auto custom-scrollbar space-y-3 pr-2 w-full">
-                          {defenseMatches.map((match, index) => (
-                            <div key={index} className="flex flex-col gap-3 bg-rose-950/20 p-3 md:p-4 rounded-xl border border-rose-900/50 w-full">
-                              
-                              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-rose-900/30 pb-2 mb-1 w-full">
-                                <span className="font-bold text-rose-500 text-sm shrink-0">적군 {index + 1}타</span>
-                                <select onChange={(e) => {
-                                    if(!e.target.value) return;
-                                    const heroes = e.target.value.split(',').map(h=>h.trim());
-                                    handleDefenseEnemyChange(index, 0, heroes[0]||'');
-                                    handleDefenseEnemyChange(index, 1, heroes[1]||'');
-                                    handleDefenseEnemyChange(index, 2, heroes[2]||'');
-                                    e.target.value = ''; 
-                                  }} 
-                                  className="bg-zinc-900 border border-yellow-600/50 text-yellow-500 font-bold rounded-lg px-2 py-1.5 outline-none text-xs w-full sm:w-auto shadow-sm"
-                                >
-                                  <option value="" className="text-zinc-400">⚡ 적군 공격덱 TOP 10 빠른 입력</option>
-                                  {topDecks.topAtk.map((d, i) => <option key={i} value={d} className="text-yellow-500">{d}</option>)}
-                                </select>
-                              </div>
-
-                              <div className="flex flex-col sm:flex-row items-center gap-3 w-full">
-                                <div className="grid grid-cols-3 gap-1 sm:gap-2 flex-1 w-full">
-                                  {[0,1,2].map(i => <SearchableSelect key={i} value={match.enemyTeam[i]} onChange={(v)=>handleDefenseEnemyChange(index, i, v)} placeholder="적군 영웅" groups={HERO_GROUPS} className="h-10" />)}
-                                </div>
-                                <div className="flex w-full sm:w-auto gap-2">
-                                  <select value={match.result} onChange={(e) => handleDefenseResultChange(index, e.target.value)} className={`h-10 px-3 bg-zinc-900 border border-zinc-600 rounded-lg font-black text-sm flex-1 sm:w-28 ${match.result==='방어 성공'?'text-blue-400':'text-red-400'}`}>
-                                    <option value="방어 성공">방어 성공</option><option value="방어 실패">방어 실패</option>
-                                  </select>
-                                  {index === defenseMatches.length - 1 && index < 14 && (
-                                    <button onClick={addDefenseMatch} className="h-10 px-4 gold-button rounded-lg font-bold flex items-center justify-center gap-1 shrink-0"><IconPlus/> 추가</button>
-                                  )}
-                                </div>
-                              </div>
-
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="flex gap-3 mt-6">
-                    <button onClick={handleSave} className="flex-1 gold-button font-black py-4 rounded-xl transition-all flex items-center justify-center gap-2"><IconSave /> 저장하기</button>
-                    {editingId && <button onClick={resetForm} className="bg-zinc-800 text-zinc-400 font-bold py-4 px-6 rounded-xl hover:bg-zinc-700 hover:text-zinc-200 border border-zinc-700 transition-colors"><IconX /> 취소</button>}
-                  </div>
-                </section>
-
-                <section className="flex flex-col sm:flex-row gap-3 mt-8">
-                  <input type="text" placeholder="영웅/닉네임 검색..." value={filterChar} onChange={(e) => setFilterChar(e.target.value)} className="flex-1 px-4 py-4 bg-zinc-900 border border-zinc-700 rounded-xl text-zinc-100 font-bold outline-none focus:ring-2 focus:ring-yellow-600" />
-                  <button onClick={() => setShowStats(!showStats)} className="px-6 py-4 gold-button rounded-xl font-black flex items-center justify-center gap-2 shrink-0 w-full sm:w-auto"><IconBarChart /> {showStats?'통계 닫기':'통계 열기'}</button>
-                </section>
-
-                {showStats && (
-                  <section className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-in slide-in-from-top-4">
-                    <div className="bg-zinc-900 border border-zinc-700 p-5 rounded-2xl shadow-sm">
-                      <h3 className="text-base font-black gold-gradient-text mb-4 flex items-center gap-2"><IconBarChart/> {subTab==='attack'?'많이 사용된 공격 덱':'가장 방어율이 높은 방어 덱'} (Top 5)</h3>
-                      <ul className="space-y-3">
-                        {statsData.deckStats.length === 0 ? <li className="text-zinc-500 text-sm text-center py-4">데이터 없음</li> : statsData.deckStats.map((stat, idx) => (
-                          <li key={idx} className="flex justify-between items-center p-3 bg-zinc-800 rounded-xl border border-zinc-600">
-                            <span className="font-bold text-zinc-200 text-sm truncate max-w-[150px] sm:max-w-none">{stat.deck}</span>
-                            <div className="text-right shrink-0">
-                              <p className="text-xs text-zinc-400 mb-1">{stat.count}{subTab==='attack'?'회 기록':'회 피격'}</p>
-                              <p className={`font-black text-sm ${parseFloat(stat.winRate)>=50?'text-blue-400':'text-red-400'}`}>{stat.winRate}% <span className="text-[10px] text-zinc-500 ml-1">({stat.wins}{subTab==='attack'?'승':'회 성공'})</span></p>
-                            </div>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                    <div className="bg-zinc-900 border border-zinc-700 p-5 rounded-2xl shadow-sm">
-                      <h3 className="text-base font-black gold-gradient-text mb-4 flex items-center gap-2"><IconUsers/> 길드원 {subTab==='attack'?'공격 승률':'방어 성공률'}</h3>
-                      <div className="max-h-[300px] overflow-y-auto pr-2 custom-scrollbar space-y-3">
-                        {statsData.memberStats.length === 0 ? <div className="text-zinc-500 text-sm text-center py-4">데이터 없음</div> : statsData.memberStats.map((member, idx) => (
-                          <li key={idx} className="flex justify-between items-center p-3 bg-zinc-800 rounded-xl border border-zinc-600">
-                            <div>
-                              <p className="font-bold text-zinc-200 truncate">{member.name}</p>
-                              <p className="text-xs text-zinc-400">제출 {member.recordsCount}회 / {subTab==='attack'?`총 ${member.totalMatches}전 ${member.wins}승`:`총 피격 ${member.totalMatches}회 / ${member.wins}회 성공`}</p>
-                            </div>
-                            <p className={`font-black text-lg ${parseFloat(member.winRate)>=50?'text-blue-400':'text-red-400'}`}>{member.winRate}%</p>
-                          </li>
-                        ))}
-                      </div>
-                    </div>
-                  </section>
-                )}
-
-                <section className="space-y-5">
-                  {groupedRecords.length === 0 ? <div className="bg-zinc-900 border border-zinc-700 p-10 text-center rounded-2xl text-zinc-500 font-bold">기록이 없습니다.</div> : 
-                    groupedRecords.map(([groupKey, groupRecords]) => {
-                      const isGroupExpanded = expandedGroups[groupKey] || filterChar.trim() !== '';
-                      return (
-                        <div key={groupKey} className="bg-zinc-900 border border-zinc-700 rounded-2xl overflow-hidden shadow-sm">
-                          <div className="flex justify-between items-center p-4 cursor-pointer hover:bg-zinc-800 select-none" onClick={() => toggleGroup(groupKey)}>
-                            <h2 className="font-black text-zinc-100 text-sm md:text-lg break-words pr-2">{groupKey} <span className="text-xs text-zinc-400 ml-2">({groupRecords.length}명 제출)</span></h2>
-                            <div className="text-zinc-500 shrink-0">{isGroupExpanded ? <IconChevronUp /> : <IconChevronDown />}</div>
-                          </div>
-                          
-                          {isGroupExpanded && (
-                            <div className="p-3 md:p-4 space-y-4 border-t border-zinc-700 bg-zinc-950/50 animate-in slide-in-from-top-2">
-                              {groupRecords.map((record) => {
-                                const isExpanded = expandedRecords[record.id] || filterChar.trim() !== '';
-                                return (
-                                  <div key={record.id} className="bg-zinc-800 p-3 md:p-4 rounded-xl border border-zinc-600 relative w-full">
-                                    {(record.authorId === user?.uid || isAdminMode) && (
-                                      <div className="absolute top-3 right-3 flex gap-1 sm:gap-2">
-                                        <button onClick={(e) => { e.stopPropagation(); handleEditClick(record); }} className="text-zinc-400 hover:text-yellow-500 p-1"><IconEdit /></button>
-                                        <button onClick={(e) => { e.stopPropagation(); handleDelete(record.id); }} className="text-zinc-400 hover:text-red-500 p-1"><IconTrash /></button>
-                                      </div>
-                                    )}
-                                    <div className="cursor-pointer flex items-center justify-between pr-14 sm:pr-20 w-full" onClick={() => toggleRecord(record.id)}>
-                                      <h3 className="font-bold text-zinc-200 flex items-center flex-wrap gap-1 text-sm sm:text-base"><span className="gold-gradient-text border border-yellow-700/50 px-2 py-0.5 rounded truncate max-w-[120px]">{record.nickname||'익명'}</span> 님의 {subTab==='attack'?'공격':'방어'} 기록</h3>
-                                      <div className="text-zinc-500 shrink-0">{isExpanded ? <IconChevronUp /> : <IconChevronDown />}</div>
-                                    </div>
-                                    
-                                    {isExpanded && (
-                                      <div className="mt-4 space-y-3 border-t border-zinc-700 pt-3 w-full">
-                                        {subTab === 'attack' ? (
-                                          record.matches?.map((match, idx) => (
-                                            <div key={idx} className={`flex bg-zinc-900 p-2 sm:p-3 rounded-lg border border-zinc-700 items-center ${isMobileView ? 'flex-col gap-2' : 'flex-row gap-3'} w-full`}>
-                                              <span className={`text-[10px] font-bold px-2 py-1 rounded ${match.result==='승리'?'bg-blue-900/40 text-blue-400':'bg-red-900/40 text-red-400'} shrink-0 hidden sm:block`}>M {idx+1}</span>
-                                              <div className={`flex w-full ${isMobileView?'flex-col gap-2':'flex-row items-center gap-3'}`}>
-                                                <div className="flex-1 flex flex-col sm:flex-row items-start sm:items-center gap-1 sm:gap-2 w-full">
-                                                  <span className="text-[10px] sm:text-xs text-zinc-500 w-8 sm:w-auto">아군</span>
-                                                  {renderHeroTags(match.myTeam)}
-                                                </div>
-                                                <span className={`font-black text-xs sm:text-sm w-full sm:w-10 text-left sm:text-center ${match.result==='승리'?'text-blue-400':'text-red-500'} ${isMobileView?'border-y border-zinc-800 py-1':''}`}>{match.result}</span>
-                                                <div className="flex-1 flex flex-col sm:flex-row items-start sm:items-center gap-1 sm:gap-2 w-full">
-                                                  <span className="text-[10px] sm:text-xs text-zinc-500 w-8 sm:w-auto">적군</span>
-                                                  {renderHeroTags(match.enemyTeam)}
-                                                </div>
-                                              </div>
-                                            </div>
-                                          ))
-                                        ) : (
-                                          <div className="w-full">
-                                            <div className="mb-3 p-2 sm:p-3 bg-blue-950/20 border border-blue-900 rounded-lg flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 shadow-inner w-full">
-                                              <span className="text-blue-400 font-black text-xs shrink-0 px-2 flex items-center gap-1"><IconShield/> 내 방어덱</span>
-                                              {renderHeroTags(record.myTeam)}
-                                            </div>
-                                            {record.defenseMatches?.map((match, idx) => (
-                                              <div key={idx} className="flex flex-col sm:flex-row gap-2 sm:gap-3 bg-rose-950/20 p-2 sm:p-2.5 rounded-lg border border-rose-900/50 items-start sm:items-center sm:ml-4 mb-2 w-full">
-                                                <span className="text-rose-500 text-[10px] sm:text-xs font-bold shrink-0 bg-rose-900/20 px-2 py-1 rounded">적군 {idx+1}타</span>
-                                                <div className="flex-1 flex justify-start w-full">{renderHeroTags(match.enemyTeam)}</div>
-                                                <span className={`font-black text-[10px] sm:text-xs shrink-0 ${match.result==='방어 성공'?'text-blue-400':'text-red-500'}`}>{match.result}</span>
-                                              </div>
-                                            ))}
-                                          </div>
-                                        )}
-                                      </div>
-                                    )}
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })
-                  }
-                </section>
-              </div>
             )}
 
             {mainTab === 'strategy' && subTab === 'counter' && (
@@ -1656,7 +898,7 @@
                 </div>
 
                 <div className="flex-1 w-full space-y-4">
-                  <h2 className="text-sm font-black text-zinc-400 pl-2">분석된 전술 (최소 5전 이상) <span className="bg-yellow-600/20 text-yellow-500 px-2 py-0.5 rounded-full ml-1">{counterAnalysisData ? counterAnalysisData.results.length : 0}</span></h2>
+                  <h2 className="text-sm font-black text-zinc-400 pl-2">분석된 전술 <span className="bg-yellow-600/20 text-yellow-500 px-2 py-0.5 rounded-full ml-1">{counterAnalysisData ? counterAnalysisData.results.length : 0}</span></h2>
                   
                   {!counterAnalysisData ? (
                     <div className="border border-zinc-700 rounded-2xl p-12 flex flex-col items-center justify-center text-center min-h-[400px] bg-zinc-900/50">
@@ -1668,7 +910,7 @@
                     <div className="border border-zinc-700 rounded-2xl p-12 flex flex-col items-center justify-center text-center min-h-[400px] bg-zinc-900/50">
                       <IconSword className="text-zinc-600 w-16 h-16 mb-4 opacity-50" />
                       <h3 className="text-lg font-bold text-zinc-400 mb-2">조건에 맞는 전술이 없습니다.</h3>
-                      <p className="text-sm text-zinc-500">이 조합을 상대로 5회 이상 사용된 덱이 아직 없습니다.</p>
+                      <p className="text-sm text-zinc-500">이 조합을 상대로 저장된 공략이나 데이터가 아직 없습니다.</p>
                     </div>
                   ) : (
                     <div className="space-y-4">
@@ -1713,16 +955,8 @@
                             </div>
 
                             <div className="flex flex-row sm:flex-row items-center justify-between w-full sm:w-auto bg-zinc-950 sm:bg-transparent p-3 sm:p-0 rounded-xl border border-zinc-800 sm:border-transparent gap-6 shrink-0 mt-2 sm:mt-0">
-                              <div className="flex flex-col sm:items-end w-full sm:w-auto">
-                                <span className="text-xs text-zinc-500 font-bold mb-1">카운터 승률</span>
-                                <div className="flex items-center justify-between sm:justify-end w-full gap-4">
-                                   <span className={`text-xl md:text-2xl font-black ${parseFloat(data.winRate) >= 50 ? 'text-blue-400' : 'text-red-400'}`}>
-                                     {data.winRate}%
-                                   </span>
-                                   <span className="text-zinc-500 sm:hidden text-xs">총 {data.dynamicCount}회 사용</span>
-                                </div>
-                              </div>
-                              <div className="text-zinc-500 flex items-center justify-center shrink-0">
+                              {/* 1. 요구 사항 반영: 카운터 승률 UI 블록 완벽 제거 완료 */}
+                              <div className="text-zinc-500 flex items-center justify-center shrink-0 w-full sm:w-auto text-right">
                                 {data.hasGuide ? (expandedCounters[idx] ? <IconChevronUp /> : <IconChevronDown />) : <span className="w-5"></span>}
                               </div>
                             </div>
@@ -1788,8 +1022,22 @@
             )}
 
             {mainTab === 'strategy' && subTab === 'recommend' && (
-              <div className="bg-zinc-900 border border-zinc-700 rounded-2xl shadow-lg p-4 md:p-10 min-h-[500px] animate-in fade-in duration-300 w-full">
-                <div className="mb-8 text-center max-w-2xl mx-auto">
+              <div className="bg-zinc-900 border border-zinc-700 rounded-2xl shadow-lg p-4 md:p-10 min-h-[500px] animate-in fade-in duration-300 w-full relative">
+                
+                {/* 2. 요구 사항 반영: 방어 덱 추천 탭에 글로벌 제안하기 기능 추가 */}
+                <div className="absolute top-4 md:top-8 right-4 md:right-10">
+                  <button 
+                    onClick={() => setGuideModal({
+                      isOpen: true, type: 'defense', defTeam: ['', '', ''], atkTeam: [],
+                      skill: '', turn: '', formation: '', equip1: '', equip2: '', equip3: '', tip: ''
+                    })}
+                    className="px-4 py-2.5 gold-button font-bold rounded-xl text-xs md:text-sm hover:scale-105 transition-transform shadow-lg"
+                  >
+                    ➕ 새로운 방어덱 운영법 제안하기
+                  </button>
+                </div>
+
+                <div className="mb-8 text-center max-w-2xl mx-auto pt-10 md:pt-0">
                   <h2 className="text-2xl md:text-3xl font-black gold-gradient-text mb-3">🛡️ 방어팀 추천 메타 덱</h2>
                   <p className="text-sm text-zinc-400 font-medium">실제 길드전 방어 기록을 바탕으로 가장 승률이 높은 방어 조합을 추천합니다.</p>
                 </div>
@@ -1894,76 +1142,6 @@
               </div>
             )}
 
-            {mainTab === 'strategy' && subTab === 'basic' && (
-              <div className="gold-panel p-6 md:p-8 rounded-2xl animate-in fade-in duration-300">
-                <h2 className="text-xl font-black gold-gradient-text mb-2">🛡️ 최근 1000판 기반 기본덱 매핑</h2>
-                <p className="text-sm text-zinc-400 mb-8">가장 많이 등장한 방어덱 상위 21개와 그에 대응하는 카운터덱(최소 5전 이상 데이터)을 자동 분석합니다.</p>
-                
-                {basicDeckData.length === 0 ? (
-                  <div className="text-center py-10 text-zinc-500 font-bold">분석할 데이터가 부족합니다.</div>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {basicDeckData.map((data, idx) => (
-                      <div key={idx} className="basic-deck-item">
-                        <div className="basic-def">
-                          <span>{data.normDef}</span>
-                          <span className="text-[11px] text-zinc-400 font-medium ml-2">출현 {data.count}회</span>
-                        </div>
-                        <ul className="basic-atk-list">
-                          {data.counters.length > 0 ? data.counters.map((c, cIdx) => (
-                            <li key={cIdx}>
-                              <span>{c.normAtk}</span>
-                              <span className={c.rate >= 70 ? 'text-blue-400' : (c.rate >= 50 ? 'text-green-400' : 'text-red-400')}>
-                                {c.rate.toFixed(0)}% ({c.w}W {c.l}L)
-                              </span>
-                            </li>
-                          )) : <li className="text-zinc-600 justify-center">유효 카운터 데이터 없음</li>}
-                        </ul>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {mainTab === 'strategy' && subTab === 'dashboard' && (
-              <div className="space-y-6 animate-in fade-in duration-300">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div className="stat-box">
-                    <div className="stat-val">{dashboardStats?.totalWin + dashboardStats?.totalLose || 0}</div>
-                    <div className="stat-lbl">TOTAL MATCHES</div>
-                  </div>
-                  <div className="stat-box">
-                    <div className="stat-val" style={{color: '#00d2d3'}}>
-                      {dashboardStats?.totalWin + dashboardStats?.totalLose > 0 
-                        ? ((dashboardStats.totalWin / (dashboardStats.totalWin + dashboardStats.totalLose)) * 100).toFixed(1) + '%' 
-                        : '0.0%'}
-                    </div>
-                    <div className="stat-lbl">GLOBAL WIN RATE</div>
-                  </div>
-                  <div className="stat-box">
-                    <div className="stat-val" style={{color: '#2ed573'}}>{dashboardStats?.totalWin || 0}</div>
-                    <div className="stat-lbl">WINS</div>
-                  </div>
-                  <div className="stat-box">
-                    <div className="stat-val" style={{color: '#ff4757'}}>{dashboardStats?.totalLose || 0}</div>
-                    <div className="stat-lbl">LOSES</div>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div className="chart-card col-span-1" style={{height: '300px'}}>
-                    <div className="chart-title"><IconBarChart /> 전체 승률 (Win Rate)</div>
-                    <canvas ref={winRateChartRef}></canvas>
-                  </div>
-                  <div className="chart-card col-span-1 md:col-span-2" style={{height: '300px'}}>
-                    <div className="chart-title"><IconUsers /> 가장 많이 만난 방어덱 TOP 5</div>
-                    <canvas ref={defMetaChartRef}></canvas>
-                  </div>
-                </div>
-              </div>
-            )}
-
             {mainTab === 'management' && isAdminMode && (
               <div className="gold-panel p-8 rounded-2xl space-y-10 animate-in fade-in">
                 
@@ -2036,8 +1214,7 @@
                 <div className="border-t border-yellow-900/30 pt-8">
                   <h2 className="text-2xl font-black gold-gradient-text mb-4">데이터 통합 다운로드 센터</h2>
                   <div className="flex flex-col sm:flex-row gap-4">
-                    <button onClick={handleExportStatsCSV} className="flex-1 px-6 py-5 gold-button font-black rounded-xl flex items-center justify-center gap-2 text-base shadow-lg"><IconBarChart /> 통계 데이터 다운로드</button>
-                    <button onClick={handleExportAllCSV} className="flex-1 px-6 py-5 gold-button font-black rounded-xl flex items-center justify-center gap-2 text-base shadow-lg"><IconDownload /> 원본 로그 다운로드</button>
+                    <button onClick={handleExportAllCSV} className="flex-1 px-6 py-5 gold-button font-black rounded-xl flex items-center justify-center gap-2 text-base shadow-lg"><IconDownload /> 원본 로그 다운로드 (전적/방어)</button>
                   </div>
                 </div>
                 
