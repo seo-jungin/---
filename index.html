@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pirates 길드전 전략실</title>
+  <title>리더 길드전 전략실</title>
   
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
@@ -695,7 +695,7 @@
           <div style={{position: 'fixed', inset: 0, zIndex: 9000, display: 'flex', justifyContent: 'center', alignItems: 'center', overflow: 'hidden'}}>
             <div className="login-bg-anim"></div>
             <div className="login-card">
-              <h2 className="login-title-text">[ Pirates ]</h2>
+              <h2 className="login-title-text">[ 리더 ]</h2>
               <input type="text" value={loginId} onChange={e=>setLoginId(e.target.value)} className="login-input" placeholder="ID" />
               <input type="password" value={loginPw} onChange={e=>setLoginPw(e.target.value)} className="login-input" placeholder="PASSWORD" onKeyDown={e=>{if(e.key==='Enter') handleLogin()}} />
               <button onClick={handleLogin} className="gold-button w-full mt-4 py-4 rounded-xl font-black text-lg">LOGIN</button>
@@ -825,7 +825,7 @@
               <div className="p-6 md:p-8 flex flex-col md:flex-row items-center justify-between bg-gradient-to-b from-zinc-800 to-zinc-900">
                 <div>
                   <h1 className="text-3xl md:text-4xl font-black gold-gradient-text cursor-pointer select-none drop-shadow-md" onClick={handleTitleClick} title="타이틀 5번 연속 클릭 시 관리자 모드 열림">
-                    Pirates 길드전 전략실
+                    리더 길드전 전략실
                   </h1>
                 </div>
               </div>
